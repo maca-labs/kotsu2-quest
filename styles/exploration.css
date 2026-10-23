@@ -157,3 +157,5 @@ body.exploring { background: #dce4d4; }
 
 /* The compact sticky bar must not cover the current phone instruction. */
 #phone-body .current-operation, #phone-body .action-group, #phone-body .complete-panel { scroll-margin-top: 72px; }
+
+.playing .rpg-battle .rpg-button.is-primary small { color: #fff6d9; }
