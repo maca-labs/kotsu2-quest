@@ -1,0 +1,29 @@
+/* Small additions to the existing scene; phone controls keep their own flow. */
+.course-plan {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem .75rem;
+  padding: .65rem .75rem;
+  margin: .6rem 0;
+  border: 1px solid #769f9b;
+  border-radius: .55rem;
+  background: #263e43;
+  color: #f6e5bc;
+  line-height: 1.6;
+}
+.course-plan > * { min-width: 0; overflow-wrap: anywhere; }
+.course-note { padding: 0 1rem; font-size: .8rem; line-height: 1.6; }
+.adventure-scene .scene-help { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.adventure-scene .scene-help > button { min-width: 0; white-space: normal; }
+.recall-card, .help-topic, .tavern-person { overflow-wrap: anywhere; }
+.help-diagram { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; }
+@media (max-width: 420px) {
+  .course-plan { padding: .55rem; font-size: .9rem; }
+  .adventure-scene .scene-help { gap: .4rem; }
+}
+@media (max-width: 760px) {
+  .course-plan { grid-column: 1 / -1; padding: .35rem .6rem; margin: 0; font-size: .7rem; gap: .2rem .6rem; }
+  .course-note { grid-column: 1 / -1; margin: .15rem 0 .35rem; padding: 0 .6rem; font-size: .65rem; line-height: 1.35; }
+  .adventure-scene .scene-help { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .adventure-scene .scene-help > button:last-child { grid-column: auto; }
+}
