@@ -242,7 +242,9 @@ GitHubの対象リポジトリで次を設定します。設定にはリポジ�
 
 ## 確認結果と未確認事項
 
-最新の探索・砂漠統合版は全261テスト成功。[最終実行ログ](./docs/travel-test-results.txt)と[公開一周・探索の検証記録](./docs/travel-verification.md)を参照してください。その前の[世界・戦闘の検証記録](./docs/rpg-verification.md)も残しています。その前の矢印・スマホ導線改修は[実行ログ](./docs/mobile-test-results.txt)と[ブラウザー検証](./docs/mobile-verification.md)、以前の追加講座は[統合検証記録](./docs/extension-verification.md)へ記録しています。過去の確認を、現行版の全画面を確認した根拠として扱いません。
+今回の看板・遭遇切替の確認は[検証記録](./docs/sign-intro-verification.md)を参照してください。敵が現れたら移動の指やキーを離し、「戦闘をはじめる」を押してから行動を選びます。
+
+前の探索・砂漠統合版は全261テスト成功。[最終実行ログ](./docs/travel-test-results.txt)と[公開一周・探索の検証記録](./docs/travel-verification.md)を参照してください。その前の[世界・戦闘の検証記録](./docs/rpg-verification.md)も残しています。その前の矢印・スマホ導線改修は[実行ログ](./docs/mobile-test-results.txt)と[ブラウザー検証](./docs/mobile-verification.md)、以前の追加講座は[統合検証記録](./docs/extension-verification.md)へ記録しています。過去の確認を、現行版の全画面を確認した根拠として扱いません。
 
 自動テストの対象には、標準794工程＋追加24工程、全4ラボと運用見送り、章ボスと隠しボス、報酬の重複防止、期限設定の固定、24時間境界の前後1ミリ秒、時計逆行、独立した復習、JSON再構成、旧セーブの追加台帳移行、章別の再開、相対URLを含めています。
 
