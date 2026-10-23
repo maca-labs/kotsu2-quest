@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {getRpgMap,getRpgSpawn,getRpgCamera,stepRpgMap,nearbyRpgFeature,renderRpgMap,drawTownTravelFeatures,townTravelFeatures} from '../js/rpg-world.js';
+import {getRpgMap,getRpgSpawn,getRpgCamera,stepRpgMap,nearbyRpgFeature,renderRpgMap,drawTownTravelFeatures,townTravelFeatures,isDesert,getTerrainLabel,desertArea} from '../js/rpg-world.js';
 import {townDoors} from '../js/rooms.js';
 
 const directions=[[0,-1],[1,0],[0,1],[-1,0]];
@@ -78,4 +78,27 @@ test('the active unfinished request marks only its destination cave without requ
  renderRpgMap(canvas,state,location);assert.ok(highlights.length>0);assert.deepEqual(state,before);
  highlights.length=0;renderRpgMap(canvas,{...state,questStates:{'PR-01':{questId:'PR-01',completed:true}}},location);assert.equal(highlights.length,0);
  highlights.length=0;renderRpgMap(canvas,{...state,activeQuestKey:null},location);assert.equal(highlights.length,0);
+});
+
+test('mountain ranges separate chapter regions and the road visits them through its passes',()=>{
+ const seen=reachable('world',{avoidPortals:true});
+ for(const [x,y]of [[20,32],[26,28],[40,32],[48,26],[40,16],[32,12],[22,8]])assert.ok(seen.has(`${x},${y}`),`open pass ${x},${y}`);
+ for(const [x,y]of [[12,22],[24,16],[40,23]]){
+  assert.equal(getRpgMap('world').tiles[y][x],'^');assert.equal(stepRpgMap({mapId:'world',x:x-1,y},1,0).moved,false);
+ }
+ // Closing the narrow CH2→CH3 pass divides the earlier and later regions.
+ const queue=[getRpgSpawn('world')],cutSeen=new Set([key(queue[0])]);
+ for(let i=0;i<queue.length;i++)for(const [dx,dy]of directions){const r=stepRpgMap(queue[i],dx,dy);if(!r.moved||cutSeen.has(key(r.location))||r.location.y===32&&r.location.x>=39&&r.location.x<=41)continue;cutSeen.add(key(r.location));queue.push(r.location);}
+ assert.ok(cutSeen.has('32,28'));assert.equal(cutSeen.has('48,36'),false);
+});
+
+test('the dangerous desert is an optional signed detour and all sand is walkable',()=>{
+ const seen=reachable('world',{avoidPortals:true});
+ assert.deepEqual(desertArea.sign,{x:52,y:29});assert.ok(seen.has('52,29'));
+ assert.equal(isDesert({mapId:'world',x:52,y:29}),false);
+ for(let y=27;y<=33;y++)for(let x=53;x<=59;x++){
+  const location={mapId:'world',x,y};assert.equal(isDesert(location),true);assert.ok(seen.has(`${x},${y}`));assert.match(getTerrainLabel(location),/砂漠.*超強敵/);
+ }
+ assert.equal(stepRpgMap({mapId:'world',x:52,y:29},1,0).moved,true);
+ assert.equal(isDesert({mapId:'cave:CH-0',x:53,y:29}),false);assert.equal(isDesert(null),false);assert.equal(getTerrainLabel({mapId:'unknown'}),'');
 });

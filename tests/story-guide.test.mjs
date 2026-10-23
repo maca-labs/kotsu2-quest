@@ -42,7 +42,7 @@ test('first invitation recommends the prologue and keeps every other town select
   assert.ok(guide.houseName);assert.equal(guide.actionLabel,guide.houseName+'へ');
   assert.ok(guide.instruction.includes(guide.houseName));
  }
- assert.match(town.controlsHint,/扉.*地図の下/);
+ assert.match(town.controlsHint,/扉.*メニュー/);
  assert.equal(getStoryGuide(state,{chapterId:'CH-5'}).questId,'DX-01');
  assert.equal(getStoryGuide(state,{chapterId:'CH-6'}).questId,'HY-EXIT');
  assert.equal(JSON.stringify(state),before);
@@ -62,8 +62,28 @@ test('interrupted phone work resumes its saved key without rewriting the state',
  assert.equal(other.questId,'PO-01');assert.equal(other.action.type,'house');
 });
 
-test('the completed prologue points to the next town after the existing notebook reward',()=>{
- const state=play(started(),'PR-01'),before=JSON.stringify(state);
+test('the completed prologue offers a client report before the next town, including after reload',()=>{
+ let state=play(started(),'PR-01');
+ const xp=totalXp(state),money=JSON.stringify(state.financialScenarios),items=[...state.inventory],before=JSON.stringify(state);
+ const guide=getStoryGuide(freeze(state));
+ assert.equal(guide.questId,'PR-01');assert.equal(guide.recordKey,'PR-01');
+ assert.equal(guide.action.type,'house');assert.equal(guide.action.id,'client');
+ assert.match(guide.instruction,/郵便屋の家.*ミナ.*結果を話そう/);
+ assert.equal(guide.milestones[1].state,'current');
+ assert.deepEqual(getStoryGuide(parseSave(before)),guide);
+ assert.equal(JSON.stringify(state),before);
+ state=act(state,{type:'NPC',chapterId:'CH-0',index:1});
+ assert.equal(getStoryGuide(state).questId,'PR-01');
+ const xpBeforeReport=totalXp(state);
+ state=hear(state,'CH-0');
+ assert.deepEqual(getStoryGuide(parseSave(JSON.stringify(state))).action,{type:'chapter',id:'CH-1'});
+ assert.equal(totalXp(state),xpBeforeReport);
+ assert.equal(JSON.stringify(state.financialScenarios),money);assert.deepEqual(state.inventory,items);
+ assert.equal(xp,67);
+});
+
+test('the reported prologue points to the next town after the existing notebook reward',()=>{
+ const state=hear(play(started(),'PR-01'),'CH-0'),before=JSON.stringify(state);
  assert.equal(totalXp(state),67);assert.ok(state.inventory.includes('traveler-notebook'));
  const guide=getStoryGuide(freeze(state));
  assert.deepEqual(guide.action,{type:'chapter',id:'CH-1'});
@@ -78,6 +98,8 @@ test('the completed prologue points to the next town after the existing notebook
   const step=activeStep(alternate);
   alternate=act(alternate,{type:'STEP',id:step.id,value:step.value??true});
  }
+ assert.equal(getStoryGuide(alternate).questId,'PR-01');
+ alternate=hear(alternate,'CH-0');
  assert.ok(getStoryGuide(alternate).milestones.every(x=>x.state==='done'));
 });
 
