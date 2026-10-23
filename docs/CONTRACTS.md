@@ -54,3 +54,22 @@ review役は製品コード変更不可。共通契約変更・不具合は親�
 - reviewSnapshotは最初の操作前からrv.initialSnapshotを使う。独立したメール見直しに本編クリップボードを使わない。
 - 実時計が観測値から300000ms以上戻れば時間特典保留。299999msは保留しない。基本進行/XPは維持。
 - 新しい口座づくり→FI入口の案内は、申込済設定のこみち窓口と独立財布を明示。元のFI/CRの資金を追加配布しない。
+
+## スマホ導線・家・操作案内の補足 — M / 2026-10-23
+
+- ミッションは既存questStates・NPC会話記録・worldStateから導出する。報告済みフラグを追加せず、既存NPC会話記録を使う。HY-EXITのrecordKey/routeIdを室内の報告先まで保持する。
+- 室内の部屋・位置はui.roomのみ。家への出入り、説明・動画・矢印・スクロールではSTEP/XP/金融イベントを発火しない。再読込み後は町に戻り、案件の保存された続きから再開できる。
+- world-controlsはmountごとにdestroyし、pointerup/cancel・画面外・blur・hidden・ダイアログ開始で長押しを停止する。移動は学習状態を変更しない。
+- 実操作対象にdata-guide-targetを一つ付け、operation-guideは矢印と枠の装飾だけを担当する。入力やクリックを代行しない。確認課題・ボスには正答の矢印を追加しない。
+- コピー済み表示は対象メール既読＋対象コピー工程完了＋そのメールとclipboardの一致を要する。本編と確認課題のメール・clipboard・入力記録を混ぜない。貼付前は空欄、貼付後は保存された実draftを表示する。
+- ナレーションは36教材の目的と最初の操作を短く表示する。約30秒のローカルWebMは序章の実画面を用いた共通コピー操作の見本。再生・終了・説明への復帰は工程を進めない。保存schema3・保存キー・818工程ID・固定報酬を維持する。
+
+## 旅戦闘の共通契約 — R / 2026-10-23
+
+- state.rpg.version=1は独立した旅戦台帳。製品schema3と保存キーは不変。location.mapIdはworld/town:CH-0..6/cave:CH-0..6/shop:CH-0..6。毎tileの座標はUI、エリアだけをjournalへ記録。旧進捗のある案件は入口のために学習を巻き戻さない。
+- RPG_TRAVEL{mapId}、RPG_BATTLE_START{encounterId}、RPG_BATTLE_ACTION{action,battleId,turn}、RPG_BUY{gearId}、RPG_EQUIP{gearId}、RPG_REST。旧EQUIPも残すが製品UIはRPG_EQUIPを使い、購入剣と旧武器の実効を一致させる。active戦闘ではBATTLE_ACTIONとSETTINGSだけを受理する。
+- 門番cp0は同章洞窟、進捗敵は同章洞窟か現在章の世界地図。encounterIdはrecordKey/cpの安定値、battleIdとturnは二重操作防止のtoken。開始時に対象recordKey/routeIdを再選択し、別案件の資金へ戻らない。
+- 初勝利のみ12＋進捗tier×3の冒険コイン。金融scenarios、学習XP、工程、章印へ加減しない。店の武器/防具4品は各一度だけ購入、未所持は装備不可。statと被害はrpg.jsの一つの計算から表示する。
+- 新規未着手案件は門番→説明→操作。既存工程の安全な区切りで旅戦を出す。逃げた記録は自動再提示から除外し、地図の再会は可能。敗北は町へ戻り、コイン/学習を失わず無料RESTで再挑戦する。
+- RPGが欠けた旧保存でRPGコマンドもなければ初期補完。最初のRPGコマンドにengineがoriginMapIdを記録してUI由来の旧現在章をbootstrapし、コイン・HP・購入・装備は初期値から全再構成。RPG履歴ありの欠落・合計改ざんは拒否する。
+- rpg-worldは純粋な地図/衝突/描画。町の店壁10..14/2..5と扉12,5、南門12,17は親walkが判定する。描画と店/戦闘UIからstateを直接変更しない。
