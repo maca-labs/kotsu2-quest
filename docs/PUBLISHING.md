@@ -65,3 +65,8 @@ CLIの認証アカウントには書き込み権限がなかったため、所�
 所有者Chrome UIでstyle018c5c5、JS d665ea3、入口/README ec84936を公開。配信版sign-intro6、Pages run39925090556 success。公開320/390で看板、敵登場、開始dblclickの遮断、guard後turn2再開、明示逃走/町復帰と67XP/0coin保持を実操作。[検証記録](./sign-intro-verification.md)、全277自動テスト、V-03独立37件成功。公開確認後に同じ製品差分のtests/reviews/docsも保存する。
 
 CLIのKou-no1はread-onlyで、所有者Chromeの通常UIから更新。途中の接続切れは利用者の再接続後に復帰し、アップロード済み4ファイルを確認してから確定。未保存を公開済みとは扱わなかった。
+
+
+## 2026-10-23 W — 戦闘の攻撃・反撃・消滅
+
+owner Chrome UIでJS afc4f550、入口/README797b2badを公開。配信版battlefx7、Pages run39928551760 success。公開390/320で実操作し、通常9→反撃3→reload turn2 HP33/36→強打13→敵消滅、再戦coin0を確認。座標タップでscrollY0、操作列の高さ不変。全292テスト、W-02独立52＋3ケース、重大残件0。戦闘数式・XP・工程・金融・保存形式を変更しない。[検証記録](./battle-effects-verification.md)。公開確認後に同じ製品差分のtests/reviews/docsを保存。

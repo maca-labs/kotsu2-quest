@@ -81,3 +81,16 @@ V-03 QA: encounter_input_review が入力境界/復帰経路を独立確認。�
 V統合: V-01看板レビュー合格、V-02提出、V-03独立37件合格・重大残件0。QA発見の同一ID再利用を修正し、全277テスト成功。公開の反映/実操作確認中。
 
 V公開: sign-intro6のPages成功と公開320/390実操作を確認。開始dblclickはターン1に留まり、明示guard後のreloadはターン2、67XP/0coin/攻撃10を維持。詳細sign-intro-verification。全277PASS、独立QA重大残件0、実機/人間観察は未実施。
+
+
+## 戦闘演出 — W
+
+|ID|役/担当|状態|編集範囲・受入|
+|---|---|---|---|
+|W-01|world:encounter_intro_ui|implementing|rpg-ui/CSS/newbattle-effects/専用test。攻撃/反撃/数字/消滅、軽減・破棄・実結果一致|
+|W-02|QA:encounter_input_review|reviewing|独立報告のみ。重複・上限ログ・砂漠復活・途中復帰|
+|W-10|親統合|implementing|app/index/共通docs/統合test。先保存・busy・公開確認|
+
+W統合: W-01提出25件成功、W-02独立52件＋3ケース・重大残件0。全npm292成功。親ローカルで数字/反撃/overkill/消滅/途中reload/320位置を確認し、skip縦行を解消。公開確認へ進む。
+
+W公開: W-01/W-10 integrated_published、W-02 reviewed。battlefx7の公開390/320で数字9/反撃3/強打13・敵消滅・reloadターン保持・再戦coin0・位置不変を確認。全292成功、独立QA重大残件0。詳細battle-effects-verification。

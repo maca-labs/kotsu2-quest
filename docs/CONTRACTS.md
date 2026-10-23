@@ -93,3 +93,10 @@ isDesert(location)、getTerrainLabel(location)をworld側から公開。砂漠�
 renderCombatViewが全入口を集約し、activeかつturn1かつ当該battle.idの未確認時に登場画面を出す。開始はstateを進めず、明示的に押した後だけ戦闘行動へ切替。350msは行動を無効化し、開始の連打が逃走や攻撃へ通らないようにする。途中のsettings/hash再描画は残り時間を引き継ぐ。turn2以降の保存復帰はそのターンへ戻る。schema3/rpg.version1/工程・金融・XP・報酬は不変。
 
 JSON置換と冒険リセットの成功時は、同じbattle.idが再利用されても古い確認が残らないようUIのacknowledgedBattleId/combatReadyAtを消去する。失敗時は現在の冒険を保持する。
+
+
+## W — 戦闘の手応えと保存順
+
+mountBattleTurn({document,root,beforeState,afterState,action,onComplete,reducedMotion=false})→{destroy} は旧戦闘DOMだけに演出する。親はUI busyを同期設定し、既存RPG_BATTLE_ACTIONを一度だけrender:falseでdispatch/saveした後にcontrollerを呼ぶ。数字は確定済ログの当該行から読み、HP差をraw damageの代用にしない（overkill・winHeal・砂漠教会revive）。演出はSTEP/XP/金融/コイン/stateを変更しない。
+
+演出中は行動とメニュー/navを止め、「結果をすぐ見る」だけ許可する。完了は同じafterState/画面のときだけrenderし、180msの行動/結果ボタンguardを置く。render/別画面/保存置換でdestroyし、古いonCompleteを無効にする。途中reloadは保存済afterターン・勝敗へ戻る。通常約1秒、動きを減らす設定/OS設定では点滅・揺れ・移動を抑え、短い文字数値で示す。勝利済の通常画面でも敵spriteを表示しない。既存schema3/rpg.version1/報酬ID/固定XP/金融/818工程は維持。
