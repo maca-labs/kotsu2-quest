@@ -1,10 +1,15 @@
 import {drawPerson} from './world.js';
 import {questById} from './content.js';
+import {getTownLayout} from './towns.js';
 
-export const townTravelFeatures=Object.freeze([
- Object.freeze({id:'shop',type:'shop',x:12,y:5,label:'武器・防具店'}),
- Object.freeze({id:'world-exit',type:'exit',x:12,y:17,label:'世界への出口',targetMapId:'world'})
-]);
+export function getTownTravelFeatures(chapterId='CH-0'){
+ const shop=getTownLayout(chapterId).buildings.find(b=>b.id==='shop');
+ return Object.freeze([
+  Object.freeze({id:'shop',type:'shop',x:shop.door.x,y:shop.door.y,label:'武器・防具店'}),
+  Object.freeze({id:'world-exit',type:'exit',x:12,y:17,label:'世界への出口',targetMapId:'world'})
+ ]);
+}
+export const townTravelFeatures=getTownTravelFeatures();
 // This optional detour never crosses a road needed to reach a town or cave.
 export const desertArea=Object.freeze({title:'砂鳴りの砂漠',left:53,right:59,top:27,bottom:33,sign:Object.freeze({x:52,y:29})});
 const sites=[
@@ -147,13 +152,11 @@ export function renderRpgMap(canvas,state,location){
 
 /** Add travel entrances to the existing independent chapter town view. */
 export function drawTownTravelFeatures(canvas,state={}){
- const c=canvas.getContext('2d'),palette=palettes[Number(state.currentChapter?.slice(3))||0];c.imageSmoothingEnabled=false;
- c.fillStyle='#dfcf9c';c.fillRect(160,49,80,47);c.fillStyle=palette.rock;c.fillRect(156,33,88,24);c.fillStyle=palette.accent;c.fillRect(162,28,76,8);
- c.fillStyle='#5c4b39';c.fillRect(194,80,12,16);c.fillStyle='#edd18d';c.fillRect(203,87,2,2);
- c.fillStyle='#96b9b0';c.fillRect(170,64,13,11);c.fillRect(218,64,13,11);
- // Original sword and shield sign, instead of borrowing another game's icon.
- c.fillStyle='#e5e1be';c.fillRect(187,57,3,13);c.fillRect(184,65,9,2);c.fillStyle='#a4bfc0';c.fillRect(205,58,9,10);c.fillRect(208,68,3,3);
+ const c=canvas.getContext('2d'),shop=getTownTravelFeatures(state.currentChapter).find(f=>f.type==='shop'),x=shop.x*16+8,y=shop.y*16;c.imageSmoothingEnabled=false;
+ // The building itself is drawn by world.js from the shared footprint.
+ c.fillStyle='#e5e1be';c.fillRect(x-13,y-27,3,10);c.fillRect(x-16,y-21,9,2);c.fillStyle='#a4bfc0';c.fillRect(x+7,y-27,9,8);
+ c.fillStyle='#4c3c32';c.fillRect(x-6,y,12,16);c.fillStyle='#edd18d';c.fillRect(x+3,y+7,2,2);
  c.fillStyle='#b7a172';c.fillRect(184,256,32,32);c.fillStyle='#f5d78c';c.fillRect(198,263,4,15);c.fillRect(193,273,14,3);c.fillRect(196,276,8,4);
- c.font='10px sans-serif';c.textAlign='center';c.fillStyle='#243f38';c.fillRect(164,10,72,14);c.fillStyle='#fff0c2';c.fillText('武器・防具店',200,21);
+ c.font='10px sans-serif';c.textAlign='center';c.fillStyle='#243f38';c.fillRect(x-36,y-17,72,13);c.fillStyle='#fff0c2';c.fillText('武器・防具店',x,y-7);
  c.fillStyle='#243f38';c.fillRect(222,269,59,14);c.fillStyle='#fff0c2';c.fillText('世界へ ↓',251,280);c.textAlign='start';
 }
