@@ -117,7 +117,7 @@ export function getStoryGuide(state,{chapterId,view='world'}={}){
  const quest=suggestedQuest(state,id);
  if(quest){
   const brief=questBrief(quest),route=id==='CH-6'?(state.selectedRoute in routeLabels?state.selectedRoute:'journey'):null;
-  const routeNote=id==='CH-6'?(route==='journey'?' 今は、運用を見送って帰りの受取を学ぶ道です。ラボを学びたいときは、この町の「学びたい道」から変えられます。':` 今は「${routeLabels[route]}」の道です。ほかのラボは未受講のままで大丈夫です。`):'';
+  const routeNote=id==='CH-6'?(route==='journey'?' 今は、運用を見送って帰りの受取を学ぶ道です。ラボを学びたいときは、メニューの「依頼帳」で「学びたい道」を選ぶと変えられます。':` 今は「${routeLabels[route]}」の道です。ほかのラボは未受講のままで大丈夫です。`):'';
   const fundingNote=quest.id==='FI-01'?' 次は申込済みという設定の「こみち交換所」で、口座づくりとは別の財布を使い、円の入金から学びます。':'';
   const clientName=id==='CH-0'?'ミナ':brief.client;
   return {...base,questId:quest.id,client:brief.client,title:quest.id==='PR-01'?config.title:`${brief.client}の困りごとを聞こう`,story:`${brief.incident} ${brief.goal}${fundingNote}${routeNote}`,instruction:`${config.house}で、${clientName}に話を聞こう。用事の内容を聞いてから、自分のペースで受けられます。`,actionLabel:`${config.house}へ`,action:{type:'house',id:'client',index:0,questId:quest.id},milestones:chapterMilestones(state,id,questGroupIndex(quest,id)),controlsHint:houseHint};

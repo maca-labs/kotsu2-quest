@@ -3,13 +3,14 @@ import * as help from './help.js';
 import {getAdventure,getChapterChanges,questBrief,getTavernAdvice,getAdventureChronicle,recoveryReaction} from './adventure.js';
 import {drawPerson,drawEncounter,drawTavern,tavernSeats} from './world.js';
 import {stepById,questById,quests} from './content.js';
+import {getStoryGuide} from './story-guide.js';
 
 const el=(tag,cls='',text='')=>{const n=document.createElement(tag);n.className=cls;if(text)n.textContent=text;return n;};
 const paragraph=text=>el('p','',text);
 const button=(text,fn,cls='')=>{const n=el('button',cls,text);n.type='button';n.addEventListener('click',fn);return n;};
 const heading=text=>el('h3','',text);
 function person(index){const c=el('canvas','portrait');c.width=24;c.height=32;c.setAttribute('aria-hidden','true');drawPerson(c.getContext('2d'),4,4,index);return c;}
-function currentContext(state){const matches=record=>questById[record?.questId]?.chapterId===state.currentChapter;const active=state.questStates[state.activeQuestKey];const inChapter=Object.values(state.questStates).filter(matches);const record=matches(active)?active:inChapter.find(r=>!r.completed)??inChapter.at(-1);const q=record?questById[record.questId]:quests.find(q=>q.chapterId===state.currentChapter&&!q.extra);return {q,step:q&&record&&!record.completed?stepById[q.stepIds[record.index]]:null};}
+function currentContext(state){const matches=record=>questById[record?.questId]?.chapterId===state.currentChapter;const active=state.questStates[state.activeQuestKey];const inChapter=Object.values(state.questStates).filter(matches);const record=matches(active)&&!active.completed?active:inChapter.find(r=>!r.completed);const q=record?questById[record.questId]:questById[getStoryGuide(state).questId]??questById[inChapter.at(-1)?.questId]??quests.find(q=>q.chapterId===state.currentChapter&&!q.extra);return {q,step:q&&record&&!record.completed?stepById[q.stepIds[record.index]]:null};}
 
 // These menus only display existing records. They never dispatch a game command.
 export function openHelp({state,quest,step,modal,mode='what'}){

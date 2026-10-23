@@ -13,7 +13,7 @@ const definitions=[
   npcs:[[9,8],[15,8],[8,12],[15,13]],landmark:{kind:'castle',x:10,y:2,w:5,h:4}},
  {name:'通貨の港',theme:'harbor',description:'東には青い海。桟橋の向こうに帆船と灯台が見える港町。',
   buildings:[building('client',2,2,5,4,4),building('tavern',8,2,6,4,11),building('elder',2,10,5,4,4),building('shop',8,11,6,4,11)],
-  npcs:[[7,7],[13,8],[7,12],[14,10]],landmark:{kind:'lighthouse',x:20,y:3,w:3,h:4}},
+  npcs:[[7,7],[13,8],[8,10],[17,9]],landmark:{kind:'lighthouse',x:20,y:3,w:3,h:4}},
  {name:'カードの市場',theme:'market',description:'色とりどりの天幕がある市場。四方の店を広場の道がつなぐ。',
   buildings:[building('client',2,2,5,4,4),building('tavern',2,10,5,4,4),building('elder',17,10,5,4,19),building('shop',17,2,5,4,19)],
   npcs:[[8,7],[16,7],[8,12],[16,12]],landmark:{kind:'market',x:9,y:3,w:7,h:3}},
