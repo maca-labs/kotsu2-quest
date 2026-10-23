@@ -1,8 +1,17 @@
 import {getExtensionView} from './finance-extension.js';
+import {getPhoneGuideView} from './phone-guide.js';
 
 const format=value=>typeof value==='number'?value.toLocaleString('ja-JP',{maximumFractionDigits:6}):String(value??'');
 const orderStatus={pending:'未約定・まだ売買していません',cancelled:'取消済み',filled:'約定・売買が成立'};
 const sideName=side=>side==='sell'?'売り':'買い';
+
+/** The review uses its own applicant and selections, never the first attempt's. */
+export function getIdentityReviewView(state,step,{reviewSnapshot}={}){
+ const view=getExtensionView(state,step,{reviewSnapshot});if(!view?.account)return null;
+ const draft=(reviewSnapshot?reviewSnapshot.scenario?.phoneState?.formDrafts:state.financialScenarios?.['domestic-account']?.phoneState?.formDrafts)??{};
+ const labels={clear:'文字が読める枠内',blurred:'ぼやけたまま',outside:'枠の外','clear-centered':'明るい枠の中央',dark:'暗い隅'};
+ return {profile:view.account.profile,idType:draft.idType??null,idTypeLabel:draft.idType==='valid-demo-id'?'期限内の本人の教材カード':draft.idType==='expired-demo-id'?'期限切れの教材カード':draft.idType==='other-demo-id'?'別の人の教材カード':'まだ選んでいません',pictures:[['front','表面','idFront'],['back','裏面','idBack'],['person','画面内人物','selfie']].map(([kind,label,key])=>({kind,label,value:draft[key]??null,selection:labels[draft[key]]??'まだ合わせていません'}))};
+}
 
 /** Real local HTML controls. This view never calculates or mutates money. */
 export function renderExtensionPanel({document:doc,state,step,quest,onAction,onNavigate,onAppNavigate,previewVenue=null,reviewSnapshot}){
@@ -15,7 +24,7 @@ export function renderExtensionPanel({document:doc,state,step,quest,onAction,onN
  const body=node('div','','extension-app-body');root.append(body);
  const p=(t)=>node('p',t);
  const box=(title,copy)=>{const n=node('section','','extension-box');n.append(node('h4',title));if(copy)n.append(p(copy));return n;};
- const button=(text,fn,primary=false)=>{const n=node('button',text,primary?'extension-button primary':'extension-button');n.type='button';n.addEventListener('click',fn);return n;};
+ const button=(text,fn,primary=false)=>{const n=node('button',text,primary?'extension-button primary':'extension-button');n.type='button';if(primary)n.setAttribute('data-guide-target','true');n.addEventListener('click',fn);return n;};
  const action=(label=step.label,value=step.value)=>button(label,()=>onAction?.(value),true);
  const lines=items=>{const list=node('dl','','extension-ledger');for(const r of items??[]){list.append(node('dt',r.label),node('dd',format(r.value)));}return list;};
  const orderBook=()=>{if(!view.orderBook)return null;const book=box(view.orderBook.label,'待機枚数は、板に並んで待っている相手の注文数です。自分が入力する枚数とは別です。');for(const [kind,label]of [['asks','売り注文 — 買いたい人が見る側'],['bids','買い注文 — 売りたい人が見る側']]){const table=node('table','',`extension-order-book ${kind}`);table.append(node('caption',label));const head=node('thead'),headRow=node('tr');for(const title of ['1枚の値段（円）','待機枚数（枚）'])headRow.append(node('th',title));head.append(headRow);table.append(head);const body=node('tbody');for(const row of view.orderBook[kind]??[]){const tr=node('tr');tr.append(node('td',format(row.price)),node('td',format(row.quantity)));body.append(tr);}table.append(body);book.append(table);}return book;};
@@ -26,7 +35,9 @@ export function renderExtensionPanel({document:doc,state,step,quest,onAction,onN
  if(view.venue){
   const tabs=node('nav','','extension-venue-tabs');tabs.setAttribute('aria-label','売買画面の切替');
   for(const [v,label]of [['dealer','販売所'],['board','板取引所']]){
-   const b=button(label,()=>step.venueSwitch&&v===step.value?onAction?.(v):onNavigate?.(v));b.setAttribute('aria-pressed',String((previewVenue??view.venue)===v));tabs.append(b);
+   const b=button(label,()=>step.venueSwitch&&v===step.value?onAction?.(v):onNavigate?.(v));b.setAttribute('aria-pressed',String((previewVenue??view.venue)===v));
+   if(step.venueSwitch&&v===step.value&&!view.isReview&&!reviewSnapshot&&previewVenue===null&&/^DX-\d{2}-S\d{3}$/.test(step.id))b.setAttribute('data-guide-target','true');
+   tabs.append(b);
   }
   body.append(tabs);
   if(step.venueSwitch){body.append(p('販売所はお店が相手。板取引所では、並んだ注文の値段と枚数を見ます。'));handlesAction=true;}
@@ -40,11 +51,11 @@ export function renderExtensionPanel({document:doc,state,step,quest,onAction,onN
 
  if(view.account){
   const profile=view.account.profile??{};
-  const current=step.phoneEffect;
-  const mailOpened=reviewSnapshot?.mailOpened??state.phoneState?.mailById?.['domestic-registration']?.read;
-  const clipboard=reviewSnapshot?.clipboard??state.phoneState?.clipboard??'';
+  const current=step.phoneEffect;const scenario=reviewSnapshot?.scenario??state.financialScenarios?.['domestic-account'];if(step.extensionAction==='account-verify')body.append(box('確認コードの欄へ写した内容',String(scenario?.phoneState?.formDrafts?.verificationCode??'まだ入力されていません。')));
+  const mailOpened=reviewSnapshot?reviewSnapshot.mailOpened===true:state.phoneState?.mailById?.['domestic-registration']?.read===true;
+  const clipboard=reviewSnapshot?(reviewSnapshot.clipboard??''):(state.phoneState?.clipboard??'');
   if(current==='home'){
-   body.append(p('入力した内容は残っています。ホームからメールを探しましょう。'),action('スマホのホームへ'));handlesAction=true;
+   body.append(p('入力した内容は残っています。スマホ下部の「⌂ ホーム」を押し、そこからメールを探しましょう。'));handlesAction=true;
   }else if(current==='mail'){
    body.append(action('ゲーム内メールを開く'));handlesAction=true;
   }else if(current==='open-mail'){
@@ -52,19 +63,31 @@ export function renderExtensionPanel({document:doc,state,step,quest,onAction,onN
   }else if(current==='copy-code'||current==='switcher'){
    if(mailOpened){const mail=box('あかつき取引所のメール確認','この確認コードは、あかつき取引所の入力画面へ写すためのものです。');mail.append(node('strong',String(profile.verificationCode),'extension-code'));body.append(mail);}
    if(current==='copy-code'){body.append(action('このメールの確認コードをコピー'));handlesAction=true;}
-   else{body.append(action('下部のアプリ切替を開く'));handlesAction=true;}
+   else{body.append(p('スマホ下部の「▢ アプリ切替」を押し、入力中の画面を選ぼう。'));handlesAction=true;}
   }else if(current==='browser'){
    const cards=box('最近使ったアプリ','メールの中のリンクではなく、入力していたアプリへ戻ります。');
    cards.append(action('あかつき取引所 — 入力中のブラウザー'));if(onAppNavigate)cards.append(button('メールの内容を見直す',()=>onAppNavigate('mail')));body.append(cards);handlesAction=true;
   }else if(step.field==='verificationCode'&&step.type==='input'){
-   const code=box('メールから持ってきたコード',clipboard?'ゲーム内でコピー済みです。':'まだコピーされていません。メール本文を開いてコピーしましょう。');
-   if(clipboard)code.append(button('ゲーム内コードを貼り付け',()=>onAction?.(clipboard),true));body.append(code);handlesAction=true;
+   const copiedCode=reviewSnapshot?(mailOpened&&clipboard===String(profile.verificationCode)&&clipboard!==''?clipboard:null):(getPhoneGuideView(state,quest??{id:step.questId},step)?.copyText??null);
+   const code=box('メールから持ってきたコード',copiedCode!==null?'今回の確認メールから、ゲーム内でコピー済みです。':reviewSnapshot?'確認課題のメール操作からやり直そう。':'今回の確認メールへ戻り、コピーし直そう。');
+   const codeLabel=node('label','メールの確認コード');const codeField=node('input');codeField.type='text';codeField.readOnly=true;codeField.value='';codeField.placeholder='貼り付ける前は空の欄です';codeField.setAttribute('aria-label','メールの確認コード');codeLabel.append(codeField);code.append(codeLabel);if(copiedCode!==null){code.append(node('strong',copiedCode,'extension-code'),button('ゲーム内コードを貼り付け',()=>onAction?.(copiedCode),true));}
+   else if(onAppNavigate)code.append(button('今回の確認メールを見直す',()=>onAppNavigate('mail'),true));
+   body.append(code);handlesAction=true;
   }else if(step.phoneScreen==='terms'||step.field==='termsAccepted'){
    body.append(box('練習サービスの利用条件','これはゲーム内だけの架空サービスです。申込者は内蔵の架空成人です。実名・本物のパスワード・秘密の情報は入力しません。口座の申込受付、本人確認の審査、利用開始は別々です。実際のお金は動きません。'));
   }else if(quest?.id==='DX-02'||step.questId==='DX-02'){
-   const face=step.field==='selfie'||step.phoneScreen==='identity-face';
-   const card=box(face?'画面内の架空人物':'教材専用の本人確認カード','実カメラは使いません。カードも人物も、この画面だけの教材です。');
-   card.append(identityPicture(doc,face?'person':step.phoneScreen==='identity-back'?'back':'front'),lines([{label:'教材の氏名',value:profile.fullName},{label:'生年月日',value:profile.birthDate},{label:'住所・部屋番号',value:profile.address},{label:'教材の日付',value:profile.today},{label:'カードの有効期限',value:profile.documentExpires}]));body.append(card);
+   const reviewing=step.phoneScreen==='identity-review'||step.extensionAction==='kyc-submit'||/申込者・書類・画面内人物/.test(step.instruction??'');
+   if(reviewing){
+    const identity=getIdentityReviewView(state,step,{reviewSnapshot});
+    const applicant=box('申込者と、表・裏・顔を見比べよう','実カメラは使いません。三つとも、この画面だけの教材です。');
+    applicant.append(lines([{label:'申込者の氏名',value:identity.profile.fullName},{label:'生年月日',value:identity.profile.birthDate},{label:'住所・部屋番号',value:identity.profile.address},{label:'教材の日付',value:identity.profile.today},{label:'カードの有効期限',value:identity.profile.documentExpires},{label:'選んだ教材カード',value:identity.idTypeLabel}]));body.append(applicant);
+    const copies=node('div','','extension-identity-review');copies.setAttribute('aria-label','提出する表面・裏面・画面内人物の三点');
+    for(const picture of identity.pictures){const copy=node('figure','','extension-identity-copy');copy.append(node('figcaption',picture.label),identityPicture(doc,picture.kind),p(`合わせた位置：${picture.selection}`));if(picture.kind==='front')copy.append(p(`照合する氏名：${identity.profile.fullName}`),p(`照合する生年月日：${identity.profile.birthDate}`));if(picture.kind==='back')copy.append(p(`照合する住所：${identity.profile.address}`));if(picture.kind==='person')copy.append(p(`照合する人物：${identity.profile.fullName}`));copies.append(copy);}body.append(copies);
+   }else{
+    const face=step.field==='selfie'||step.phoneScreen==='identity-face';
+    const card=box(face?'画面内の架空人物':'教材専用の本人確認カード','実カメラは使いません。カードも人物も、この画面だけの教材です。');
+    card.append(identityPicture(doc,face?'person':step.phoneScreen==='identity-back'?'back':'front'),lines([{label:'教材の氏名',value:profile.fullName},{label:'生年月日',value:profile.birthDate},{label:'住所・部屋番号',value:profile.address},{label:'教材の日付',value:profile.today},{label:'カードの有効期限',value:profile.documentExpires}]));body.append(card);
+   }
    if(step.identityControl){const choices=node('div','','extension-choices');for(const c of step.choices)choices.append(button(c.label,()=>onAction?.(c.value),c.value===step.value));body.append(choices);handlesAction=true;}
    if(/審査|履歴|結果|利用/.test(step.instruction))body.append(box('口座の状態','申込受付 → 本人確認を提出 → 審査中 → 承認通知を確認 → 利用可能。通知を見る前に入金や売買ができたことにはしません。'));
   }else{

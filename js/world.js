@@ -6,8 +6,10 @@ export function drawPerson(ctx,x,y,palette=0,direction=0,frame=0,equipped={}){
  p(3,21,11,2,'#233e3b55');p(4,3,9,3,hair);p(2,6,13,5,hair);p(4,6,9,7,'#f3c59d');p(3,6,3,3,hair);p(11,6,3,3,hair);if(direction!==2){p(direction===1?4:direction===3?11:6,9,1,2,'#25373e');if(direction===0)p(10,9,1,2,'#25373e');}else p(4,6,9,6,hair);
  p(4,13,9,7,shirt);p(2,14,2,5,'#efbc94');p(13,14,2,5,'#efbc94');p(4,13,9,2,scarf);p(10,14,2,4,scarf);p(4,20,4,3+((frame%3)===1?1:0),'#354554');p(9,20,4,3+((frame%3)===2?1:0),'#354554');p(3,23,5,1,'#b69268');p(9,23,5,1,'#b69268');
  if(equipped.head){p(3,1,11,3,'#e7bd64');p(3,-1,2,3,'#e7bd64');p(8,-2,2,4,'#fce6a0');p(12,-1,2,3,'#e7bd64');}
- if(equipped.shield){p(-1,15,5,7,'#e8cf8e');p(0,16,3,4,'#7299aa');p(1,21,1,2,'#e8cf8e');}
+ if(/rpg-.*armor/.test(equipped.shield??'')){const iron=equipped.shield==='rpg-mail-armor';p(4,14,9,6,iron?'#98b5bc':'#82a67c');p(6,15,5,4,iron?'#d0e0d9':'#bad09c');p(3,14,2,3,iron?'#718f9b':'#638760');}
+ else if(equipped.shield){p(-1,15,5,7,'#e8cf8e');p(0,16,3,4,'#7299aa');p(1,21,1,2,'#e8cf8e');}
  if(equipped.weapon==='rainbow-oath'){p(15,6,3,13,'#afd2df');p(16,4,1,4,'#f2e4af');p(14,17,5,2,'#dcac66');p(16,19,1,4,'#6d667c');}
+ else if(/rpg-.*sword/.test(equipped.weapon??'')){const iron=equipped.weapon==='rpg-iron-sword';p(15,7,2,12,iron?'#b7d6dc':'#d5a468');p(15,6,1,3,iron?'#e8f1df':'#f5d09a');p(13,18,6,2,'#d3b074');p(15,20,2,4,'#71614c');}
  else if(equipped.weapon)p(15,12,1,12,'#b68b5d');
 }
 const tint=[['#668d59','#739b62','#4f784a'],['#638b56','#729b60','#497645'],['#6c8e77','#7f9d83','#527263'],['#628d84','#75a299','#497871'],['#93845c','#a49468','#786847'],['#5e8b80','#6ca795','#427568'],['#777ba2','#8a91b1','#555e88']];

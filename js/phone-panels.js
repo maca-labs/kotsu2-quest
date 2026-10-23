@@ -1,8 +1,11 @@
+import {getPhoneGuideView} from './phone-guide.js';
 import {scenarioForStep,scenarioSummary} from './finance.js';
 import {practiceProfile,comparisonPanels} from './content-points.js';
 
 const appNames={memo:'旅人のメモ',mail:'ゲーム内メール',browser:'まいにちストア',points:'コツコツモール',bank:'ほしあかり銀行',wallet:'練習ウォレット',hyper:'そらの運用ラボ',fx:'ほしぞらFX',market:'星札マーケット',gift:'練習ギフト',exchange:'ポイント交換所'};
 export const phoneFieldLabels={asset:'送る資産',receiveAsset:'受け取る資産',network:'送るネットワーク',receiveNetwork:'受け取るネットワーク',address:'練習用の宛先',quantity:'数量',sellQuantity:'売却する数量',withdrawQuantity:'引き出す数量',moveDestination:'移動先',delegateQuantity:'委任する数量',undelegateQuantity:'委任を解除する数量',returnQuantity:'現物へ戻す数量',validator:'預け先の候補',collateral:'配分する証拠金',leverage:'倍率',side:'買い・売り',symbol:'銘柄',orderType:'注文方法',stopPrice:'SLの発動価格',closeQuantity:'決済する数量',limitPrice:'指値の価格',limitQuantity:'指値の数量',returnHorizon:'戻したい時期',route:'学ぶ経路',wallet:'練習用ウォレット',available:'使える残高',received:'受け取った数量',expected:'受取予定の数量',valuation:'評価額',profit:'確定した利益',loss:'損失額',funding:'資金調達料',notional:'建玉金額',totalHype:'HYPEの合計数量',receivedSpot:'現物へ届いた数量',extraQuantity:'追加で預ける数量'};
+
+export function selectQuestMail(state,quest,step={}){const ids={'PR-01':'intro-mail','PO-01':'registration-mail','BK-01':'bank-verification','PO-03':'order-mail','PO-04':'order-mail','PO-05':'approval-mail','PO-06':'gift-mail'},id=step.mailId??ids[quest?.id],mail=id&&state.phoneState?.mailById?.[id];return mail?[id,mail]:null;}
 
 /** Native local-only app surfaces. onAction is called only after an explicit user operation. */
 export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavigate}) {
@@ -16,7 +19,7 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
  const text=(s,small=false)=>el('p',s,`margin:0;line-height:1.7;font-size:${small?13:16}px;overflow-wrap:anywhere`);
  const box=(title,copy)=>{const n=el('div','','padding:12px;background:white;border:1px solid #d8e2dc;border-radius:8px');if(title)n.append(el('strong',title,'display:block;font-size:15px;margin-bottom:5px'));if(copy)n.append(text(copy));return n;};
  const row=(label,value)=>{const n=el('div','','display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:7px 0;border-bottom:1px solid #e4eae6');n.append(el('span',label,'font-size:13px'),el('strong',value,'text-align:right;overflow-wrap:anywhere'));return n;};
- const button=(label,fn,primary=false)=>{const b=el('button',label,`min-height:44px;padding:9px 12px;border:1px solid ${primary?'#34775b':'#bed0c4'};border-radius:7px;background:${primary?'#326e55':'white'};color:${primary?'white':'#274b3b'};font:inherit;cursor:pointer;line-height:1.4`);b.type='button';b.addEventListener('click',fn);return b;};
+ const button=(label,fn,primary=false)=>{const b=el('button',label,`min-height:44px;padding:9px 12px;border:1px solid ${primary?'#34775b':'#bed0c4'};border-radius:7px;background:${primary?'#326e55':'white'};color:${primary?'white':'#274b3b'};font:inherit;cursor:pointer;line-height:1.4`);b.type='button';if(primary)b.setAttribute('data-guide-target','true');b.addEventListener('click',fn);return b;};
  const actionButton=(label,value=step.value)=>button(label,()=>onAction?.(value),true);
  const fmt=n=>typeof n==='number'?n.toLocaleString('ja-JP',{maximumFractionDigits:6}):String(n??'');
  const route=state.questStates?.[state.activeQuestKey]?.routeId||state.selectedRoute||'journey';
@@ -45,13 +48,13 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
  }
  if(/スマホホーム/.test(step.screenTitle??'')){const grid=el('div','','display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px');for(const [id,name]of Object.entries({memo:'メモ',mail:'メール',browser:'ブラウザー',bank:'銀行',fx:'FX',market:'カード市場',wallet:'ウォレット',hyper:'運用ラボ',gift:'ギフト'})){const chapter=Number(quest?.chapterId?.slice(3))||0;if(['bank','fx','market'].includes(id)&&chapter<({bank:2,fx:3,market:4}[id]))continue;if(['wallet','hyper'].includes(id)&&quest?.partId!=='crypto')continue;if(id==='gift'&&chapter<1)continue;const target=step.instruction.includes(name)||(id==='market'&&step.instruction.includes('市場'))||(id==='hyper'&&step.instruction.includes('取引練習'));const icon=button(name,()=>target?onAction?.(step.value):onNavigate?.(id),target);grid.append(icon);}body.append(grid);return {element:root,handlesAction:true};}
  if(step.appId==='mail'){
-  const mails=Object.entries(state.phoneState?.mailById||{});let selected=mails.find(([id,m])=>/注文/.test(step.instruction||'')&&/注文/.test(m.subject||m.title||''))||mails.at(-1);
+  let selected=selectQuestMail(state,quest,step);
   const fake=quest?.id==='CR-02';if(fake)selected=['crypto-fake',{from:'おたすけ緊急係（架空）',subject:'復旧のご案内',body:'復元情報を教えてください。',warning:true}];
   body.append(el('div','受信トレイ','font-size:12px;font-weight:700;letter-spacing:.08em'));
-  if(selected){const[id,m]=selected;if(/受信一覧|受信トレイ/.test(step.screenTitle??'')){body.append(button((m.read?'':'● ')+(m.subject||m.title||'練習メール'),()=>onAction?.(step.value),true));return {element:root,handlesAction:true};}const message=box(m.subject||m.title||'旅人さんへのお知らせ');message.append(text(`差出人：${m.from||'ゲーム内の案内係'}`,true),text(m.body||m.text||'このお知らせは練習用です。'));
+  if(selected){const[id,m]=selected;if(m.read===false||/受信一覧|受信トレイ/.test(step.screenTitle??'')){body.append(button((m.read?'':'● ')+(m.subject||m.title||'練習メール'),()=>onAction?.(step.value),true));return {element:root,handlesAction:true};}const message=box(m.subject||m.title||'旅人さんへのお知らせ');message.append(text(`差出人：${m.from||'ゲーム内の案内係'}`,true),text(m.body||m.text||'このお知らせは練習用です。'));
    if(m.code)message.append(box('メールの確認コード',String(m.code)));
    if(m.warning)message.append(text('この要求には応じず、本文の外のボタンから案内を閉じよう。',true));body.append(message);
-   if(/コピー/.test(step.instruction||'')){body.append(actionButton('このメールの練習コードをコピー',step.value??m.code));handlesAction=true;}
+   if(/コピー/.test(step.instruction||'')){body.append(actionButton(step.questId==='PR-01'?'合言葉をコピー':'このメールの練習コードをコピー',step.value??m.code));handlesAction=true;}
    else if(/スター/.test(step.instruction||'')){body.append(actionButton('注文メールにスターを付ける',step.value));handlesAction=true;}
    else if(/この案内を閉じる/.test(step.instruction||'')){body.append(actionButton('この案内を閉じる'));handlesAction=true;}
    else if(/通知を開く|メールを開く|受信.*開く/.test(step.instruction||'')&&step.type==='tap'){body.append(actionButton('このメールを開く'));handlesAction=true;}
@@ -94,16 +97,16 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
   else body.append(box('練習ブラウザー','kotsukotsu.example.invalid / ゲーム内だけの架空サービス'),box('会員プロフィール',`${practiceProfile.name} / ${practiceProfile.email}`));
   if(step.id==='P008'){body.append(actionButton('この架空サービスの利用条件を開く'));handlesAction=true;}
   if(step.id==='P009')body.append(box('コツコツモール — 練習の利用条件','このサービスはゲームの中だけの教材です。架空の成人プロフィールと練習パスワードを使います。登録しただけでポイントは増えません。案件ごとの条件を確認し、買った記録と受取まで確かめます。実際の注文や支払いは行いません。'));
-  if(quest?.id!=='PO-01')body.append(ledger());
+  if(quest?.id==='PO-01'&&getPhoneGuideView(state,quest,step)?.pasted)body.append(box('確認コードの欄へ写した内容',String(state.phoneState?.formDrafts?.['PO-01']?.registrationCode??'')));if(quest?.id!=='PO-01')body.append(ledger());
  }else if(step.appId==='gift'||step.appId==='exchange'){
   body.append(box('交換先を見比べる','最低交換数・単位・手数料・有効期限・使う予定を確認します。'),ledger());
  }else if(step.appId==='memo'){
-  body.append(box('いまの依頼',quest?.title||'小さな一歩'),box('ゲーム内クリップボード',state.phoneState?.clipboard||'まだ何もコピーしていません。'));
+  body.append(box('いまの依頼',quest?.title||'小さな一歩'),box('ゲーム内クリップボード',getPhoneGuideView(state,quest,step)?.copyText??'この用事の言葉は、まだコピーしていません。'));
   if(quest?.id==='PR-01'){
    const memo=box('ミナの買い物メモ','きょうは郵便屋さんから、大切な知らせが届く日。メールを開いて、届いた言葉をこのメモへ残そう。');
    if(step.id==='PR-01-002'){const paper=el('div','','max-height:230px;overflow:auto;border-top:1px dashed #b6c8ba;margin-top:10px');paper.append(text('持ち物：旅人の杖、空っぽの手帳袋。',true),el('div','道の先には、お店と港と空の島。まずは、この村の小さな用事を片づけよう。','padding:35px 0 55px;line-height:1.8;font-size:14px'),actionButton('今日の用事を開く'));memo.append(paper);handlesAction=true;}
    else memo.append(box('今日の用事','郵便屋ミナからのメールを開く。合言葉をゲーム内コピーして、メモへ写して保存する。'));
-   body.append(memo);
+   body.append(memo);if(getPhoneGuideView(state,quest,step)?.pasted)body.append(box('メモの欄へ写した言葉',String(state.phoneState?.formDrafts?.['PR-01']?.introPhrase??'')));
    if(state.phoneState?.mailById?.['intro-mail']?.read)body.append(box('読んだメールの控え','合言葉は、開いたメール本文で確かめられます。入力にはゲーム内コピーを使えます。'));
   }
  }
