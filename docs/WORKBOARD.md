@@ -103,3 +103,16 @@ X-01 world担当: rooms/getTavern/7町の短い看板と室内名を実装、roo
 X統合: X-01提出・X-02独立レビュー重大残件0。関連54テスト成功。親320/390で帰還/章選択/店内/相談/長い店名を実操作し、地図と十字キーの位置を保持。公開反映へ進む。
 
 X公開: X-01/X-10 integrated_published、X-02 reviewed。town8の公開320/390で旅立ちの村/通貨の港の入町名、町の固定HUD、港バーしおかぜのメニュー/店内/相談の一致、横はみ出し0を確認。関連54件、独立38件と70UI導出ケース成功。詳細town-name-verification。実機と人間観察は未実施。
+
+## 町ごとの建物・景色・酒場 — Y / 2026-10-24
+
+|ID|担当|状態|編集範囲/受入|
+|---|---|---|---|
+|Y-01|world:desert_world|implementing|towns/world/world・towns tests、7町独自配置・海船・全入口到達|
+|Y-02|world:encounter_intro_ui|implementing|rooms/rooms test、7酒場家具・衝突・扉対応|
+|Y-03|QA:encounter_input_review|reviewing|独立報告のみ、固定座標残存・導線・復帰|
+|Y-10|親統合|implementing|app/rpg-world/index/統合test/docs、可変配置操作・保存互換・狭幅・公開|
+
+Y統合: Y-01/Y-02 submitted、Y-03 reviewed、親の全318テスト成功。独立61件と最終14件、28役到達・進行済保存17座標の再開も成功。親は320/390で7町/7酒場を実見し、港の新扉で歩行入退室を確認。石壁の右はみ出しを担当修正後に再確認。townscapes9の公開確認へ進む。
+
+Y公開: Y-01/Y-02/Y-10 integrated_published、Y-03 reviewed。townscapes9を公開しPages39992286537 success。公開390の港と320の港バー/群島を実見、新扉での退出と再入店、67XP/0coin/HP36保持、警告/エラー0を確認。詳細town-variety-verification、全318ログ。実機と人間観察は未実施。

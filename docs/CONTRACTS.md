@@ -107,3 +107,11 @@ mountBattleTurn({document,root,beforeState,afterState,action,onComplete,reducedM
 getTavern(chapterId)が{name,sign,kind}を一元管理。roomTitle第3chapterIdから店の全名を返し、扉看板は短いsign。未知章はCH0へfallbackし、既存の部屋/扉/NPC/保存契約を守る。appのHUD/メニュー/部屋見出し/相談dialogは同じ関数にそろえる。
 
 入町表示はrender時の実場所（world view・town map・室内なし）から導出。場所切替でvisibleTown/期限を更新し、同じ町の再描画では2800msを延長しない。別画面でtimeoutを破棄。バナーはmap上のposition:absolute・pointer-events:none、行/スクロール/歩行を増やさない。町名・店名の表示でSTEP/XP/金融/報酬/セーブ版を更新しない。
+
+## Y — 町別の地形・建物・酒場（2026-10-24）
+
+`towns.js/getTownLayout(chapterId)`は不変のchapterId/theme/description/buildings/npcs/landmark/tilesを返す。number/stringを受付け未知章はCH0。建物は{id,x,y,w,h,door:{x,y}}の16pxタイル単位、doorは最下段。`townTile`をworld.mapTileの根拠にし、描画・衝突・クリック・隣接会話が同じ配置を使う。getTownDoorsはshopを除く建物の扉。rpg-world/getTownTravelFeaturesはshopと南門を導出する。旧townDoors/townTravelFeatures/npcPositionsはCH0互換のみで、実操作は章指定APIを使う。
+
+CH0の教会19,15/復活19,16、全町の南門12,17/帰還12,16/章開始12,10を維持。既存保存の座標が新しい固体やNPCに重なった場合は12,16へ避難。UIの部屋は保存外、退出は今の章の扉南隣に戻る。金融/XP/ID/保存schema3・rpg.version1/全818工程に変更なし。
+
+roomPeople(id,chapterId)、roomStep(id,position,dx,dy,chapterId)、nearbyRoomPerson(id,position,chapterId)は末尾chapterIdを追加し旧呼出をCH0互換とする。酒場の家具定義を描画と衝突で共有し、9人のindex、入口12,12と出口12,15を保つ。

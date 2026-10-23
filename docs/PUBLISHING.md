@@ -74,3 +74,7 @@ owner Chrome UIでJS afc4f550、入口/README797b2badを公開。配信版battle
 ## 2026-10-23 X — 町名と7町の酒場
 
 owner Chrome UIでJS064ead51、入口/README31ad17abを公開。配信版town8、[Pages run39931796069](https://github.com/maca-labs/kotsu2-quest/actions/runs/39931796069) success。公開320/390で入町バナー、現在地HUD、章選択、港バーしおかぜの看板/メニュー/室内/相談を確認。関連54テスト、独立38テストと70UI導出ケース成功。保存/XP/金融/工程/衝突は変更しない。[検証記録](./town-name-verification.md)。公開画面はkotsukotsu-public-town-name.pngとtown-start.pngに保存。実機と実参加者の理解・楽しさは未確認。
+
+## 2026-10-24 Y — 7町の地形と酒場
+
+owner Chrome UIでJS b3ae854f、入口/README5e32c0c0を公開。配信版townscapes9、[Pages run39992286537](https://github.com/maca-labs/kotsu2-quest/actions/runs/39992286537) success。7町の地形/建物/道/NPCをtowns.jsで統一し、7酒場の家具描画/衝突を共用。公開390の海・帆船・灯台、320の港バーと群島、港バーから歩行退出→新扉再入店を確認。67XP/0coin/HP36/装備を保持、横overflow0/警告エラー0。全318テスト、独立QA重大残件0。[検証記録](./town-variety-verification.md)。公開画像townscapes-harbor/bar/islandsを保存。金融/固定XP/818工程/保存版は変更なし。実機と人間の理解・面白さは未確認。
