@@ -187,6 +187,8 @@ GitHubの対象リポジトリで次を設定します。設定にはリポジ�
 
 プロジェクトサイトの通常URLは `https://<owner>.github.io/<repository>/` です。[GitHub Pagesの公式説明](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages) に合わせ、スクリプト・CSS・素材は相対URLを使っています。ビルド用のGitHub Actions設定やGASは不要です。`/js/...` のようなドメイン直下固定パスへ変えないでください。
 
+`index.html` のES Modules用import map・入口・CSSには、配信版の `?v=` を付けています。公開更新時には同じ版へそろえ、新しいJSファイルを追加したらimport mapにも対応を加えます。古い処理と更新後の画面がブラウザーのキャッシュで混ざるのを防ぐための指定で、ゲーム保存の版とは別です。自動テストで全モジュールの網羅・相対URL・同一配信元を検査します。
+
 配信元のブランチへ反映する前に `npm test` を実行し、デプロイ後はタイトル、素材、スマホ起動、保存、再読込みを確認してください。公開先リポジトリは [maca-labs/kotsu2-quest](https://github.com/maca-labs/kotsu2-quest) です。公開設定・確認状況は [公開記録](./docs/PUBLISHING.md) に記載します。
 
 ## ファイル構成とクエストの追加
@@ -234,7 +236,7 @@ GitHubの対象リポジトリで次を設定します。設定にはリポジ�
 
 ## 確認結果と未確認事項
 
-最新RPG統合版は全241テスト成功。[最終実行ログ](./docs/rpg-test-results.txt)と[世界・戦闘の検証記録](./docs/rpg-verification.md)を参照してください。その前の矢印・スマホ導線改修は[実行ログ](./docs/mobile-test-results.txt)と[ブラウザー検証](./docs/mobile-verification.md)、以前の追加講座は[統合検証記録](./docs/extension-verification.md)へ記録しています。過去の確認を、現行版の全画面を確認した根拠として扱いません。
+最新RPG統合版は全242テスト成功。[最終実行ログ](./docs/rpg-test-results.txt)と[世界・戦闘の検証記録](./docs/rpg-verification.md)を参照してください。その前の矢印・スマホ導線改修は[実行ログ](./docs/mobile-test-results.txt)と[ブラウザー検証](./docs/mobile-verification.md)、以前の追加講座は[統合検証記録](./docs/extension-verification.md)へ記録しています。過去の確認を、現行版の全画面を確認した根拠として扱いません。
 
 自動テストの対象には、標準794工程＋追加24工程、全4ラボと運用見送り、章ボスと隠しボス、報酬の重複防止、期限設定の固定、24時間境界の前後1ミリ秒、時計逆行、独立した復習、JSON再構成、旧セーブの追加台帳移行、章別の再開、相対URLを含めています。
 
