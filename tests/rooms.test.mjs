@@ -1,6 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {townDoors,doorAt,roomSpawn,roomStep,nearbyRoomPerson,roomPeople,roomTitle,renderRoom,drawTownDoors} from '../js/rooms.js';
+import {townDoors,doorAt,roomSpawn,roomStep,nearbyRoomPerson,roomPeople,roomTitle,renderRoom,drawTownDoors,getTavern} from '../js/rooms.js';
+
+test('seven towns have different tavern names and short centered signs while room titles and doors remain compatible',()=>{
+ const expected=['居酒屋 ひとつぶ','立ち呑み 銅貨横丁','酒処 あかし灯','港バー しおかぜ','大衆酒場 星札小路','島バル 鍵の入り江','雲上亭'];
+ assert.equal(new Set(expected).size,7);const names=[],kinds=[];
+ for(let chapter=0;chapter<=6;chapter++){
+  const id=`CH-${chapter}`,tavern=getTavern(id),text=[],rects=[];
+  names.push(tavern.name);kinds.push(tavern.kind);assert.equal(tavern.name,expected[chapter]);assert.equal(roomTitle('tavern','依頼人',id),tavern.name);assert.ok(tavern.sign.length<=5);
+  assert.equal(roomTitle('client','灯里',id),'灯里の家');assert.equal(roomTitle('elder','依頼人',id),'長老の家');assert.equal(roomTitle('church','依頼人',id),'はじまりの教会');assert.equal(doorAt(19,5,id)?.id,'tavern');
+  const ctx={fillRect(x,y,width,height){rects.push({x,y,width,height});},fillText(label,x,y){text.push({label,x,y});},measureText(label){return {width:label.length*10};}};
+  drawTownDoors({getContext:()=>ctx},false,'依頼人の家',id);
+  const signs=text.filter(line=>line.x===312&&line.y===73);assert.deepEqual(signs,[{label:tavern.sign,x:312,y:73}]);assert.ok(text.every(line=>!line.label.includes('こもれび')));
+  const plaque=rects.find(rect=>rect.y===63&&rect.x+rect.width/2===312);assert.ok(plaque);assert.ok(plaque.width<=64);assert.ok(plaque.y+plaque.height<77);
+ }
+ assert.equal(new Set(names).size,7);assert.equal(new Set(kinds).size,7);assert.equal(getTavern('unknown').name,expected[0]);assert.equal(roomTitle('tavern'),expected[0]);assert.equal(townDoors.find(door=>door.id==='tavern').label,'酒場');
+});
 
 test('all houses have distinct doors and inhabitants; the chapel is only in the starting village',()=>{
  assert.equal(new Set(townDoors.map(d=>`${d.x},${d.y}`)).size,4);
