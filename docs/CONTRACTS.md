@@ -74,3 +74,13 @@ review役は製品コード変更不可。共通契約変更・不具合は親�
 - RPGが欠けた旧保存でRPGコマンドもなければ初期補完。最初のRPGコマンドにengineがoriginMapIdを記録してUI由来の旧現在章をbootstrapし、コイン・HP・購入・装備は初期値から全再構成。RPG履歴ありの欠落・合計改ざんは拒否する。
 - rpg-worldは純粋な地図/衝突/描画。町の店壁10..14/2..5と扉12,5、南門12,17は親walkが判定する。描画と店/戦闘UIからstateを直接変更しない。
 - indexのimport mapは全runtime JSを同じ配信版queryへ解決し、入口/CSSも同じ版にそろえる。すべてリポジトリ相対URLで、外部依存やビルドを追加しない。配信版は保存schema/contentVersion/IDとは独立。
+
+## T/U — 地図を中心にした探索・野道と教会
+
+2026-10-23の利用者追加に基づく。画面上部は現在地・HP・Lv・メニューボタン、探索の次目的を短く1つ。長い案内、章選択、依頼帳、装備、相談、宿、近道は既存dialog内から開く。探索の表示/メニュー開閉だけでSTEP/XP/金融/報酬を進めない。dialog中は全歩行入口を止め、Escで閉じてメニューボタンへフォーカスを戻す。町・室内・野外の地図25:18を維持し、キャンバスの表示とクリック座標を合わせる。
+
+RPG_FIELD_START {kind:'road'|'desert',chapterId}を既存RPG命令に追加。worldかつ現在章一致のみ。getFieldEncounter(kind,chapterId)が安定IDと敵を返す。field battleはkind:'field',fieldKind、recordKey:null。XPや金融を付与しない。各IDの初勝利のみ冒険コイン、再戦・逃走で配り直さない。歩数は成功歩行だけをUI内で数え、初回4歩、その後20歩で街道戦。砂漠2歩で強敵、逃走後8歩の猶予。毎歩の保存ログは追加しない。
+
+野道/砂漠の敗北はCH-0 townへ戻しHP全回復。教会の扉19,15、外の復活点19,16。reviveイベントとbattle-action lostを残し、UIが教会室内を表示する。後続travelで復活演出を消化する。装備・コイン・案件・入力・固定XP・金融残高を保持。schema3/rpg.version1/既存IDは維持。
+
+isDesert(location)、getTerrainLabel(location)をworld側から公開。砂漠はx53..59/y27..33、標識52,29。既存7町/7洞窟の徒歩到達を保ち、山脈と峠で章順の道を作る。章選択からの自由開始は維持。教会doorはCH-0のみ、doorAt/drawTownDoorsへ章引数を渡す。噴水/建物/水の描画と衝突を一致させる。

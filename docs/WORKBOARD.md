@@ -54,3 +54,16 @@ M最終自動212PASS/0FAIL。親の実ブラウザーはPR12+PO19+DX18+KYC1+FI3+
 |R-11/12/13|quest/finance/QAの独立確認|reviewed|R-11-flow-review/R-12-finance/R-13-final-qa。指摘を親へ返し、修正後再確認|
 
 R最終242PASS/0FAIL。実ブラウザーと未確認の範囲はdocs/rpg-verification.md。M/Rは公開反映済みで、公開後の確認はdocs/PUBLISHING.mdへ記録。実人間の面白さ観察は未実施。
+
+## 探索主画面・公開一周・野道追加 — T/U
+
+|ID|担当/任務|状態|所有と証跡|
+|---|---|---|---|
+|T-01|quest_designer:一周と反復|integrated|story-guide/同test、PR報告→次町を修正、T-01-round-review|
+|T-02|QA:縦積み原因とmenu条件|reviewed|T-02-layout-review、親公開390実測地図y1217|
+|T-03|learning:次行動と意味|reviewed|T-03-learning-review、人間観察とは区別|
+|T-10|world:地図先頭CSS|integrated|exploration.css/T-10-layout、親320/390測定|
+|T-20|親:メニュー/一周/公開|in_progress|app/index/共通docs、公開旧版PR12+帰還報告一周済、新版再確認へ|
+|U-01|engine:野道/砂漠/復活|integrated|rpg/engine/new field tests、担当22件成功、U-01-field-engine|
+|U-02/03|world:砂漠/教会/山脈/衝突|integrated|rpg-world/world/rooms/担当tests|
+|TU-QA|QA:独立再確認|reviewed|TU-qa、親ブラウザーとは分離|
