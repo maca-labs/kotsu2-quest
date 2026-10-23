@@ -78,3 +78,12 @@ owner Chrome UIでJS064ead51、入口/README31ad17abを公開。配信版town8�
 ## 2026-10-24 Y — 7町の地形と酒場
 
 owner Chrome UIでJS b3ae854f、入口/README5e32c0c0を公開。配信版townscapes9、[Pages run39992286537](https://github.com/maca-labs/kotsu2-quest/actions/runs/39992286537) success。7町の地形/建物/道/NPCをtowns.jsで統一し、7酒場の家具描画/衝突を共用。公開390の海・帆船・灯台、320の港バーと群島、港バーから歩行退出→新扉再入店を確認。67XP/0coin/HP36/装備を保持、横overflow0/警告エラー0。全318テスト、独立QA重大残件0。[検証記録](./town-variety-verification.md)。公開画像townscapes-harbor/bar/islandsを保存。金融/固定XP/818工程/保存版は変更なし。実機と人間の理解・面白さは未確認。
+
+
+## 2026-10-24 Z — 公開7町の実歩行と改善
+
+owner Chrome通常UIでJS bcb5bbea、入口/README4874fa66を公開。配信版walk10、[Pages run40039251281](https://github.com/maca-labs/kotsu2-quest/actions/runs/40039251281) success。3担当が公開9の全7町29施設を歩き、家/酒場/店/序章教会の入退室・酒場相談・家具/雲海の衝突を実確認。港のNPC迂回・家名/次方向案内・店先復帰/上部退出・CH6経路案内/相談contextを修正し、公開10で該当条件を再確認した。
+
+公開10は親が港の11/16歩短縮とCH0/1/2/3/4店の退出/再入、Z03がCH5/6の表示案内だけで目的家へ15/11入力・両店退出/再入・見送り相談一致を実操作。320/390で横overflow0。関連81件成功、独立QAの二段保存Majorは移動＋座標の一回保存へ修正後解消。金融/固定XP/818工程/保存版は維持。[検証記録](./public-walk-verification.md)。公開画像kotsukotsu-public-walk10.png等を保存。実機と実参加者の理解・面白さは未確認。
+
+CLIのKou-no1はread-onlyのため、所有者ログイン済みブラウザーから利用者の公開更新指示の範囲で反映。コードだけでなくtests/reviews/docsを同じmainへ保存し、最終ツリー一致とPagesを別担当で確認する。

@@ -116,3 +116,17 @@ X公開: X-01/X-10 integrated_published、X-02 reviewed。town8の公開320/390�
 Y統合: Y-01/Y-02 submitted、Y-03 reviewed、親の全318テスト成功。独立61件と最終14件、28役到達・進行済保存17座標の再開も成功。親は320/390で7町/7酒場を実見し、港の新扉で歩行入退室を確認。石壁の右はみ出しを担当修正後に再確認。townscapes9の公開確認へ進む。
 
 Y公開: Y-01/Y-02/Y-10 integrated_published、Y-03 reviewed。townscapes9を公開しPages39992286537 success。公開390の港と320の港バー/群島を実見、新扉での退出と再入店、67XP/0coin/HP36保持、警告/エラー0を確認。詳細town-variety-verification、全318ログ。実機と人間観察は未実施。
+
+## 公開版の町歩行 — Z / 2026-10-24
+
+|ID|担当|状態|範囲|
+|---|---|---|---|
+|Z-01|QA:encounter_intro_ui|reviewed|CH0〜2の全建物/酒場/狭幅をChrome実操作、排他1番|
+|Z-02|QA:encounter_input_review|reviewed|CH3〜4と全町の迂回/経路、排他2番|
+|Z-03|learning:exploration_layout|reviewed|CH5〜6と目的地/言葉/案内、排他3番|
+|Z-04|QA:engine_engineer|reviewed|純粋性・台帳不変・退店保存境界・相談context、製品編集なし|
+|Z-10|親統合|integrated_published|港の狭路NPC・家名/次方向表示・ルート選択の案内、検証と公開|
+
+子のIABは利用不可だったため、利用可能なChromeで公開ゲームの別タブを順に開く。未実施をIAB確認済みにせず、UI実歩行と静的BFSを別に記録。港の南門→バー32歩、章開始→店29歩の大迂回と、家名が主指示にない点を指摘。ローカル修正後に公開反映し、該当条件を再確認する。
+
+Z公開: 全7町29施設を担当分けし公開9で徒歩入退室・酒場相談を実施。walk10のJS bcb5bbea/入口4874fa66、Pages40039251281 success。港の道順は親の公開再歩行で店29→11・南門から酒場32→16（入室込み）。全7店の上部退出/上1再入を親とZ03で確認、CH0/1/2/4は退出→reload→上1再入も成功。Z03はCH5/6の可視家名/次方向だけで15/11入力の入室、運用見送りのソラ相談一致を再確認。320/390で横overflow0。関連69＋help12＝81成功、Z04の退店二段保存Majorは一回保存へ修正後再確認、重大残件0。詳細public-walk-verification。実機と人間の理解/面白さは未確認。

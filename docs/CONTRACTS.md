@@ -115,3 +115,11 @@ getTavern(chapterId)が{name,sign,kind}を一元管理。roomTitle第3chapterId�
 CH0の教会19,15/復活19,16、全町の南門12,17/帰還12,16/章開始12,10を維持。既存保存の座標が新しい固体やNPCに重なった場合は12,16へ避難。UIの部屋は保存外、退出は今の章の扉南隣に戻る。金融/XP/ID/保存schema3・rpg.version1/全818工程に変更なし。
 
 roomPeople(id,chapterId)、roomStep(id,position,dx,dy,chapterId)、nearbyRoomPerson(id,position,chapterId)は末尾chapterIdを追加し旧呼出をCH0互換とする。酒場の家具定義を描画と衝突で共有し、9人のindex、入口12,12と出口12,15を保つ。
+
+## Z — 公開実歩行と道案内（2026-10-24）
+
+town-guidance/getTownWalkGuide(state,guide)はhouse目的だけ、共通地形とNPCを避け扉南隣へのBFSを行い、家名/次方向/直線区間の歩数を導出する。扉前は上で入ると表示。操作を代行せず、進捗・XP・残高・新しい保存フィールドを追加しない。目的の家の金枠/旗は描画だけ。町歩行時に次の一歩の表示も更新する。非house目的の既存指示は維持。
+
+港のNPC index2/3を8,10/17,9へ移し、7,12と14,10の狭路を開ける。会話index/報酬は変更しない。公開版の実歩行は専門役がChrome一つずつで実施し、保存ロックとviewportの競合を避ける。AIの観点レビューと実利用者の観察は区別する。
+
+leaveShopはactのworldPositionへ実際のshop扉の南隣を渡し、dispatch後のnextに座標を適用してRPG_TRAVELと一回の保存で確定する。保存競合throwは旧stateと店画面を維持。容量不足falseは従来の保存不可通知＋JSON書出し可能なメモリ継続を保ち、途中の町＋旧座標は保存しない。上部「店の外へ」と既存下部の退出は同じ入口へ結ぶ。購入/装備/コインの処理は変更しない。酒場の近接操作は既存の相談一覧を開き、そこから話者を選ぶ設計を維持する。
