@@ -30,7 +30,7 @@ export function drawTownDoors(canvas,highlight=false,clientHouse='依頼人の�
  c.fillStyle='#506d61';c.fillRect(58,228,13,12);c.fillStyle='#f2d78f';c.fillRect(63,228,2,12);
  for(const d of townDoors.filter(door=>!door.chapterId||door.chapterId===chapterId)){const x=d.x*16,y=d.y*16;c.fillStyle=highlight&&d.id==='client'?'#f8db83':'#c9a76b';c.fillRect(x-2,y-3,20,20);c.fillStyle='#4c3c32';c.fillRect(x+2,y,12,16);c.fillStyle='#f4cf80';c.fillRect(x+10,y+7,2,2);}
  c.font='10px sans-serif';c.textAlign='center';
- for(const [d,label]of [[townDoors[0],clientHouse],[townDoors[2],'長老の家']]){const width=Math.max(63,c.measureText(label).width+8);c.fillStyle='#30423b';c.fillRect(d.x*16+8-width/2,d.y*16-17,width,13);c.fillStyle='#fff0c2';c.fillText(label,d.x*16+8,d.y*16-7);}
+ for(const [d,label]of [[townDoors[0],clientHouse],[townDoors[1],'こもれび亭'],[townDoors[2],'長老の家']]){const width=Math.max(63,c.measureText(label).width+8);c.fillStyle='#30423b';c.fillRect(d.x*16+8-width/2,d.y*16-17,width,13);c.fillStyle='#fff0c2';c.fillText(label,d.x*16+8,d.y*16-7);}
  if(chapterId==='CH-0'){c.fillStyle='#30423b';c.fillRect(272,222,84,13);c.fillStyle='#fff0c2';c.fillText('はじまりの教会',314,232);}
  c.textAlign='start';
 }

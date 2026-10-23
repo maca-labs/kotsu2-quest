@@ -6,6 +6,102 @@ const actionCopy={attack:'装備した武器で攻撃。相手も反撃します
 const slotName=slot=>slot==='weapon'?'武器':slot==='armor'?'防具':'冒険の装備';
 const itemName=id=>equipmentById[id]?.name??id??'なし';
 
+// Begin tracking before walking starts, so an encounter can wait for the finger
+// or key that caused it to be released. This is display-only, outside the save.
+const encounterInputs=new WeakMap();
+const inputKey=event=>event.code||event.key;
+function acquireEncounterInputs(doc){
+ let tracker=encounterInputs.get(doc);
+ if(!tracker){
+  const host=doc.defaultView??globalThis,listeners=[];
+  tracker={pointers:new Set(),keys:new Set(),subscribers:new Set(),users:0};
+  const notify=event=>{for(const subscriber of [...tracker.subscribers])subscriber(event);};
+  const listen=(target,type,fn)=>{target?.addEventListener(type,fn,true);listeners.push(()=>target?.removeEventListener(type,fn,true));};
+  listen(doc,'pointerdown',event=>{tracker.pointers.add(event.pointerId??1);notify(event);});
+  for(const type of ['pointerup','pointercancel'])listen(host,type,event=>{tracker.pointers.delete(event.pointerId??1);notify(event);});
+  listen(doc,'keydown',event=>{tracker.keys.add(inputKey(event));notify(event);});
+  listen(host,'keyup',event=>{tracker.keys.delete(inputKey(event));notify(event);});
+  const release=event=>{tracker.pointers.clear();tracker.keys.clear();notify(event);};
+  listen(host,'blur',release);
+  listen(doc,'visibilitychange',event=>{if(doc.hidden)release(event);else notify(event);});
+  tracker.remove=()=>{for(const remove of listeners)remove();encounterInputs.delete(doc);};
+  encounterInputs.set(doc,tracker);
+ }
+ tracker.users++;
+ let released=false;
+ return {tracker,release(){if(released)return;released=true;if(--tracker.users===0)tracker.remove();}};
+}
+
+export function trackEncounterInputs(document){
+ const tracking=acquireEncounterInputs(document);
+ return ()=>tracking.release();
+}
+
+export function mountEncounterIntro({document:doc,state,onStart,minimumDisplayMs=600}){
+ const {node,info}=elements(doc),view=getRpgView(state),battle=view.battle;
+ const host=doc.defaultView??globalThis,tracking=acquireEncounterInputs(doc),inputs=tracking.tracker;
+ const root=node('section','','rpg-ui rpg-encounter-intro');root.setAttribute('aria-label','魔物との遭遇');
+ const title=node('h2','敵が現れた！'),message=node('p','画面を確かめてから戦闘をはじめよう。','rpg-instruction');
+ const status=node('p','移動の指やキーをはなして、ひと呼吸おこう。','rpg-small rpg-encounter-ready');status.setAttribute('role','status');
+ const start=node('button','戦闘をはじめる','rpg-button is-primary rpg-encounter-start');start.type='button';start.disabled=true;
+ root.append(title);
+ if(battle){
+  root.append(node('h3',battle.enemy.name),pixelPicture(doc,'enemy',battle.enemy),info('あなたのHP',`${format(battle.playerHP)} / ${format(view.maxHp)}`),message);
+  if(battle.fieldKind==='desert')root.append(node('p','とても強い魔物です。戦闘では「にげる」で必ず逃げられます。倒れても教会で回復し、用事と装備は残ります。','rpg-encounter-warning'));
+ }else message.textContent='いま、戦いはありません。';
+ root.append(status,start);
+ const listeners=[];
+ let destroyed=false,started=false,elapsed=false,ready=false,timer=null,pointerTicket=null,keyTicket=null,ignoreAssistiveUntil=0;
+ const now=()=>host.performance?.now?.()??Date.now();
+ const usable=()=>!destroyed&&!started&&root.isConnected&&!doc.hidden&&battle?.status==='active';
+ const listen=(target,type,fn)=>{target.addEventListener(type,fn);listeners.push(()=>target.removeEventListener(type,fn));};
+ function refresh(){
+  if(!usable()||ready||!elapsed||inputs.pointers.size||inputs.keys.size)return;
+  ready=true;start.disabled=false;status.textContent='準備ができたら、下のボタンを押そう。';
+ }
+ function inputChanged(event){
+  if(destroyed)return;
+  if(event.type==='pointerup'||event.type==='pointercancel'){
+   if(pointerTicket?.id===(event.pointerId??1))pointerTicket.released=event.type==='pointerup';
+  }else if(event.type==='keyup'){
+   // A space/Enter held before the encounter must not activate its new button.
+   if(!keyTicket||keyTicket.key!==inputKey(event))ignoreAssistiveUntil=now()+250;
+  }else if(event.type==='blur'||(event.type==='visibilitychange'&&doc.hidden)){
+   pointerTicket=null;keyTicket=null;ignoreAssistiveUntil=now()+250;
+  }
+  refresh();
+ }
+ inputs.subscribers.add(inputChanged);
+ listen(start,'pointerdown',event=>{
+  pointerTicket=null;
+  if(usable()&&ready&&!start.disabled&&(event.button===undefined||event.button===0))pointerTicket={id:event.pointerId??1,released:false};
+ });
+ listen(start,'keydown',event=>{
+  if(!['Enter',' ','Spacebar'].includes(event.key))return;
+  if(!usable()||!ready||event.repeat){event.preventDefault();keyTicket=null;return;}
+  keyTicket={key:inputKey(event)};
+ });
+ listen(start,'click',event=>{
+  if(!usable()||!ready||start.disabled||inputs.pointers.size){event.preventDefault();return;}
+  if(Number(event.detail)>0){
+   // Only a new press on this button, after the encounter became ready, counts.
+   if(!pointerTicket?.released){event.preventDefault();return;}
+  }else if(!keyTicket&&(inputs.pointers.size||inputs.keys.size||now()<ignoreAssistiveUntil)){
+   event.preventDefault();return;
+  }
+  started=true;start.disabled=true;destroy();onStart?.();
+ });
+ const duration=Number.isFinite(minimumDisplayMs)?Math.max(600,minimumDisplayMs):600;
+ timer=host.setTimeout(()=>{timer=null;elapsed=true;refresh();},duration);
+ function destroy(){
+  if(destroyed)return;destroyed=true;start.disabled=true;
+  if(timer!==null){host.clearTimeout(timer);timer=null;}
+  inputs.subscribers.delete(inputChanged);tracking.release();
+  for(const remove of listeners)remove();
+ }
+ return {element:root,destroy};
+}
+
 function elements(doc){
  const node=(tag,text='',className='')=>{const n=doc.createElement(tag);if(text!==''&&text!==undefined&&text!==null)n.textContent=String(text);if(className)n.className=className;return n;};
  const button=(label,fn,{primary=false,disabled=false}={})=>{const n=node('button',label,`rpg-button${primary?' is-primary':''}`);n.type='button';n.disabled=disabled;n.addEventListener('click',()=>{if(!n.disabled)fn?.();});return n;};

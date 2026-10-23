@@ -29,8 +29,7 @@ export function renderWorld(canvas,state){const c=canvas.getContext('2d');c.imag
   c.fillStyle='#d9d6b6';c.fillRect(272,212,80,44);c.fillStyle='#78908d';c.fillRect(268,204,88,12);c.fillRect(279,196,66,9);c.fillStyle='#e4ce8b';c.fillRect(308,183,7,17);c.fillRect(302,188,19,5);
   c.fillStyle='#729ba2';c.fillRect(280,220,13,14);c.fillRect(330,220,13,14);c.fillStyle='#e9d8aa';c.fillRect(285,220,3,14);c.fillRect(335,220,3,14);c.fillStyle='#5b5040';c.fillRect(306,240,12,16);c.fillStyle='#eed28d';c.fillRect(315,247,2,2);
  }
- // The tavern and milestone changes exist before the chapter boss.
- c.fillStyle='#453c32';c.fillRect(268,84,71,17);c.fillStyle='#f7dca0';c.font='10px sans-serif';c.fillText('こもれび亭',274,96);
+ // Milestone changes exist before the chapter boss.
  const changes=getChapterChanges(state,state.currentChapter);
  changes.forEach((change,i)=>{const xx=38+(i%7)*45,yy=226+Math.floor(i/7)*14;c.fillStyle=['#f2c776','#a7d6ad','#c1b1dc'][i%3];c.fillRect(xx,yy,5,5);c.fillStyle='#5c784e';c.fillRect(xx+2,yy+5,1,5);if(/bridge|dock|route/.test(change.kind)){c.fillStyle='#c8a271';c.fillRect(288,164,49,7);c.fillRect(294,171,4,9);c.fillRect(324,171,4,9);}if(/postbox|noticeboard/.test(change.kind)){c.fillStyle='#bc7254';c.fillRect(149,86,10,14);c.fillStyle='#f2dcad';c.fillRect(151,89,6,3);}if(/shop|market/.test(change.kind)){c.fillStyle='#f8dd91';c.fillRect(60,71,10,7);c.fillRect(294,71,10,7);}});
  // A course adds its own visible object only after an actual confirmed stage.
