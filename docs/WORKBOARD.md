@@ -63,7 +63,9 @@ R最終242PASS/0FAIL。実ブラウザーと未確認の範囲はdocs/rpg-verifi
 |T-02|QA:縦積み原因とmenu条件|reviewed|T-02-layout-review、親公開390実測地図y1217|
 |T-03|learning:次行動と意味|reviewed|T-03-learning-review、人間観察とは区別|
 |T-10|world:地図先頭CSS|integrated|exploration.css/T-10-layout、親320/390測定|
-|T-20|親:メニュー/一周/公開|in_progress|app/index/共通docs、公開旧版PR12+帰還報告一周済、新版再確認へ|
+|T-20|親:メニュー/一周/公開|integrated_published|travel5公開、旧版と新版のPR12一周・報告・武器購入・砂漠/教会・320/390確認、travel-verification|
 |U-01|engine:野道/砂漠/復活|integrated|rpg/engine/new field tests、担当22件成功、U-01-field-engine|
 |U-02/03|world:砂漠/教会/山脈/衝突|integrated|rpg-world/world/rooms/担当tests|
 |TU-QA|QA:独立再確認|reviewed|TU-qa、親ブラウザーとは分離|
+
+T/U最終261PASS/0FAIL。公開版の受注→街道→洞窟→戦闘→12工程→帰還→報告を実操作し、砂漠敗北/教会復活と装備・XP保持、最終色/出口修正も公開で確認。実機/実参加者の面白さは未確認。
