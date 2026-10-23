@@ -100,3 +100,10 @@ JSON置換と冒険リセットの成功時は、同じbattle.idが再利用さ�
 mountBattleTurn({document,root,beforeState,afterState,action,onComplete,reducedMotion=false})→{destroy} は旧戦闘DOMだけに演出する。親はUI busyを同期設定し、既存RPG_BATTLE_ACTIONを一度だけrender:falseでdispatch/saveした後にcontrollerを呼ぶ。数字は確定済ログの当該行から読み、HP差をraw damageの代用にしない（overkill・winHeal・砂漠教会revive）。演出はSTEP/XP/金融/コイン/stateを変更しない。
 
 演出中は行動とメニュー/navを止め、「結果をすぐ見る」だけ許可する。完了は同じafterState/画面のときだけrenderし、180msの行動/結果ボタンguardを置く。render/別画面/保存置換でdestroyし、古いonCompleteを無効にする。途中reloadは保存済afterターン・勝敗へ戻る。通常約1秒、動きを減らす設定/OS設定では点滅・揺れ・移動を抑え、短い文字数値で示す。勝利済の通常画面でも敵spriteを表示しない。既存schema3/rpg.version1/報酬ID/固定XP/金融/818工程は維持。
+
+
+## X — 町名と酒場名
+
+getTavern(chapterId)が{name,sign,kind}を一元管理。roomTitle第3chapterIdから店の全名を返し、扉看板は短いsign。未知章はCH0へfallbackし、既存の部屋/扉/NPC/保存契約を守る。appのHUD/メニュー/部屋見出し/相談dialogは同じ関数にそろえる。
+
+入町表示はrender時の実場所（world view・town map・室内なし）から導出。場所切替でvisibleTown/期限を更新し、同じ町の再描画では2800msを延長しない。別画面でtimeoutを破棄。バナーはmap上のposition:absolute・pointer-events:none、行/スクロール/歩行を増やさない。町名・店名の表示でSTEP/XP/金融/報酬/セーブ版を更新しない。

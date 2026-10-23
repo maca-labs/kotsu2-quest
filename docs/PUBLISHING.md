@@ -70,3 +70,7 @@ CLIのKou-no1はread-onlyで、所有者Chromeの通常UIから更新。途中�
 ## 2026-10-23 W — 戦闘の攻撃・反撃・消滅
 
 owner Chrome UIでJS afc4f550、入口/README797b2badを公開。配信版battlefx7、Pages run39928551760 success。公開390/320で実操作し、通常9→反撃3→reload turn2 HP33/36→強打13→敵消滅、再戦coin0を確認。座標タップでscrollY0、操作列の高さ不変。全292テスト、W-02独立52＋3ケース、重大残件0。戦闘数式・XP・工程・金融・保存形式を変更しない。[検証記録](./battle-effects-verification.md)。公開確認後に同じ製品差分のtests/reviews/docsを保存。
+
+## 2026-10-23 X — 町名と7町の酒場
+
+owner Chrome UIでJS064ead51、入口/README31ad17abを公開。配信版town8、[Pages run39931796069](https://github.com/maca-labs/kotsu2-quest/actions/runs/39931796069) success。公開320/390で入町バナー、現在地HUD、章選択、港バーしおかぜの看板/メニュー/室内/相談を確認。関連54テスト、独立38テストと70UI導出ケース成功。保存/XP/金融/工程/衝突は変更しない。[検証記録](./town-name-verification.md)。公開画面はkotsukotsu-public-town-name.pngとtown-start.pngに保存。実機と実参加者の理解・楽しさは未確認。
