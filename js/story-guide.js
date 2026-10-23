@@ -95,19 +95,19 @@ function unreportedRequest(state,chapterId){
 export function getStoryGuide(state,{chapterId,view='world'}={}){
  const id=chapterById[chapterId??state.currentChapter]?chapterId??state.currentChapter:'CH-0';
  const config=chapterStories[id],base={eyebrow:id==='CH-0'?'はじめのミッション':`第${id.slice(3)}章のミッション`,title:config.title,story:config.story,houseName:config.house};
- const houseHint=`家の扉へ歩くか、地図の下の「${config.house}へ」から入れます。知らない言葉は酒場で聞けます。`;
+ const houseHint=`家の扉へ歩くか、メニューの「${config.house}へ」から入れます。知らない言葉は酒場で聞けます。`;
  if(view==='home'&&!state.started)return {...base,eyebrow:'はじめてなら、ここから',title:'まずは郵便屋ミナの、小さなお願いから',story:chapterStories['CH-0'].story,houseName:chapterStories['CH-0'].house,instruction:'序章で、メールを開く・写す・保存する操作を一緒に練習しよう。好きな章から始めても大丈夫です。',actionLabel:'おすすめの序章へ出発',action:{type:'chapter',id:'CH-0'},milestones:[{label:'郵便屋の家で話を聞く',state:'current'},{label:'スマホで言葉を取り戻す',state:'later'},{label:'手帳を手に次の町へ',state:'later'}]};
  const resumeKey=chapterResumeKey(state,id);
  if(resumeKey){
   const record=state.questStates[resumeKey],quest=questById[record.questId],step=stepById[quest.stepIds[record.index]],brief=questBrief(quest),adventure=getAdventure(state,quest,step);
   return {...base,questId:quest.id,recordKey:resumeKey,routeId:record.routeId,client:brief.client,title:`${brief.client}の用事を、つづけよう`,story:`${brief.incident} ${brief.goal}`,instruction:`次の操作：${step.instruction} 途中の入力を残したまま、練習スマホへ戻れます。`,actionLabel:'いまのスマホ練習へ',action:{type:'resume',id:resumeKey},milestones:[{label:'依頼を受ける',state:'done'},{label:adventure?.currentStage?.title??'結果を一つずつ確かめる',state:'current'},{label:'結果を村人へ知らせる',state:'later'}],controlsHint:'町へ戻っても続きは残ります。「これは何？」や「酒場で聞く」から相談できます。'};
  }
- if(id==='CH-0'&&completed(state,'PR-01'))return {...base,title:'手帳を手に、次の町へ出発しよう',story:'メールの言葉が掲示板へ戻り、ミナから旅人の手帳をもらいました。次は商店のハルが、あなたを待っています。',instruction:'第1章の商店へ行こう。行き先を変えたいときは「章を選ぶ」から選べます。',actionLabel:'第1章の商店の町へ',action:{type:'chapter',id:'CH-1'},milestones:chapterMilestones(state,id),controlsHint:'受けた依頼や途中の作業は、手帳のように「依頼帳」から開けます。'};
  const report=unreportedRequest(state,id),finished=report?.quest;
  if(finished){
   const brief=questBrief(finished),reaction=getAdventure({...state,activeQuestKey:report.key},finished)?.latestReaction;
   return {...base,questId:finished.id,recordKey:report.key,routeId:report.record.routeId,client:brief.client,title:`結果を、${brief.client}へ知らせよう`,story:reaction?.text??'頼まれた用事を終えました。依頼人が、結果を待っています。',instruction:`${config.house}へ戻り、${brief.client}に結果を話そう。終えた操作は保存済みで、もう一度やり直す必要はありません。`,actionLabel:`${brief.client}へ結果を知らせる`,action:{type:'house',id:'client',index:0,questId:finished.id,recordKey:report.key,routeId:report.record.routeId},milestones:[{label:'頼まれた用事を終える',state:'done'},{label:'依頼人へ結果を話す',state:'current'},{label:'次の用事や町の最後の確認へ',state:'later'}],controlsHint:houseHint};
  }
+ if(id==='CH-0'&&completed(state,'PR-01'))return {...base,title:'手帳を手に、次の町へ出発しよう',story:'メールの言葉が掲示板へ戻り、ミナから旅人の手帳をもらいました。次は商店のハルが、あなたを待っています。',instruction:'第1章の商店へ行こう。行き先を変えたいときは「章を選ぶ」から選べます。',actionLabel:'第1章の商店の町へ',action:{type:'chapter',id:'CH-1'},milestones:chapterMilestones(state,id),controlsHint:'受けた依頼や途中の作業は、手帳のように「依頼帳」から開けます。'};
  if(id!=='CH-0'&&!state.bossStates[id]?.completed&&bossAvailable(state,id))return {...base,title:'町の最後の封印を、確かめてほどこう',story:'町の用事が片付きました。最後は条件の違う5つの確認です。利益や速さではなく、一つずつ見直す力で町を守ります。',instruction:'章の試練へ進もう。5つを終えると、章印と町の人からの装備を受け取れます。',actionLabel:'町の最後の確認へ',action:{type:'boss',id},milestones:chapterMilestones(state,id,id==='CH-6'?2:config.groups.length),controlsHint:'間違えても、その場で直せます。必要な確認は装備でも飛ばしません。'};
  if(id!=='CH-0'&&(state.bossStates[id]?.completed||state.worldState.seals.includes(id))){
   if(state.worldState.seals.length===6&&!state.bossStates.hidden?.completed)return {...base,title:'六つの章印が、虹の道を照らした',story:'町の人と積み重ねた確認が、最後の道しるべになりました。任意の「虹の守護竜」へ挑めます。未受講のラボは、未受講のまま残ります。',instruction:'隠しボスへ進むか、好きな町の用事を続けられます。',actionLabel:'虹の守護竜の試練へ',action:{type:'boss',id:'hidden'},milestones:[{label:'六つの章印を集める',state:'done'},{label:'虹の守護竜の確認に挑む',state:'current'},{label:'虹誓の大剣を受け取る',state:'later'}]};
