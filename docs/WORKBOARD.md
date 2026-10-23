@@ -34,7 +34,7 @@ KQ060 最終quest_designerレビュー完了、軽微な旧FI再受注入口も�
 |M-03|quest_designer: 開始と復帰|reviewed|docs/reviews/M-03-quest.md。初回町入口から受注→再読込で開始画面へ戻る分岐を親も再現|
 |M-10|phone_engineer: FI確認票・DX三点|integrated|js/phone-funding.js、js/phone-extension.js、専用CSSとテスト。金融処理は変更しない|
 |M-11|world_engineer: 相談の題名と復帰|implemented|docs/reviews/M-11-world.md、41tests PASS、相談題名参照とstate不変|
-|M-20|親: UI統合・実ブラウザー・公開反映|in_progress|app/styles/README/運用docs。工程・固定XP・保存版不変|
+|M-20|親: UI統合・実ブラウザー・公開反映|integrated_published|app/styles/README/運用docs。公開URLで再開・矢印・動画を確認。工程・固定XP・保存版不変|
 |M-30/31|quest/world: ミッション・家・十字キー|integrated|M-30-story/M-31-controls、家の出入と章別ミッション、64px長押し操作|
 |M-32/33|learning/QA: 世界導線の独立確認|integrated|M-32-learning/M-33-qa、旧保存・徒歩到達・報告復帰|
 |M-40/41/42|quest/phone/learning: ナレーションとコピー|integrated|36教材の説明、対象メール識別、貼付前空→実draft、独立再確認|
@@ -50,7 +50,7 @@ M最終自動212PASS/0FAIL。親の実ブラウザーはPR12+PO19+DX18+KYC1+FI3+
 |R-02|engine_engineer: 戦闘・装備・店と保存|integrated|js/rpg.js、engine.js、tests/rpg.test.mjs。金融資金/固定XPは不変|
 |R-03|world_engineer: 全7町/洞窟の世界地図|integrated|js/rpg-world.js、styles/rpg-world.css、tests/rpg-world.test.mjs|
 |R-04|phone_engineer: 旅戦・購入確認・装備UI|integrated|rpg-ui.js/CSS/tests、R-04-rpg-ui.md|
-|R-10|親: UI・受注/再開・戦闘・店の統合|verified_local|app/入口/README/共通契約。子担当への割込なし。PR12+PO19、実徒歩・戦闘・購入・保存|
+|R-10|親: UI・受注/再開・戦闘・店の統合|integrated_published|app/入口/README/共通契約。PR12+PO19をローカル実操作。公開版でも徒歩・門番戦・購入済み装備の保存復元・再開を確認|
 |R-11/12/13|quest/finance/QAの独立確認|reviewed|R-11-flow-review/R-12-finance/R-13-final-qa。指摘を親へ返し、修正後再確認|
 
-R最終241PASS/0FAIL。実ブラウザーと未確認の範囲はdocs/rpg-verification.md。M/Rの公開反映と公開後チェックは親が続行中。実人間の面白さ観察は未実施。
+R最終242PASS/0FAIL。実ブラウザーと未確認の範囲はdocs/rpg-verification.md。M/Rは公開反映済みで、公開後の確認はdocs/PUBLISHING.mdへ記録。実人間の面白さ観察は未実施。
