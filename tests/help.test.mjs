@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {quests,steps} from '../js/content.js';
 import {getHelpTopics,getGlossary,explainTerm,humanFieldLabel,displayPracticeValue} from '../js/help.js';
-import {openHelp} from '../js/ui-adventure.js';
+import {openHelp,openCurrentHelp} from '../js/ui-adventure.js';
 import {createState,dispatch,activeStep} from '../js/engine.js';
 const questById=Object.fromEntries(quests.map(q=>[q.id,q]));
 
@@ -100,6 +100,20 @@ function helpDialogFixture(){
 }
 const helpNodes=node=>[node,...node.children.flatMap(helpNodes)];
 function helpClick(modal,label){const node=helpNodes(modal).find(n=>n.tagName==='button'&&(typeof label==='string'?n.textContent===label:label.test(n.textContent)));assert.ok(node,`missing help button: ${label}`);node.listeners.click();}
+
+test('unaccepted sky-town help follows the chosen route while an unfinished lesson keeps its context',()=>{
+ const fixture=helpDialogFixture(),previousDocument=globalThis.document;globalThis.document=fixture.document;
+ try{
+  let state=dispatch(dispatch(createState(),{type:'START'}),{type:'CHAPTER',id:'CH-6'});
+  const expected={journey:'帰りの資金はどう見る？',spot:'現物（げんぶつ）は何を持つ？',hlp:'HLPは預金の利息と同じ？',stake:'ステーキングと委任って何？',perp:'無期限先物は何をする？'};
+  for(const [route,title]of Object.entries(expected)){
+   state=dispatch(state,{type:'ROUTE',route});const before=JSON.stringify(state);openCurrentHelp(state,fixture.modal,'what');
+   assert.ok(helpNodes(fixture.modal).some(n=>n.textContent===title),route);assert.equal(JSON.stringify(state),before);
+  }
+  state=dispatch(state,{type:'ROUTE',route:'spot'});state=dispatch(state,{type:'NPC',chapterId:'CH-6',index:0});state=dispatch(state,{type:'ACCEPT',id:'HY-SPOT'});state=dispatch(state,{type:'ROUTE',route:'journey'});
+  openCurrentHelp(state,fixture.modal,'what');assert.ok(helpNodes(fixture.modal).some(n=>n.textContent==='現物（げんぶつ）は何を持つ？'));
+ }finally{if(previousDocument===undefined)delete globalThis.document;else globalThis.document=previousDocument;}
+});
 
 test('help, tavern and elder keep a named dialog and return without changing unfinished work',()=>{
  const fixture=helpDialogFixture(),previousDocument=globalThis.document;

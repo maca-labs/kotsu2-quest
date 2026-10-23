@@ -47,6 +47,11 @@ test('shop requires a visible purchase confirmation and keeps owned/equipped con
  state=act(state,{type:'RPG_EQUIP',gearId:'rpg-copper-sword'});purchased=renderRpgShop({document:doc,state});owned=tree(purchased).find(node=>node.attributes['aria-label']==='こだまの銅剣');assert.equal(find(owned,'装備中').disabled,true);
 });
 
+test('the shop offers a leave action before the shelf as well as after it',()=>{
+ const state=createState(),before=structuredClone(state),calls=[],root=renderRpgShop({document:doc,state,onLeave:()=>calls.push('leave')}),top=find(root,'店の外へ'),bottom=find(root,'店を出て町へ戻る'),nodes=tree(root);
+ assert.ok(top);assert.ok(bottom);assert.ok(nodes.indexOf(top)<nodes.findIndex(node=>node.attributes['aria-label']==='こだまの銅剣'));top.click();bottom.click();assert.deepEqual(calls,['leave','leave']);assert.deepEqual(state,before);
+});
+
 test('shop shortages cannot buy and equipment shows actual engine totals only after equipping',()=>{
  let state=createState();state=act(state,{type:'RPG_TRAVEL',mapId:'shop:CH-0'});const buys=[],poor=renderRpgShop({document:doc,state,onBuy:id=>buys.push(id)});for(const button of buttons(poor).filter(button=>button.textContent==='冒険コインが足りません')){assert.equal(button.disabled,true);button.click();}assert.deepEqual(buys,[]);
  state=fundedShop();state=act(state,{type:'RPG_BUY',gearId:'rpg-copper-sword'});const before=structuredClone(state),equipCalls=[],root=renderRpgEquipment({document:doc,state,onEquip:id=>equipCalls.push(id)});assert.equal(getBattleStats(state).attack,7);assert.match(text(root),/購入済み・まだ装備していません/);assert.match(text(root),/買っただけでは強さは変わりません/);assert.deepEqual(state,before);
