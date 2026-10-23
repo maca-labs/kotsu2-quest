@@ -1,0 +1,7 @@
+.expedition-map { position: relative; min-width: 0; }
+.expedition-map canvas { display: block; width: 100%; height: auto; aspect-ratio: 25 / 18; image-rendering: pixelated; }
+.expedition-location { margin: 0; padding: 10px 14px; background: #263f38; color: #f8edcb; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.expedition-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 12px; }
+.expedition-actions button { min-height: 48px; min-width: 0; white-space: normal; }
+.expedition-wayfinder { padding: 10px 14px; margin: 0; font-size: 14px; line-height: 1.7; color: #4c6655; }
+@media (max-width: 420px) { .expedition-actions { grid-template-columns: minmax(0, 1fr); } }
