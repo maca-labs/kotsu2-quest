@@ -1,9 +1,20 @@
 import {drawPerson} from './world.js';
 
+const taverns=Object.freeze(Object.fromEntries([
+ ['居酒屋 ひとつぶ','ひとつぶ','居酒屋'],
+ ['立ち呑み 銅貨横丁','銅貨横丁','立ち呑み'],
+ ['酒処 あかし灯','あかし灯','酒処'],
+ ['港バー しおかぜ','しおかぜ','港バー'],
+ ['大衆酒場 星札小路','星札小路','大衆酒場'],
+ ['島バル 鍵の入り江','鍵の入り江','島バル'],
+ ['雲上亭','雲上亭','亭']
+].map(([name,sign,kind],chapter)=>[`CH-${chapter}`,Object.freeze({name,sign,kind})])));
+export function getTavern(chapterId='CH-0'){return taverns[chapterId]??taverns['CH-0'];}
+
 // Original rooms. Their position is presentation state; quest progress stays in the engine.
 export const townDoors=[
  {id:'client',x:5,y:5,label:'依頼人の家'},
- {id:'tavern',x:19,y:5,label:'酒場 こもれび亭'},
+ {id:'tavern',x:19,y:5,label:'酒場'},
  {id:'elder',x:5,y:15,label:'長老の家'},
  {id:'church',x:19,y:15,label:'はじまりの教会',chapterId:'CH-0'}
 ];
@@ -13,7 +24,7 @@ export function doorAt(x,y,chapterId){return townDoors.find(d=>d.x===x&&d.y===y&
 export function roomPeople(id){return id==='tavern'?
  [[5,6],[11,6],[18,6],[6,10],[18,10],[6,13],[18,13],[11,10],[15,8]].map(([x,y],index)=>({x,y,index,kind:'tavern'})):
  [{x:12,y:7,index:0,kind:id==='church'?'church':id==='elder'?'elder':'client',...(id==='church'?{name:'神官ミル'}:{})}];}
-export function roomTitle(id,clientName='依頼人'){return id==='church'?'はじまりの教会':id==='client'?`${clientName}の家`:id==='elder'?'長老の家':'酒場 こもれび亭';}
+export function roomTitle(id,clientName='依頼人',chapterId='CH-0'){return id==='church'?'はじまりの教会':id==='client'?`${clientName}の家`:id==='elder'?'長老の家':getTavern(chapterId).name;}
 export function roomStep(id,position,dx,dy){
  if(!['client','elder','tavern','church'].includes(id)||!Number.isInteger(dx)||!Number.isInteger(dy)||Math.abs(dx)+Math.abs(dy)!==1)return {...position,moved:false,exit:false};
  const x=position.x+dx,y=position.y+dy,direction=dy>0?0:dx<0?1:dy<0?2:3;
@@ -30,7 +41,7 @@ export function drawTownDoors(canvas,highlight=false,clientHouse='依頼人の�
  c.fillStyle='#506d61';c.fillRect(58,228,13,12);c.fillStyle='#f2d78f';c.fillRect(63,228,2,12);
  for(const d of townDoors.filter(door=>!door.chapterId||door.chapterId===chapterId)){const x=d.x*16,y=d.y*16;c.fillStyle=highlight&&d.id==='client'?'#f8db83':'#c9a76b';c.fillRect(x-2,y-3,20,20);c.fillStyle='#4c3c32';c.fillRect(x+2,y,12,16);c.fillStyle='#f4cf80';c.fillRect(x+10,y+7,2,2);}
  c.font='10px sans-serif';c.textAlign='center';
- for(const [d,label]of [[townDoors[0],clientHouse],[townDoors[1],'こもれび亭'],[townDoors[2],'長老の家']]){const width=Math.max(63,c.measureText(label).width+8);c.fillStyle='#30423b';c.fillRect(d.x*16+8-width/2,d.y*16-17,width,13);c.fillStyle='#fff0c2';c.fillText(label,d.x*16+8,d.y*16-7);}
+ for(const [d,label]of [[townDoors[0],clientHouse],[townDoors[1],getTavern(chapterId).sign],[townDoors[2],'長老の家']]){const width=Math.max(63,c.measureText(label).width+8);c.fillStyle='#30423b';c.fillRect(d.x*16+8-width/2,d.y*16-17,width,13);c.fillStyle='#fff0c2';c.fillText(label,d.x*16+8,d.y*16-7);}
  if(chapterId==='CH-0'){c.fillStyle='#30423b';c.fillRect(272,222,84,13);c.fillStyle='#fff0c2';c.fillText('はじまりの教会',314,232);}
  c.textAlign='start';
 }
