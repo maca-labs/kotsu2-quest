@@ -159,3 +159,21 @@ body.exploring { background: #dce4d4; }
 #phone-body .current-operation, #phone-body .action-group, #phone-body .complete-panel { scroll-margin-top: 72px; }
 
 .playing .rpg-battle .rpg-button.is-primary small { color: #fff6d9; }
+
+/* The current place stays readable; the arrival card never blocks a step. */
+.game-place strong { font-size: 18px; line-height: 1.35; }
+.exploration-stage .world-view { position: relative; }
+.town-arrival-banner {
+  position: absolute; z-index: 2; top: 8px; left: 50%; transform: translateX(-50%);
+  width: max-content; max-width: calc(100% - 20px); padding: 8px 18px 9px;
+  border: 2px solid #e6d4a3; border-radius: 5px; background: #203b35f5;
+  box-shadow: 0 3px 0 #142b2a80; color: #fff3cd; text-align: center;
+  pointer-events: none; overflow-wrap: anywhere;
+}
+.town-arrival-banner small { display: block; font-size: 10px; line-height: 1.4; color: #d5d9bb; }
+.town-arrival-banner strong { display: block; font-size: 20px; line-height: 1.45; font-weight: 700; }
+@media (max-width: 360px) {
+  .game-place strong { font-size: 16px; }
+  .town-arrival-banner { padding: 7px 12px; }
+  .town-arrival-banner strong { font-size: 18px; }
+}
