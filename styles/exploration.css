@@ -1,0 +1,159 @@
+/* Exploration keeps the map and its controls together. Details live in the
+   adventure menu; phone forms retain their existing type and scroll flow. */
+.shell { display: block; min-height: 100dvh; }
+.shell > .sidebar { display: none; }
+.workspace { min-height: 100dvh; }
+.game-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 6px max(12px, env(safe-area-inset-right)) 6px max(12px, env(safe-area-inset-left));
+  border-bottom: 2px solid #a89b72;
+  background: #1d303a;
+  color: #fff3cf;
+  box-shadow: 0 2px 6px #182d3120;
+}
+.game-place { min-width: 0; font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
+.game-place strong { display: block; }
+.game-place small { color: #c3d0bc; font-size: 10px; }
+.game-vitals { font-size: 12px; line-height: 1.5; text-align: right; font-variant-numeric: tabular-nums; }
+.game-vitals > * { display: block; }
+.game-vitals small { color: #d9dfce; }
+.game-bar > button { min-width: 68px; min-height: 44px; padding: 8px 10px; background: #f5ecd1; border-color: #d2bd87; font-size: 14px; font-weight: 700; }
+
+body.exploring { background: #dce4d4; }
+.exploring .exploration-content {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  max-width: 724px;
+  padding: 8px 12px max(8px, env(safe-area-inset-bottom));
+  margin: 0 auto;
+}
+.exploration-objective {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #bba76e;
+  border-radius: 8px;
+  background: #fff7df;
+  box-shadow: 0 2px 4px #22392708;
+}
+.objective-copy { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.objective-copy small { display: block; font-size: 11px; line-height: 1.4; color: #78613d; }
+.objective-copy strong { display: block; margin-top: 3px; font-size: 15px; line-height: 1.55; }
+.objective-button { flex: 0 0 auto; }
+.objective-button button, button.objective-button { min-width: 68px; min-height: 44px; padding: 8px; font-size: 13px; }
+.exploration-stage {
+  /* The width also responds to height, preserving the canvas's 25:18 ratio
+     instead of cropping or stretching it on a short desktop viewport. */
+  width: min(100%, clamp(228px, calc(138.8889dvh - 666.6667px), 700px));
+  max-width: 700px;
+  margin: 0 auto;
+  border: 1px solid #64785f;
+  border-radius: 9px;
+  background: #e3e7d7;
+  overflow: hidden;
+}
+.exploration-stage .world-toolbar,
+.exploration-stage .world-footer,
+.exploration-stage .map-label { display: none; }
+.exploration-stage .world-view { padding: 0; background: #203c33; }
+.exploration-stage .world-canvas,
+.exploration-stage .expedition-canvas,
+.exploration-stage .room-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  aspect-ratio: 25 / 18;
+  image-rendering: pixelated;
+}
+.exploration-stage .world-controls { padding: 8px 6px 2px; }
+.exploration-stage .world-dpad {
+  --pad-key: 64px;
+  grid-template-columns: repeat(3, var(--pad-key));
+  grid-template-rows: repeat(3, var(--pad-key));
+  gap: 6px;
+}
+.exploration-stage .world-dpad > button { min-width: 0; min-height: var(--pad-key); padding: 4px; }
+.exploration-stage .world-controls-note { max-width: 27em; margin: 6px auto 0; font-size: 12px; line-height: 1.4; }
+.exploration-stage .world-position-status,
+.exploration-stage .room-controls-hint { padding: 4px 8px 7px; margin: 0; font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
+.exploration-stage .world-position-status:empty { display: none; }
+
+.adventure-menu {
+  width: min(580px, calc(100vw - 24px));
+  max-height: min(90dvh, 900px);
+  padding: 20px;
+  overscroll-behavior: contain;
+}
+.adventure-menu h2 { font-size: 20px; line-height: 1.4; margin: 0 0 12px; }
+.adventure-menu p { overflow-wrap: anywhere; }
+.menu-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+.menu-grid button { min-width: 0; min-height: 54px; white-space: normal; overflow-wrap: anywhere; padding: 10px; text-align: left; font-size: 14px; line-height: 1.5; }
+.menu-status { display: flex; flex-wrap: wrap; gap: 5px 12px; padding: 10px 12px; background: #eef0e1; border: 1px solid #d4d6bf; border-radius: 7px; font-size: 13px; line-height: 1.7; }
+.menu-status p { margin: 0; }
+.menu-details { padding: 12px; border: 1px solid #d3d8c6; border-radius: 7px; margin: 12px 0; background: #fcfbef; }
+.menu-details summary { min-height: 44px; display: flex; align-items: center; font-size: 14px; line-height: 1.5; cursor: pointer; }
+.menu-details .chapter-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.menu-details .chapter-tile { min-width: 0; }
+.menu-details .story-mission { margin: 0; padding: 12px; }
+.adventure-menu .dialog-actions { margin-top: 14px; }
+.adventure-menu .dialog-actions button { min-height: 44px; }
+
+/* Keep the enemy, its intent and all four choices together on a phone. */
+.playing .rpg-battle { padding: 14px; }
+.playing .rpg-battle h2 { font-size: 20px; line-height: 1.4; margin-bottom: 8px; }
+.playing .rpg-battle .rpg-instruction { margin-bottom: 8px; font-size: 14px; line-height: 1.5; }
+.playing .rpg-battle .rpg-arena { grid-template-columns: minmax(80px, 118px) minmax(0, 1fr); gap: 10px; margin: 8px 0; padding: 8px; }
+.playing .rpg-battle .rpg-pixel-enemy { width: 100%; margin: 0 auto; }
+.playing .rpg-battle .rpg-combatant > strong { font-size: 16px; line-height: 1.4; text-align: left; margin-bottom: 5px; }
+.playing .rpg-battle .rpg-stat { font-size: 14px; gap: 6px; }
+.playing .rpg-battle progress { margin: 5px 0 7px; height: 10px; }
+.playing .rpg-battle .rpg-player-status { padding: 8px 10px; }
+.playing .rpg-battle .rpg-player-status p { font-size: 13px; line-height: 1.5; }
+.playing .rpg-battle .rpg-enemy-intent { padding: 8px 10px; margin: 8px 0; }
+.playing .rpg-battle .rpg-enemy-intent strong,
+.playing .rpg-battle .rpg-enemy-intent p { font-size: 14px; line-height: 1.5; }
+.playing .rpg-battle .rpg-battle-actions { gap: 8px; }
+.playing .rpg-battle .rpg-battle-actions .rpg-button { min-height: 86px; padding: 8px; font-size: 16px; line-height: 1.4; }
+.playing .rpg-battle .rpg-battle-actions small { margin-top: 4px; font-size: 13px; line-height: 1.45; }
+.playing .rpg-battle .rpg-turn-log { margin-top: 12px; padding-top: 10px; }
+
+@media (max-width: 360px) {
+  .game-bar { gap: 7px; padding-left: 8px; padding-right: 8px; }
+  .game-place { font-size: 12px; }
+  .game-vitals { font-size: 11px; }
+  .game-bar > button { min-width: 62px; font-size: 13px; }
+  .exploring .exploration-content { padding-left: 8px; padding-right: 8px; }
+  .exploration-objective { gap: 7px; padding: 8px; }
+  .objective-copy strong { font-size: 14px; }
+  .objective-button button, button.objective-button { min-width: 60px; }
+  .exploration-stage .world-dpad { --pad-key: 56px; gap: 5px; }
+  .exploration-stage .world-direction-arrow { font-size: 20px; }
+  .adventure-menu { padding: 16px 12px; }
+  .menu-grid { gap: 6px; }
+  .playing .rpg-battle { padding: 10px; }
+  .playing .rpg-battle .rpg-arena { grid-template-columns: 90px minmax(0, 1fr); gap: 8px; }
+}
+
+@media (max-height: 650px) {
+  .exploration-stage .world-dpad { --pad-key: 48px; gap: 4px; }
+  .exploration-stage .world-direction-arrow { font-size: 18px; }
+  .exploration-stage .world-controls-note { font-size: 11px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exploration-stage *, .adventure-menu * { scroll-behavior: auto !important; }
+}
+
+/* The compact sticky bar must not cover the current phone instruction. */
+#phone-body .current-operation, #phone-body .action-group, #phone-body .complete-panel { scroll-margin-top: 72px; }
