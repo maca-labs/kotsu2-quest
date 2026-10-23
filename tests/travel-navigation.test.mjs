@@ -6,6 +6,7 @@ import {createState,dispatch,parseSave} from '../js/engine.js';
 import {questById} from '../js/content.js';
 import {getAvailableEncounters,getFieldEncounter} from '../js/rpg.js';
 import {mapTile} from '../js/world.js';
+import {getTownLayout} from '../js/towns.js';
 import {doorAt} from '../js/rooms.js';
 
 const source=fs.readFileSync(new URL('../js/app.js',import.meta.url),'utf8');
@@ -13,7 +14,7 @@ const body=name=>source.split('\n').find(line=>line.startsWith(`function ${name}
 const act=(state,command)=>dispatch(state,command,Date.now());
 function ready(){let state=createState();for(const command of [{type:'START'},{type:'NPC',chapterId:'CH-0',index:0},{type:'ACCEPT',id:'PR-01'},{type:'RPG_TRAVEL',mapId:'cave:CH-0'}])state=act(state,command);return act(state,{type:'RPG_BATTLE_START',encounterId:getAvailableEncounters(state)[0].id});}
 function turn(state,action){return act(state,{type:'RPG_BATTLE_ACTION',battleId:state.rpg.battle.id,turn:state.rpg.battle.turn,action});}
-function environment(state){const context={state:structuredClone(state),ui:{view:'combat'},questById,render(){},window:{scrollTo(){}},entryEncounter:()=>null,phone:0,openQuestPhone(){context.phone++;},getFieldEncounter,mapTile,doorAt,expeditionPosition:()=>({mapId:'world'}),isDesert:()=>false,toast(){},requests:[]};context.startFieldBattle=kind=>{context.requests.push(kind);return true;};vm.createContext(context);for(const name of ['continueAfterBattle','revivalPending','maybeFieldEncounter','normalizeTownPosition'])vm.runInContext(body(name),context);return context;}
+function environment(state){const context={state:structuredClone(state),ui:{view:'combat'},questById,render(){},window:{scrollTo(){}},entryEncounter:()=>null,phone:0,openQuestPhone(){context.phone++;},getFieldEncounter,mapTile,doorAt,getTownLayout,expeditionPosition:()=>({mapId:'world'}),isDesert:()=>false,toast(){},requests:[]};context.startFieldBattle=kind=>{context.requests.push(kind);return true;};vm.createContext(context);for(const name of ['continueAfterBattle','revivalPending','maybeFieldEncounter','normalizeTownPosition'])vm.runInContext(body(name),context);return context;}
 
 test('flee returns to the road rather than silently opening an unfinished lesson',()=>{
  const state=turn(ready(),'flee'),before=structuredClone(state),env=environment(state);env.continueAfterBattle();assert.equal(env.ui.view,'world');assert.equal(env.phone,0);assert.deepEqual(env.state,before);
