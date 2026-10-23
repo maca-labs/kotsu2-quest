@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {quests,steps} from '../js/content.js';
 import {getHelpTopics,getGlossary,explainTerm,humanFieldLabel,displayPracticeValue} from '../js/help.js';
+import {openHelp} from '../js/ui-adventure.js';
+import {createState,dispatch,activeStep} from '../js/engine.js';
 const questById=Object.fromEntries(quests.map(q=>[q.id,q]));
 
 test('all original 572, funding 70 and extension 176 steps get contextual help',()=>{
@@ -83,4 +85,40 @@ test('every new course has its own help and free choices do not leak expected an
   const text=JSON.stringify(getHelpTopics(subject,questById['LV-01']));assert.ok(!text.includes('987654321'));assert.match(text,/選|向き|倍率/);
  }
  assert.match(explainTerm('practice-repeat').how,/依頼帳.*もう一度/);
+});
+
+// Only the DOM surface used by the help menus is needed; this does not emulate
+// layout, focus handling or assistive-technology announcements in a browser.
+function helpDialogFixture(){
+ const context=new Proxy({},{get:(_target,key)=>key==='measureText'?()=>({width:20}):()=>{},set:()=>true});
+ const make=tag=>({tagName:tag,children:[],listeners:{},attributes:{},textContent:'',open:false,scrollTop:80,
+  append(...nodes){this.children.push(...nodes);},replaceChildren(...nodes){this.children=nodes;},
+  get lastChild(){return this.children.at(-1);},setAttribute(k,v){this.attributes[k]=v;},
+  addEventListener(k,fn){this.listeners[k]=fn;},getContext(){return context;},
+  showModal(){this.open=true;},close(){this.open=false;}});
+ return {document:{createElement:make},modal:make('dialog')};
+}
+const helpNodes=node=>[node,...node.children.flatMap(helpNodes)];
+function helpClick(modal,label){const node=helpNodes(modal).find(n=>n.tagName==='button'&&(typeof label==='string'?n.textContent===label:label.test(n.textContent)));assert.ok(node,`missing help button: ${label}`);node.listeners.click();}
+
+test('help, tavern and elder keep a named dialog and return without changing unfinished work',()=>{
+ const fixture=helpDialogFixture(),previousDocument=globalThis.document;
+ globalThis.document=fixture.document;
+ try{
+  let now=1000000,state=dispatch(createState(),{type:'START'},now++);
+  state=dispatch(state,{type:'NPC',chapterId:'CH-5',index:0},now++);
+  state=dispatch(state,{type:'ACCEPT',id:'DX-01'},now++);
+  for(let i=0;i<4;i++){const step=activeStep(state);state=dispatch(state,{type:'STEP',id:step.id,value:step.value},now++);}
+  const before=structuredClone(state),modal=fixture.modal,quest=questById['DX-01'],step=activeStep(state);
+  // The real dialog names itself with this ID; every substituted page must keep it.
+  const named=()=>{const names=helpNodes(modal).filter(n=>n.id==='modal-title');assert.equal(names.length,1);assert.equal(names[0].tagName,'h2');assert.ok(names[0].textContent);assert.equal(modal.scrollTop,0);};
+  for(const mode of ['what','why','glossary','tavern','archive']){openHelp({state,quest,step,modal,mode});named();helpClick(modal,'今の作業へ戻る');assert.equal(modal.open,false);}
+  openHelp({state,quest,step,modal});helpClick(modal,'国内取引所の口座って何？');named();
+  assert.ok(helpNodes(modal).some(n=>n.textContent==='どうして確かめるの？'));
+  assert.ok(helpNodes(modal).some(n=>n.textContent==='この場面では'));
+  helpClick(modal,'ほかの説明を聞く');helpClick(modal,'ことばの本を開く');helpClick(modal,'ネットワークって何？');named();helpClick(modal,'今の作業へ戻る');
+  openHelp({state,quest,step,modal,mode:'tavern'});helpClick(modal,/^郵便屋ミナ /);named();helpClick(modal,'前に残した控えを見よう');named();helpClick(modal,'今の作業へ戻る');
+  openHelp({state,quest,step,modal,mode:'archive'});helpClick(modal,/途中の控え/);named();helpClick(modal,/^1\. /);named();helpClick(modal,'今の作業へ戻る');
+  assert.deepEqual(state,before);assert.equal(activeStep(state).id,'DX-01-S005');
+ }finally{if(previousDocument===undefined)delete globalThis.document;else globalThis.document=previousDocument;}
 });
