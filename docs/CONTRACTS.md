@@ -84,3 +84,12 @@ RPG_FIELD_START {kind:'road'|'desert',chapterId}を既存RPG命令に追加。wo
 野道/砂漠の敗北はCH-0 townへ戻しHP全回復。教会の扉19,15、外の復活点19,16。reviveイベントとbattle-action lostを残し、UIが教会室内を表示する。後続travelで復活演出を消化する。装備・コイン・案件・入力・固定XP・金融残高を保持。schema3/rpg.version1/既存IDは維持。
 
 isDesert(location)、getTerrainLabel(location)をworld側から公開。砂漠はx53..59/y27..33、標識52,29。既存7町/7洞窟の徒歩到達を保ち、山脈と峠で章順の道を作る。章選択からの自由開始は維持。教会doorはCH-0のみ、doorAt/drawTownDoorsへ章引数を渡す。噴水/建物/水の描画と衝突を一致させる。
+
+
+## V — 敵の登場と入力の区切り
+
+遭遇演出は保存外のUI状態。trackEncounterInputs(document)を歩行操作の登録前に常時起動し、遭遇前から押されていたpointer/keyの解放を把握する。mountEncounterIntro({document,state,onStart,minimumDisplayMs=600})は敵名・絵と一つの開始ボタンを表示し、600ms経過と全入力の解放後に新しい操作だけを受理する。pointercancel、blur、hiddenでも押下を消去し、destroyで購読・タイマーを解除する。
+
+renderCombatViewが全入口を集約し、activeかつturn1かつ当該battle.idの未確認時に登場画面を出す。開始はstateを進めず、明示的に押した後だけ戦闘行動へ切替。350msは行動を無効化し、開始の連打が逃走や攻撃へ通らないようにする。途中のsettings/hash再描画は残り時間を引き継ぐ。turn2以降の保存復帰はそのターンへ戻る。schema3/rpg.version1/工程・金融・XP・報酬は不変。
+
+JSON置換と冒険リセットの成功時は、同じbattle.idが再利用されても古い確認が残らないようUIのacknowledgedBattleId/combatReadyAtを消去する。失敗時は現在の冒険を保持する。

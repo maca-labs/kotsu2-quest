@@ -69,3 +69,15 @@ R最終242PASS/0FAIL。実ブラウザーと未確認の範囲はdocs/rpg-verifi
 |TU-QA|QA:独立再確認|reviewed|TU-qa、親ブラウザーとは分離|
 
 T/U最終261PASS/0FAIL。公開版の受注→街道→洞窟→戦闘→12工程→帰還→報告を実操作し、砂漠敗北/教会復活と装備・XP保持、最終色/出口修正も公開で確認。実機/実参加者の面白さは未確認。
+
+
+## 看板位置の修正 — V
+
+V-01 親: 旧看板の扉重なりを解消し共通ラベルへ移行。world/rooms/index/運用docsを担当。独立レビューはtavern_sign_review、製品編集なし。ローカル/公開画面の再確認へ進む。
+
+V-02 world/UI: encounter_intro_ui が js/rpg-ui.js・styles/rpg-ui.css・専用testを所有。敵登場・押下解放・新規操作だけを受理し、親がappと配信入口を統合。
+V-03 QA: encounter_input_review が入力境界/復帰経路を独立確認。製品コード編集なし。V-01と合わせてローカルと公開で確認する。
+
+V統合: V-01看板レビュー合格、V-02提出、V-03独立37件合格・重大残件0。QA発見の同一ID再利用を修正し、全277テスト成功。公開の反映/実操作確認中。
+
+V公開: sign-intro6のPages成功と公開320/390実操作を確認。開始dblclickはターン1に留まり、明示guard後のreloadはターン2、67XP/0coin/攻撃10を維持。詳細sign-intro-verification。全277PASS、独立QA重大残件0、実機/人間観察は未実施。
