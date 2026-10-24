@@ -158,13 +158,13 @@ AA最終統合: dd38ea2/guide13、全351 PASS。AA01のChrome追試は応答せ�
 
 |ID|担当|状態|所有・受入|
 |---|---|---|---|
-|AB-01|ch3_beginner / playtest_analyst|baseline_complete_public_replay|履歴なし。画面だけで第3章基本3件のアプリ開始→帰還報告。AB01reportのみ|
+|AB-01|ch3_beginner / playtest_analyst|replayed_guide14|履歴なし。画面だけで第3章基本3件のアプリ開始→帰還報告。AB01reportのみ|
 |AB-02|ch3_learning_review / learning_reviewer|reviewed_regression_pass|語句/入力/押下/受注帰還の根拠、AB02reportのみ。初心者へ正解を渡さない|
 |AB-03|encounter_input_review / QA|returned_unavailable_old_tab|旧own検証tab3178のclose/resetのみ。製品・ユーザーtab変更なし|
 |AB-04|ch3_finance_qa / finance_reviewer|reviewed|金融68工程/確認4画面/不変/重複拒否、AB04reportのみ|
 |AB-05|ch3_phone_copy / phone_engineer|integrated|fx-guidance.js/専用19testを親へ返却|
-|AB-06|deployment_verify / QA|waiting_final|最終tree全blob/Pagesの読取監査、AB06reportのみ|
-|AB-10|親統合|runtime_published_rechecking|正規engine/parse済み開始JSON、観察回収、最小修正、再確認・公開。共通契約と製品の所有は親|
+|AB-06|deployment_verify / QA|audited_210|最終tree全blob/Pagesの読取監査、AB06reportのみ|
+|AB-10|親統合|published_verified|正規engine/parse済み開始JSON、観察回収、最小修正、再確認・公開。共通契約と製品の所有は親|
 
 第3章の事前状態はSTART/章選択/初会話/条件メモ/FX01受注/門番勝利を正規dispatchで作成。最初の学習操作は未実施で、工程0/3XP/12コイン/HP29。通常JSON取込で準備し、事前区間を初心者役の学習済み・実操作実績へ含めない。基本50工程を省かず、任意売り18工程は選択と実施を別記録。Chromeは排他、未対応の子IABを前提にしない。
 
@@ -173,3 +173,5 @@ AB実施: AB01はChrome320×720で基本50工程＋3報告完了（最初の受�
 AB guide14再プレイ: 基本50工程/3報告を完了し、旧敵による依頼巻戻しなし・依頼帳回復なし。追加の損益内訳カード4件はguide15に分離、金融担当が時点/固定式/実描画/状態不変23/23を確認。最終全383 PASS/0FAIL。Chromeバトンは最終配信と2画面限定追試で順に渡し、最終tree監査を待つ。
 
 AB最終操作: guide14で初心者役の基本50再一周/3報告を完了。guide15限定2画面は子の接続不調で未実施として分離し、親fresh Chrome3207で公開320の実計算カード/次target1/overflow0を確認。元164XP/48coins/HP20の保存を通常UI復元、親viewportreset/新tabclose。残る子旧tabcloseは未確認。製品383テスト/金融レビュー合格、公開docsと全treeの監査を残す。
+
+AB納品監査: c8d425eと公開83ddd413の全210 path/blob/mode一致、欠落/相違/余分0、Pages40087167492同SHA success。最終監査報告と本状態記録の補記だけを公開し、その後はAB06が報告を編集せずread-onlyで全treeを再照合する。実機・人間の理解/楽しさと子旧タブのcloseは未確認のまま。実コード/383自動検証/AI初心者の50再一周/親の追加2画面/元保存復元は完了。

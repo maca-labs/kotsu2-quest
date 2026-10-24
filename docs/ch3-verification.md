@@ -59,3 +59,7 @@ JS5ファイルはce3a9ca8、入口・READMEはda228798、回帰テストはc2fc
 親の公開guide15・320×720で、正規engine/parseSave済みのFX02-009/020の2fixtureを通常JSON入力から読み込んだ。前者のカードはBid149.98/開始150/1000通貨から未確定−20円、後者は149.88/開始150/1000から確定−120円・現金99880・建玉0。矢印対象1、横overflowなし、計算カードと次のボタンを同時に読めた。module URLがguide15であることも実DOM確認。画像は親workspaceの kotsukotsu-guide15-public-pnl-open.jpg / pnl-closed.jpg。
 
 続けて通常UIから退避11を読み戻し、『ことばの小洞 Lv2 164XP/HP20/32/48コイン/章印0/6』をメニューで確認。親のviewport指定をresetし、新しい検証tab3207をcloseした。子の古いtab3202のcloseは取得できず未確認だが、共有保存の復元は親の実操作で確認した。子のguide15限定追試未実施という記録と、この親技術QAを分離する。
+
+### 公開ツリーの独立監査
+
+AB-06がprepared c8d425eea72debe6a35f4cc5f9daad32759ecdcbと公開83ddd4134a2bbf2f087368d93b35d661606ee6e0を照合し、全210 path/blob/mode一致、欠落/相違/余分0、truncated=falseを確認。リポジトリpublic、Pages main:/、HTTPS有効。同SHAの[Pages40087167492](https://github.com/maca-labs/kotsu2-quest/actions/runs/40087167492)はsuccess。[監査報告](./reviews/AB-06-deployment-audit.md)を参照。報告と本補記を公開した後の最終照合は、文書の自己参照更新を避けて担当返信に残す。
