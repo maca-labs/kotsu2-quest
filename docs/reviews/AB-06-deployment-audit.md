@@ -2,9 +2,20 @@
 
 担当: deployment_verify / qa_reviewer。2026-10-24。製品コード・Git参照・認証設定・公開設定は変更しない。
 
+## 第一回の全ツリー監査: 合格
+
+- 最終prepared基準: `c8d425eea72debe6a35f4cc5f9daad32759ecdcb`。
+- remote main: `83ddd4134a2bbf2f087368d93b35d661606ee6e0`。
+- 基準の全210ファイルとremoteの全210blobについてpath・blob SHA・modeが完全一致。欠落0、相違0、余分0、mode差0。recursive treeはtruncated=false。
+- 確認時のlocal HEADは基準SHAと一致、worktreeはclean。比較はcommitのblobを用い、既存worktreeのCRLFを内容差と誤判定していない。数値や行末の差もblob SHAで検出する。
+- リポジトリはpublic/private=false、既定main。Pagesはbuilt、source mainの`/`、HTTPS有効。[公開URL](https://maca-labs.github.io/kotsu2-quest/)。
+- 同remote SHAの[Pages run40087167492](https://github.com/maca-labs/kotsu2-quest/actions/runs/40087167492)はcompleted/success。更新時刻は2026-10-24 10:45:47 UTC（19:45:47 JST）。
+
+これは本節を追記する前のツリーに対する証跡。本報告と最終状態記録を親が公開した後、もう一度全ツリーを読み取り照合し、その結果は親への返信だけに残す。実機・実参加者の観察は未実施。guide14の50工程再一周、guide15追加2画面の子接続不良による未実施、親による公開技術QAは別の証跡として扱い、本監査によるゲーム操作とはしない。
+
 ## 中間確認
 
-最終の全ツリーは未判定。以下は製品・入口・READMEの変更7ファイルだけを対象にした確認であり、最終公開合格ではない。
+以下は最終監査前に行った製品・入口・READMEの変更7ファイルだけの確認であり、この中間確認自体は最終公開合格ではない。
 
 - 基準: `863201a96a4d977d9c88c5cf3b376029b4acd0e3`。
 - 確認時のremote main: `c2fc3b7bc094fb73d97922d56fc487957ef89085`。
