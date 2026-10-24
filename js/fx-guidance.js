@@ -196,6 +196,22 @@ export function getFxOrderConfirmation(state, step) {
 }
 
 const cards = {
+  buyInitialPnl: {
+    title: '開いた内訳：いま閉じると、なぜ−20円？',
+    text: 'この教材では150.00円で買った1,000ドルを、いま売る値段Bid149.98円で閉じると、（149.98−150.00）×1,000＝−20円です。評価損益は「いま閉じたら」の結果で、まだ現金に確定していません。次の値動きで変わります。',
+  },
+  buyClosedPnl: {
+    title: '開いた内訳：確定した−120円',
+    text: 'この教材の買いは150.00円で始まり、149.88円で決済売りをしました。（149.88−150.00）×1,000ドル＝−120円。現金は100,000−120＝99,880円、残った建玉は0です。損失を正直に記録できれば、この練習は達成です。',
+  },
+  sellInitialPnl: {
+    title: '別の売り練習の内訳：いま閉じると−30円',
+    text: 'この教材の別練習は160.00円で売りから始めた1,000ユーロ。いま買う値段Ask160.03円で閉じると、（160.00−160.03）×1,000＝−30円です。まだ確定前の評価損益で、次の値動きで変わります。本編の資金には足しません。',
+  },
+  sellClosedPnl: {
+    title: '別の売り練習の内訳：確定した＋70円',
+    text: 'この教材の別練習は160.00円の新規売りを159.93円の決済買いで閉じました。（160.00−159.93）×1,000ユーロ＝＋70円。別財布の現金は100,000＋70＝100,070円、残った建玉は0です。本編の資金や300P案件とは合算しません。',
+  },
   bidAsk: {
     title: '開いた用語：BidとAsk',
     text: 'Bid（ビッド）は自分が売るときの値段、Ask（アスク）は自分が買うときの値段です。二つの値段の差をスプレッドといいます。新規でも決済でも、売るときと買うときで使う値段が違います。',
@@ -258,19 +274,23 @@ const cardKeysByStep = {
   'FX-02-003': ['marginMeaning', 'buyMargin'],
   'FX-02-004': ['marginMeaning', 'buyMargin'],
   'FX-02-005': ['buyReserved'],
+  'FX-02-009': ['buyInitialPnl'],
   'FX-02-010': ['closeBuy'],
   'FX-02-011': ['closeBuy'],
   'FX-02-012': ['closeBuy'],
   'FX-02-013': ['closeBuy'],
   'FX-02-014': ['closeBuy'],
+  'FX-02-020': ['buyClosedPnl'],
   'FX-02-S-007': ['directions'],
   'FX-02-S-008': ['directions', 'marginMeaning'],
   'FX-02-S-009': ['marginMeaning', 'sellMargin'],
   'FX-02-S-010': ['sellReserved'],
+  'FX-02-S-012': ['sellInitialPnl'],
   'FX-02-S-013': ['closeSell'],
   'FX-02-S-014': ['closeSell'],
   'FX-02-S-015': ['closeSell'],
   'FX-02-S-016': ['closeSell'],
+  'FX-02-S-018': ['sellClosedPnl'],
 };
 
 /** No state changes or financial estimates: only fixed, explicitly named examples. */
