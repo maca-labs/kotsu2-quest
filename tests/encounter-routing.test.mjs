@@ -28,7 +28,7 @@ function screen(state){
  context.mountBattleTurn=options=>{const effect={options,destroyed:false,destroy(){this.destroyed=true;}};context.effects.push(effect);return effect;};
  context.continueAfterBattle=context.wakeAtChurch=context.travelArea=()=>{};
  context.main={children:[],append(element){this.children.push(element);}};
- vm.createContext(context);vm.runInContext(combatSource,context);
+ context.placeBanner={reset(){}};vm.createContext(context);vm.runInContext(combatSource,context);
  context.render=()=>{context.battleAnimation?.destroy();context.battleAnimation=null;context.ui.battleAnimating=false;context.encounterIntro?.destroy();context.encounterIntro=null;context.clearTimeout(context.combatArmTimer);context.combatArmTimer=null;for(const item of context.main.children)for(const button of item.buttons??[])button.isConnected=false;context.main.children=[];if(context.ui.view==='combat')context.renderCombatView(context.main);};
  context.advance=ms=>{now+=ms;for(const[key,timer]of [...timers])if(timer.due<=now){timers.delete(key);timer.fn();}};
  context.render();return context;
@@ -67,15 +67,19 @@ test('stale intro callbacks cannot acknowledge a different battle or a settings 
 test('importing a turn-one JSON from the same battle ID clears its old acknowledgement',()=>{
  const saved=savedBattle(),c=screen(saved);c.intros[0].options.onStart();c.advance(400);c.ui.view='settings';c.render();
  c.store={replace:()=>parseSave(JSON.stringify(saved))};c.text=JSON.stringify(saved);
+ c.ui.inputs={'step:FX-01-010':'old value','FX-01-015':'sell'};c.ui.error='old error';
  const load=source.match(/const next=store\.replace\(text\);[\s\S]*?(?=ui\.room=)/)?.[0];assert.ok(load);
  vm.runInContext('{'+load+'}',c);c.ui.view='combat';c.render();
+ assert.equal(Object.keys(c.ui.inputs).length,0);assert.equal(c.ui.error,'');
  assert.equal(c.main.children[0].kind,'intro');assert.equal(c.commands.length,0);assert.deepEqual(c.state,saved);
 });
 test('starting a new adventure cannot reuse an acknowledgement for its first encounter',()=>{
  const saved=savedBattle(),c=screen(saved);c.intros[0].options.onStart();c.advance(400);
  c.store={reset:()=>createState()};
+ c.ui.inputs={'step:FX-01-010':'old value'};c.ui.error='old error';
  const reset=source.match(/state=store\.reset\(\);[\s\S]*?(?=modal\.close\(\))/)?.[0];assert.ok(reset);
  vm.runInContext(reset,c);assert.equal(c.ui.view,'home');
+ assert.equal(Object.keys(c.ui.inputs).length,0);assert.equal(c.ui.error,'');
  // A fresh playthrough generates exactly the same first-battle ID.
  c.state=savedBattle();assert.equal(c.state.rpg.battle.id,saved.rpg.battle.id);c.ui.view='combat';c.render();
  assert.equal(c.main.children[0].kind,'intro');assert.equal(c.commands.length,0);

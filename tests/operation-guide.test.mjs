@@ -16,7 +16,7 @@ class Element extends Events{
  append(...nodes){for(const node of nodes){this.children.push(node);node.parent=this;}}
  setAttribute(key,value){this.attributes[key]=value;}
  getBoundingClientRect(){return {...this.rect,right:this.rect.left+this.rect.width,bottom:this.rect.top+this.rect.height};}
- querySelector(){return this.targets?.[0]??null;}
+ querySelector(selector){return selector==='[data-guide-submit]'?null:this.targets?.[0]??null;}
  remove(){if(this.parent)this.parent.children=this.parent.children.filter(child=>child!==this);}
  scrollIntoView(options){this.scrollCalls.push(options);}
  click(){this.clicks++;}
@@ -36,6 +36,12 @@ function scene({left=0,top=0,width=320,height=600,targetTop=300,targetLeft=30,ta
 test('one real target is outlined with a click-through arrow; names, tap dimensions, and actions remain unchanged',()=>{
  const s=scene(),second=new Element('button');s.phone.targets.push(second);s.phone.append(second);const control=mountOperationGuide({document:s.doc,phone:s.phone,step:{type:'tap'}}),marker=s.marker();
  assert.ok(s.target.classList.contains('operation-guide-target'));assert.equal(second.classList.contains('operation-guide-target'),false);assert.equal(marker.style.pointerEvents,'none');assert.ok(marker.children.every(child=>child.style.pointerEvents==='none'));assert.equal(marker.attributes['aria-hidden'],'true');assert.equal(marker.children[0].textContent,'ここをタップ');assert.equal(s.target.attributes['aria-label'],'既存の操作名');assert.equal(s.target.rect.height,44);assert.equal(s.target.clicks,0);assert.equal(s.target.focuses,0);assert.equal(s.target.scrollCalls.length,0);control.destroy();
+});
+
+test('the live lesson can repeat its instruction beside the target without performing the action',()=>{
+ const s=scene(),control=mountOperationGuide({document:s.doc,phone:s.phone,step:{type:'tap',instruction:'メールを押す'},showInstruction:true});
+ assert.equal(s.marker().children[0].textContent,'メールを押す');control.scrollToTarget();assert.equal(s.target.clicks,0);assert.equal(s.target.focuses,0);assert.equal(s.target.scrollCalls.length,1);control.destroy();
+ const paste=scene();paste.phone.querySelector=()=>paste.target;const pasted=mountOperationGuide({document:paste.doc,phone:paste.phone,step:{type:'input',instruction:'練習コードを貼り付け'},showInstruction:true});assert.equal(paste.marker().children[0].textContent,'練習コードを貼り付け');pasted.destroy();
 });
 
 test('marker follows actual geometry on scroll, resize, and observed layout changes within 320px bounds',()=>{
@@ -65,6 +71,16 @@ test('replacement and repeated mounting keep just one marker and restore the old
  const s=scene(),first=mountOperationGuide({document:s.doc,phone:s.phone,step:{type:'tap'}}),replacement=new Element('button',{left:20,top:400,width:200,height:44});s.phone.targets=[replacement];s.phone.append(replacement);s.mutations[0].fn();s.win.flush();assert.equal(s.target.classList.contains('operation-guide-target'),false);assert.equal(replacement.classList.contains('operation-guide-target'),true);
  const second=mountOperationGuide({document:s.doc,phone:s.phone,step:{type:'tap'}});assert.equal(s.phone.children.filter(node=>node.className==='operation-guide-marker').length,1);assert.equal(first.scrollToTarget(),false);second.destroy();assert.equal(replacement.classList.contains('operation-guide-target'),false);
  const blank=scene();blank.phone.targets=[];const empty=mountOperationGuide({document:blank.doc,phone:blank.phone,step:{type:'tap'}});assert.equal(empty.scrollToTarget(),false);assert.equal(blank.marker(),undefined);assert.equal(blank.win.listeners.length,0);empty.destroy();
+});
+
+test('typing or choosing moves the arrow to confirmation and clearing restores the field without submitting',()=>{
+ for(const tag of ['input','textarea','select']){
+  const s=scene({tag}),submit=new Element('button',{left:30,top:400,width:260,height:44});s.phone.append(submit);s.phone.querySelector=selector=>selector==='[data-guide-submit]'?submit:s.target;s.target.value='';
+  const control=mountOperationGuide({document:s.doc,phone:s.phone,step:{type:tag==='select'?'select':'input'}});
+  assert.equal(s.target.classList.contains('operation-guide-target'),true);s.target.value='1';s.phone.emit(tag==='select'?'change':'input');s.win.flush();
+  assert.equal(submit.classList.contains('operation-guide-target'),true);assert.equal(s.target.classList.contains('operation-guide-target'),false);assert.equal(s.marker().children[0].textContent,'ここをタップ');assert.equal(submit.clicks,0);
+  control.scrollToTarget();assert.equal(submit.scrollCalls.length,1);s.target.value='';s.phone.emit('input');s.win.flush();assert.equal(s.target.classList.contains('operation-guide-target'),true);assert.equal(submit.classList.contains('operation-guide-target'),false);control.destroy();
+ }
 });
 
 test('guided venue switch marks only the requested real tab; previews, reviews, and boss copies reveal no answer target',()=>{
