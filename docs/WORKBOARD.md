@@ -130,3 +130,24 @@ Y公開: Y-01/Y-02/Y-10 integrated_published、Y-03 reviewed。townscapes9を公
 子のIABは利用不可だったため、利用可能なChromeで公開ゲームの別タブを順に開く。未実施をIAB確認済みにせず、UI実歩行と静的BFSを別に記録。港の南門→バー32歩、章開始→店29歩の大迂回と、家名が主指示にない点を指摘。ローカル修正後に公開反映し、該当条件を再確認する。
 
 Z公開: 全7町29施設を担当分けし公開9で徒歩入退室・酒場相談を実施。walk10のJS bcb5bbea/入口4874fa66、Pages40039251281 success。港の道順は親の公開再歩行で店29→11・南門から酒場32→16（入室込み）。全7店の上部退出/上1再入を親とZ03で確認、CH0/1/2/4は退出→reload→上1再入も成功。Z03はCH5/6の可視家名/次方向だけで15/11入力の入室、運用見送りのソラ相談一致を再確認。320/390で横overflow0。関連69＋help12＝81成功、Z04の退店二段保存Majorは一回保存へ修正後再確認、重大残件0。詳細public-walk-verification。実機と人間の理解/面白さは未確認。
+
+
+## AA — 公開一周と初心者想定操作 / 2026-10-24
+
+|ID|担当|状態|所有・受入|
+|---|---|---|---|
+|AA-01|QA:encounter_input_review|reviewed|公開walk10/PR12全一周・復帰・重複、reportのみ|
+|AA-02|learning:exploration_layout|reviewed|FX03入口欠落と寄り道の指示/矢印、reportのみ|
+|AA-03|world:encounter_intro_ui|integrated_published|place-presentation JS/CSS/専用tests、6件成功|
+|AA-04|beginner_player|reviewed_replay|履歴を渡さない初回/guide11再一周を分離、reportのみ|
+|AA-05|QA:engine_engineer|reviewed|実engine/parseとapp境界、F01/F02修正後22件成功、製品未編集|
+|AA-06|QA:deployment_verify|waiting_final|最終prepared treeとremote全blob/公開設定/Pages、read-only|
+|AA-10|親統合|published_rechecking|phone-navigation/panels/guide/app/index/共通docs・guide11公開|
+
+AA01は通常技術QAとして村→世界遭遇→洞窟門番→PR12→帰還報告を実操作、67XP/24coins/HP26/36/手帳を確認。JSONを通常UIで退避後、AA04が新規テスト冒険を開始。AA04の準備時に自身のタイムアウト作成tabが重複し閲覧ロックとなった件はブラウザー準備問題として区別、重複tabを閉じて再開。親はFX03のpointsアイコン欠落を修正し、寄り道復帰/確定へ矢印/場所名/話者を統合中。
+
+AA統合後: 全350自動テスト成功、AA05独立QAのF01/F02は修正後解消。保存/818工程/固定XP/金融は維持。guide11をowner Chrome UIで公開、入口版Pages40076374485とtests版40076456880 success。AA04は公開320で新規0XP→受注/街道戦/門番/PR12/帰還報告67XP/24coins/HP26/36。必要な主操作12は維持し、初回の補助移動8→再確認0。これは同じAI役の再プレイで、実人間の学習効果とはしない。AA01が第3章入力/アプリ入口を追加確認中。証跡はfirst-loop-verificationとAA各report。
+
+AA公開追試の追加修正: 別アプリfallbackの現在指示/実ボタン不一致とPR開始の画面外をAA01が再現。親75bf41e/guide12で文言/一意target/開始と動画の順序を最小修正、AA05独立12ケース・関連6件成功。最終全351 PASS/0FAIL。app f5d069f6/入口a4d86e91/追加test28c03ddbを公開、入口同SHAのPages40078686538 success。AA01が公開guide12該当条件を再確認中。
+
+AA最終統合: dd38ea2/guide13、全351 PASS。AA01のChrome追試は応答せず未確認として返却、親fresh IABで公開320の開始/復帰を再確認。画面名と住所の混同も最小修正しAA05追加10分岐合格、公開guide13の同文target1/住所なしを確認。app5e4c5d29/入口e18323df、同SHA Pages40079442231 success。AA04の序章初回/再一周は完了、第3章追加は子IAB非対応で未実施。AA01/03/05は受入済み、AA04の確認範囲を分離、AA10はruntime公開済み。reports/docs保存後のAA06最終tree/Pages照合を納品条件とする。実人間の理解・楽しさは未確認。

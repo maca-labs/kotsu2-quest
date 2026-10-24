@@ -123,3 +123,18 @@ town-guidance/getTownWalkGuide(state,guide)はhouse目的だけ、共通地形�
 港のNPC index2/3を8,10/17,9へ移し、7,12と14,10の狭路を開ける。会話index/報酬は変更しない。公開版の実歩行は専門役がChrome一つずつで実施し、保存ロックとviewportの競合を避ける。AIの観点レビューと実利用者の観察は区別する。
 
 leaveShopはactのworldPositionへ実際のshop扉の南隣を渡し、dispatch後のnextに座標を適用してRPG_TRAVELと一回の保存で確定する。保存競合throwは旧stateと店画面を維持。容量不足falseは従来の保存不可通知＋JSON書出し可能なメモリ継続を保ち、途中の町＋旧座標は保存しない。上部「店の外へ」と既存下部の退出は同じ入口へ結ぶ。購入/装備/コインの処理は変更しない。酒場の近接操作は既存の相談一覧を開き、そこから話者を選ぶ設計を維持する。
+
+
+## AA — 初心者の操作案内・入場名・話者（2026-10-24）
+
+phone-navigationのgetStepOpenAppIdは明示openAppIdと既存9工程IDの互換対応を用い、ホームの実アイコンと矢印を同じapp IDで決める。FX-03の教材appId=browser/工程IDは維持し、表示先だけpointsとする。寄り道は現在の指示と復帰矢印を保ち、通常の復帰でSTEPを実行しない。元々『アプリを開く』工程だけ、対象アイコンの明示操作で一度STEPする。
+
+操作ガイドは実data-guide-targetだけを装飾し、入力/選択が空でなければdata-guide-submitの実確定ボタンへ移る。消すと入力欄へ戻る。クリック・入力・focus・学習・金融処理を代行しない。コピー/確認課題の既存契約を保つ。
+
+createPlaceBannerのplace{key,title,kind}はappが実場所から導出する。同一keyは2800ms期限を延ばさず、別画面ではvisible=falseでも実場所/期限を保持。店はrpg-shopの画像anchorへ配置し、上の退出ボタンを覆わない。JSON/冒険置換成功時だけreset。人物会話はrenderSpeakerIdentityの名前・役割・既存portraitを表示、酒場一覧/用語本を発話と混同しない。工程/保存schema3/rpg.version1/固定XP/金融台帳は不変。
+
+初心者想定の操作役は別コンテキストで作り、攻略/ソース/他レビューを読ませず公開画面の判断を記録する。技術QA・AI想定レビュー・実人間観察は分離。Chromeゲームは排他1名、同時作成がtimeoutしても返却IDを再取得し重複tabを作らない。
+
+AA追記: mobileのorientPhoneは実対象へscrollのみ行い、矢印そばに現在instructionを表示する。寄り道中は保存stepを変えず表示copyをDOMの復帰指示へ合わせる。readonly/hiddenはHTML boolean propertyで反映し、falseを属性として残さない。成功JSON取込/新規開始だけui.inputsとui.errorを消し、失敗時は保持する。
+
+AA公開追試追記: 非ホーム/非アプリ切替の寄り道では実『練習中の画面へ戻る』を現在指示にも用い、標的はそのボタン1つ。元工程がホーム等のnav操作なら実navだけを標的とする。通常復帰にSTEP/saveを追加しない。ナレーションは一次開始を任意動画より先に置き、動画・相談を残す。配信guide12/13は保存契約を変更しない。FX03の固有住所はappId=pointsの実画面だけへ表示する。

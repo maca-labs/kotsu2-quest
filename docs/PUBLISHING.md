@@ -87,3 +87,15 @@ owner Chrome通常UIでJS bcb5bbea、入口/README4874fa66を公開。配信版w
 公開10は親が港の11/16歩短縮とCH0/1/2/3/4店の退出/再入、Z03がCH5/6の表示案内だけで目的家へ15/11入力・両店退出/再入・見送り相談一致を実操作。320/390で横overflow0。関連81件成功、独立QAの二段保存Majorは移動＋座標の一回保存へ修正後解消。金融/固定XP/818工程/保存版は維持。[検証記録](./public-walk-verification.md)。公開画像kotsukotsu-public-walk10.png等を保存。実機と実参加者の理解・面白さは未確認。
 
 CLIのKou-no1はread-onlyのため、所有者ログイン済みブラウザーから利用者の公開更新指示の範囲で反映。コードだけでなくtests/reviews/docsを同じmainへ保存し、最終ツリー一致とPagesを別担当で確認する。
+
+## 2026-10-24 AA — 一周と操作案内・入場名・話者
+
+製品確認版 `25e8a25`、配信版 `20261024-guide11`。owner Chrome通常UIでCSS d5c86acc、JS57e64ca9、入口/README141e7632、tests a915545cを反映。[Pages run40076374485](https://github.com/maca-labs/kotsu2-quest/actions/runs/40076374485)と[tests反映後のrun40076456880](https://github.com/maca-labs/kotsu2-quest/actions/runs/40076456880)のsuccessを確認した。CLIのpush成功とは扱わない。
+
+初回の公開walk10は技術QAと、履歴を渡さない初心者想定AIを分けて一周した。後者のスマホ主操作12回＋補助移動8回を受け、guide11では実操作先へ表示だけを移し、指示・矢印・対象を近づけた。同じAI役が公開320×720で受注→街道/門番戦→12工程→帰還報告を再実行し、主操作12回/補助移動0回を記録。これは再プレイであり、実際の小学6年生の理解・面白さの実証ではない。
+
+家・酒場・教会・武具店・洞窟の入場名と話者の名前/役割/人物絵、第3章入口/寄り道復帰の矢印、入力欄/確定/誤値表示、JSON取込後の一時入力を修正。全350自動テスト成功。金融/XP/818工程/保存版は維持。[一周の検証記録](./first-loop-verification.md)に実UI・fixture準備・独立レビュー・未確認を分けて記載する。コードに続く最終のreports/docs保存と公開ツリー照合を行う。
+
+公開追試で別アプリ内の指示/実戻るボタン不一致と、PR初回開始の見切れを発見。最終製品確認版 `75bf41e`、配信 `20261024-guide12` で修正した。app f5d069f6、入口/README a4d86e91、追加回帰test28c03ddbをowner Chrome通常UIから確定。[Pages run40078686538](https://github.com/maca-labs/kotsu2-quest/actions/runs/40078686538)は入口a4d86e91と同SHAでsuccess。最終全351件PASS/0FAIL。guide12の公開該当再確認と記録の保存は以下の最終記録へ追記する。
+
+最終は製品確認版 `dd38ea2`、配信 `20261024-guide13`。実アプリ以外にポイントサービスの住所を表示しない最小修正も含む。owner Chromeのapp5e4c5d29/入口・READMEe18323df、入口と同SHAの[Pages40079442231](https://github.com/maca-labs/kotsu2-quest/actions/runs/40079442231) success。全351件再実行PASS/0FAIL、独立QAの追加12復帰ケース/10住所分岐も合格。親fresh IABの公開320でguide12の開始623.78〜669.11px、復帰前後159XP保持、guide13の正しい画面名・住所・実ボタン/指示/矢印・target1を実確認した。Chrome追試で応答しなかった範囲や、子IAB非対応により未実施の第3章初心者想定は合格に含めない。最終のreports/docsを同じmainへ保存し、別担当が全treeと最終Pagesを照合する。
