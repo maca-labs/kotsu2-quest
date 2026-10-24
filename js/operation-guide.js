@@ -3,11 +3,12 @@ const HOST='operation-guide-host',TARGET='operation-guide-target';
 const clamp=(value,min,max)=>Math.min(Math.max(value,min),Math.max(min,max));
 
 /** A decoration of the current real control. It never clicks, types, or focuses. */
-export function mountOperationGuide({document:doc,phone,step}){
+export function mountOperationGuide({document:doc,phone,step,showInstruction=false}){
  const empty={destroy(){},scrollToTarget(){return false;}};
  if(!doc||!phone)return empty;
  mounted.get(phone)?.destroy();
- let target=phone.querySelector('[data-guide-target]');if(!target)return empty;
+ const resolveTarget=()=>{const field=phone.querySelector('[data-guide-target]');if(!field)return null;const tag=String(field.tagName??'').toUpperCase(),filled=['INPUT','TEXTAREA','SELECT'].includes(tag)&&!field.readOnly&&String(field.value??'').trim()!=='';return filled?phone.querySelector('[data-guide-submit]')??field:field;};
+ let target=resolveTarget();if(!target)return empty;
  const win=doc.defaultView,hadHost=phone.classList.contains(HOST),listeners=[];
  let destroyed=false,frame=null,ownedTargetClass=false;
  const marker=doc.createElement('div');marker.className='operation-guide-marker';marker.setAttribute('aria-hidden','true');marker.style.pointerEvents='none';
@@ -22,11 +23,12 @@ export function mountOperationGuide({document:doc,phone,step}){
  const initial=target;target=null;adoptTarget(initial);
  function update(){
   if(destroyed)return;
-  adoptTarget(phone.querySelector('[data-guide-target]'));
+  adoptTarget(resolveTarget());
   if(!target){marker.hidden=true;return;}
   const type=String(target.type??'').toLowerCase(),tag=String(target.tagName??'').toUpperCase();
   const edit=['INPUT','TEXTAREA'].includes(tag)&&!target.readOnly&&!['checkbox','radio','button','submit','reset','range','file','hidden'].includes(type)&&step?.type!=='focus';
-  const prompt=edit?'ここへ入力':'ここをタップ';if(label.textContent!==prompt)label.textContent=prompt;
+  const confirming=phone.querySelector('[data-guide-target]')!==target&&phone.querySelector('[data-guide-submit]')===target;
+  const prompt=showInstruction?(confirming?'入力した内容で進もう':step?.instruction??(edit?'ここへ入力':'ここをタップ')):edit?'ここへ入力':'ここをタップ';if(label.textContent!==prompt)label.textContent=prompt;
   const host=phone.getBoundingClientRect(),rect=target.getBoundingClientRect(),borderX=phone.clientLeft??0,borderY=phone.clientTop??0;
   const width=phone.clientWidth||Math.max(0,host.width-borderX*2),height=phone.clientHeight||Math.max(0,host.height-borderY*2),sx=phone.scrollLeft||0,sy=phone.scrollTop||0;
   const x=rect.left-host.left-borderX+sx,y=rect.top-host.top-borderY+sy;
@@ -44,7 +46,7 @@ export function mountOperationGuide({document:doc,phone,step}){
  }
  function schedule(){if(destroyed||frame!==null)return;if(win?.requestAnimationFrame)frame=win.requestAnimationFrame(()=>{frame=null;update();});else update();}
  const listen=(surface,type,options)=>{if(!surface?.addEventListener)return;surface.addEventListener(type,schedule,options);listeners.push([surface,type,options]);};
- listen(win,'resize');listen(win,'scroll',true);listen(phone,'scroll',true);listen(phone,'load',true);listen(phone,'transitionend',true);
+ listen(win,'resize');listen(win,'scroll',true);listen(phone,'scroll',true);listen(phone,'load',true);listen(phone,'transitionend',true);listen(phone,'input',true);listen(phone,'change',true);
  resizeObserver?.observe(phone);mutationObserver?.observe(phone,{childList:true,subtree:true,characterData:true});
  function destroy(){
   if(destroyed)return;destroyed=true;
@@ -53,6 +55,6 @@ export function mountOperationGuide({document:doc,phone,step}){
   resizeObserver?.disconnect();mutationObserver?.disconnect();clearTarget();marker.remove();if(!hadHost)phone.classList.remove(HOST);
   if(mounted.get(phone)===controller)mounted.delete(phone);
  }
- function scrollToTarget(){if(destroyed)return false;const current=phone.querySelector('[data-guide-target]');if(!current?.scrollIntoView)return false;current.scrollIntoView({block:'center',inline:'nearest',behavior:'auto'});return true;}
+ function scrollToTarget(){if(destroyed)return false;const current=resolveTarget();if(!current?.scrollIntoView)return false;current.scrollIntoView({block:'center',inline:'nearest',behavior:'auto'});update();return true;}
  const controller={destroy,scrollToTarget};mounted.set(phone,controller);update();return controller;
 }

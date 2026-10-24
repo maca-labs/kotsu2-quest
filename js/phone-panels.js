@@ -1,6 +1,7 @@
 import {getPhoneGuideView} from './phone-guide.js';
 import {scenarioForStep,scenarioSummary} from './finance.js';
 import {practiceProfile,comparisonPanels} from './content-points.js';
+import {getStepOpenAppId,getPhoneHomeApps,getPhoneSurfaceAppId} from './phone-navigation.js';
 
 const appNames={memo:'旅人のメモ',mail:'ゲーム内メール',browser:'まいにちストア',points:'コツコツモール',bank:'ほしあかり銀行',wallet:'練習ウォレット',hyper:'そらの運用ラボ',fx:'ほしぞらFX',market:'星札マーケット',gift:'練習ギフト',exchange:'ポイント交換所'};
 export const phoneFieldLabels={asset:'送る資産',receiveAsset:'受け取る資産',network:'送るネットワーク',receiveNetwork:'受け取るネットワーク',address:'練習用の宛先',quantity:'数量',sellQuantity:'売却する数量',withdrawQuantity:'引き出す数量',moveDestination:'移動先',delegateQuantity:'委任する数量',undelegateQuantity:'委任を解除する数量',returnQuantity:'現物へ戻す数量',validator:'預け先の候補',collateral:'配分する証拠金',leverage:'倍率',side:'買い・売り',symbol:'銘柄',orderType:'注文方法',stopPrice:'SLの発動価格',closeQuantity:'決済する数量',limitPrice:'指値の価格',limitQuantity:'指値の数量',returnHorizon:'戻したい時期',route:'学ぶ経路',wallet:'練習用ウォレット',available:'使える残高',received:'受け取った数量',expected:'受取予定の数量',valuation:'評価額',profit:'確定した利益',loss:'損失額',funding:'資金調達料',notional:'建玉金額',totalHype:'HYPEの合計数量',receivedSpot:'現物へ届いた数量',extraQuantity:'追加で預ける数量'};
@@ -12,9 +13,9 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
  if(!step||!doc)return null;
  const el=(tag,text='',style='')=>{const n=doc.createElement(tag);if(text)n.textContent=String(text);if(style)n.style.cssText=style;return n;};
  const root=el('section','','border:1px solid #c8d9d1;border-radius:12px;background:#f9fcfa;margin:0 0 18px;overflow:hidden;color:#233d35;font-family:system-ui,sans-serif');
- root.className='native-phone-panel';root.setAttribute('aria-label',`${appNames[step.appId]||'練習アプリ'}の画面`);
+ root.className='native-phone-panel';root.setAttribute('aria-label',`${appNames[getPhoneSurfaceAppId(step)]||'練習アプリ'}の画面`);
  const head=el('div','','padding:12px 14px;background:#dbeae2;border-bottom:1px solid #c4d7cd;display:flex;gap:8px;align-items:center;justify-content:space-between');
- head.append(el('strong',/スマホホーム/.test(step.screenTitle??'')?'練習スマホ':appNames[step.appId]||'練習スマホ'),el('span','DEMO','font-size:11px;letter-spacing:.13em;border:1px solid #91af9e;padding:3px 5px;border-radius:4px'));root.append(head);
+ head.append(el('strong',/スマホホーム/.test(step.screenTitle??'')?'練習スマホ':appNames[getPhoneSurfaceAppId(step)]||'練習スマホ'),el('span','DEMO','font-size:11px;letter-spacing:.13em;border:1px solid #91af9e;padding:3px 5px;border-radius:4px'));root.append(head);
  const body=el('div','','padding:14px;display:grid;gap:11px');root.append(body);
  const text=(s,small=false)=>el('p',s,`margin:0;line-height:1.7;font-size:${small?13:16}px;overflow-wrap:anywhere`);
  const box=(title,copy)=>{const n=el('div','','padding:12px;background:white;border:1px solid #d8e2dc;border-radius:8px');if(title)n.append(el('strong',title,'display:block;font-size:15px;margin-bottom:5px'));if(copy)n.append(text(copy));return n;};
@@ -46,12 +47,12 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
   body.append(text('練習アプリを選ぶ'));const grid=el('div','','display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px');
   for(const[id,name]of Object.entries(appNames).slice(0,9))grid.append(button(name,()=>navigate(id)));body.append(grid);
  }
- if(/スマホホーム/.test(step.screenTitle??'')){const grid=el('div','','display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px');for(const [id,name]of Object.entries({memo:'メモ',mail:'メール',browser:'ブラウザー',bank:'銀行',fx:'FX',market:'カード市場',wallet:'ウォレット',hyper:'運用ラボ',gift:'ギフト'})){const chapter=Number(quest?.chapterId?.slice(3))||0;if(['bank','fx','market'].includes(id)&&chapter<({bank:2,fx:3,market:4}[id]))continue;if(['wallet','hyper'].includes(id)&&quest?.partId!=='crypto')continue;if(id==='gift'&&chapter<1)continue;const target=step.instruction.includes(name)||(id==='market'&&step.instruction.includes('市場'))||(id==='hyper'&&step.instruction.includes('取引練習'));const icon=button(name,()=>target?onAction?.(step.value):onNavigate?.(id),target);grid.append(icon);}body.append(grid);return {element:root,handlesAction:true};}
+ if(/スマホホーム/.test(step.screenTitle??'')){const grid=el('div','','display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px');const wanted=getStepOpenAppId(step);for(const [id,name]of getPhoneHomeApps(quest,step)){const target=id===wanted;const icon=button(name,()=>target?onAction?.(step.value):onNavigate?.(id),target);icon.setAttribute('data-phone-app',id);grid.append(icon);}body.append(grid);return {element:root,handlesAction:true};}
  if(step.appId==='mail'){
   let selected=selectQuestMail(state,quest,step);
   const fake=quest?.id==='CR-02';if(fake)selected=['crypto-fake',{from:'おたすけ緊急係（架空）',subject:'復旧のご案内',body:'復元情報を教えてください。',warning:true}];
   body.append(el('div','受信トレイ','font-size:12px;font-weight:700;letter-spacing:.08em'));
-  if(selected){const[id,m]=selected;if(m.read===false||/受信一覧|受信トレイ/.test(step.screenTitle??'')){body.append(button((m.read?'':'● ')+(m.subject||m.title||'練習メール'),()=>onAction?.(step.value),true));return {element:root,handlesAction:true};}const message=box(m.subject||m.title||'旅人さんへのお知らせ');message.append(text(`差出人：${m.from||'ゲーム内の案内係'}`,true),text(m.body||m.text||'このお知らせは練習用です。'));
+  if(selected){const[id,m]=selected;if(m.read===false||/受信一覧|受信トレイ/.test(step.screenTitle??'')){body.append(button((m.read?'':'● ')+(quest?.id==='PR-01'?'郵便屋の練習メール：':'')+(m.subject||m.title||'練習メール'),()=>onAction?.(step.value),true));return {element:root,handlesAction:true};}const message=box(m.subject||m.title||'旅人さんへのお知らせ');message.append(text(`差出人：${quest?.id==='PR-01'?'郵便屋ミナ（練習）':m.from||'ゲーム内の案内係'}`,true),text(m.body||m.text||'このお知らせは練習用です。'));
    if(m.code)message.append(box('メールの確認コード',String(m.code)));
    if(m.warning)message.append(text('この要求には応じず、本文の外のボタンから案内を閉じよう。',true));body.append(message);
    if(/コピー/.test(step.instruction||'')){body.append(actionButton(step.questId==='PR-01'?'合言葉をコピー':'このメールの練習コードをコピー',step.value??m.code));handlesAction=true;}
@@ -59,6 +60,7 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
    else if(/この案内を閉じる/.test(step.instruction||'')){body.append(actionButton('この案内を閉じる'));handlesAction=true;}
    else if(/通知を開く|メールを開く|受信.*開く/.test(step.instruction||'')&&step.type==='tap'){body.append(actionButton('このメールを開く'));handlesAction=true;}
   }else body.append(box('受信トレイ','新しい案内が届くと、ここに表示されます。'));
+ }else if(quest?.id==='FX-03'){body.append(box('コツコツモール · FX練習案件','先に控えた条件と、FXで終えた取引の記録を比べます。注文や送金はここでは行いません。'),ledger(['pendingPoints','approvedPoints']));
  }else if(quest?.id?.startsWith('BK-02')){
   const card=box('練習用カード — 成人の架空データ');card.append(pixel('id'),row('氏名',practiceProfile.name),row('生年月日',practiceProfile.birthday),row('有効期限',practiceProfile.documentExpires));body.append(card);
   if(step.field==='cardPosition'||step.field==='facePosition'){
