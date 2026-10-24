@@ -126,3 +126,10 @@ test('financial previews distinguish sending, reservations and lending from comp
  assert.match(lending.steps[1],/手元.*貸出中/);assert.match(lending.steps.at(-1),/受取/);
  assert.equal(state.questStates['HY-HLP'],undefined);
 });
+
+test('resuming a lot input names its actual field and value button in the narration too',()=>{
+ let initial=act(createState(),{type:'START'});initial=act(initial,{type:'CHAPTER',id:'CH-3'});initial=act(initial,{type:'NPC',chapterId:'CH-3',index:0});initial=act(initial,{type:'SAVE_OFFER'});initial=act(initial,{type:'ACCEPT',id:'FX-01'});
+ const state=until(initial,'FX-01-010'),before=structuredClone(state);
+ const guide=getLessonGuide({state,quest:questById['FX-01']});
+ assert.match(guide.firstAction,/lot数/);assert.match(guide.firstAction,/カードの値を入力：0\.1/);assert.doesNotMatch(guide.firstAction,/チップ/);assert.deepEqual(state,before);
+});

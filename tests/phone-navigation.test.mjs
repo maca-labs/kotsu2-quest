@@ -6,6 +6,7 @@ import {steps,questById} from '../js/content.js';
 import {createState} from '../js/engine.js';
 import {getStepOpenAppId,getPhoneResumeTarget,getPhoneHomeApps,getPhoneSurfaceAppId} from '../js/phone-navigation.js';
 import {renderPhonePanel} from '../js/phone-panels.js';
+import {getFxOperationInstruction} from '../js/fx-guidance.js';
 
 class Element{
  constructor(tag){this.tagName=tag.toUpperCase();this.children=[];this.attributes={};this.style={};this.textContent='';this.events={};}
@@ -37,7 +38,7 @@ test('returning from a detour distinguishes opening a requested app from restori
 });
 
 test('a detour arrow describes the visible return control without replacing the saved lesson instruction',()=>{
- const env={ui:{divert:'home'}};vm.createContext(env);vm.runInContext(source.split('\n').find(s=>s.startsWith('function phoneGuideStep(')),env);
+ const env={ui:{divert:'home'},getFxOperationInstruction};vm.createContext(env);vm.runInContext(source.split('\n').find(s=>s.startsWith('function phoneGuideStep(')),env);
  const step={id:'FX-01-010',type:'input',instruction:'0.1lotのチップを押す'},before=JSON.stringify(step),phone={querySelector:()=>({textContent:'「FX」へ戻ろう。'})};
  assert.equal(env.phoneGuideStep(step,phone).instruction,'「FX」へ戻ろう。');assert.equal(JSON.stringify(step),before);env.ui.divert=null;assert.equal(env.phoneGuideStep(step,phone),step);
 });

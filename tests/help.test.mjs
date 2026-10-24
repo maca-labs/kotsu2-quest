@@ -31,6 +31,16 @@ test('the help of each funding quest explains its actual location in the journey
  assert.ok(topics.some(t=>t.id==='bridge'));assert.ok(topics.some(t=>t.id==='gas'));
 });
 
+test('FX help explains opening direction and reserved margin at their first named operations',()=>{
+ const direction=steps.find(s=>s.id==='FX-01-005'),margin=steps.find(s=>s.id==='FX-02-002');
+ assert.ok(getHelpTopics(direction,questById['FX-01']).some(t=>t.id==='fx-direction'));
+ assert.ok(getHelpTopics(margin,questById['FX-02']).some(t=>t.id==='fx-margin'));
+ assert.match(explainTerm('新規売り').short,/下がると有利/);
+ assert.match(explainTerm('新規買い').example,/新規売り.*別の取引/);
+ const cash=explainTerm('FXの証拠金');assert.match(cash.short,/確保/);assert.match(cash.short,/払って消える.*ではありません/);assert.match(cash.how,/150,000.*30,000.*100,000/);assert.match(cash.example,/69,980/);
+ const sell=getHelpTopics(steps.find(s=>s.id==='FX-02-S-008'),questById['FX-02-S']);assert.ok(sell.some(t=>t.id==='fx-sell-margin'));assert.ok(!sell.some(t=>t.id==='fx-margin'));assert.match(explainTerm('fx-sell-margin').example,/67,970/);
+});
+
 test('help explains the action without inserting the expected answer of a review',()=>{
  const step={questId:'TR-01',type:'input',field:'transferAmount',value:91827364,instruction:'振込金額を入力する'};
  const text=JSON.stringify(getHelpTopics(step,{id:'TR-01'}));assert.ok(!text.includes('91827364'));
