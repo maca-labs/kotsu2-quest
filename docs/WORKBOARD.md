@@ -151,3 +151,25 @@ AA統合後: 全350自動テスト成功、AA05独立QAのF01/F02は修正後解
 AA公開追試の追加修正: 別アプリfallbackの現在指示/実ボタン不一致とPR開始の画面外をAA01が再現。親75bf41e/guide12で文言/一意target/開始と動画の順序を最小修正、AA05独立12ケース・関連6件成功。最終全351 PASS/0FAIL。app f5d069f6/入口a4d86e91/追加test28c03ddbを公開、入口同SHAのPages40078686538 success。AA01が公開guide12該当条件を再確認中。
 
 AA最終統合: dd38ea2/guide13、全351 PASS。AA01のChrome追試は応答せず未確認として返却、親fresh IABで公開320の開始/復帰を再確認。画面名と住所の混同も最小修正しAA05追加10分岐合格、公開guide13の同文target1/住所なしを確認。app5e4c5d29/入口e18323df、同SHA Pages40079442231 success。AA04の序章初回/再一周は完了、第3章追加は子IAB非対応で未実施。AA01/03/05は受入済み、AA04の確認範囲を分離、AA10はruntime公開済み。reports/docs保存後のAA06最終tree/Pages照合を納品条件とする。実人間の理解・楽しさは未確認。
+
+## AB — 第3章の初心者想定一周 / 2026-10-24
+
+基準main aff2444/guide13（AAの最終監査は全200blob一致、Pages40080108196 success）。
+
+|ID|担当|状態|所有・受入|
+|---|---|---|---|
+|AB-01|ch3_beginner / playtest_analyst|baseline_complete_public_replay|履歴なし。画面だけで第3章基本3件のアプリ開始→帰還報告。AB01reportのみ|
+|AB-02|ch3_learning_review / learning_reviewer|reviewed_regression_pass|語句/入力/押下/受注帰還の根拠、AB02reportのみ。初心者へ正解を渡さない|
+|AB-03|encounter_input_review / QA|returned_unavailable_old_tab|旧own検証tab3178のclose/resetのみ。製品・ユーザーtab変更なし|
+|AB-04|ch3_finance_qa / finance_reviewer|reviewed|金融68工程/確認4画面/不変/重複拒否、AB04reportのみ|
+|AB-05|ch3_phone_copy / phone_engineer|integrated|fx-guidance.js/専用19testを親へ返却|
+|AB-06|deployment_verify / QA|waiting_final|最終tree全blob/Pagesの読取監査、AB06reportのみ|
+|AB-10|親統合|runtime_published_rechecking|正規engine/parse済み開始JSON、観察回収、最小修正、再確認・公開。共通契約と製品の所有は親|
+
+第3章の事前状態はSTART/章選択/初会話/条件メモ/FX01受注/門番勝利を正規dispatchで作成。最初の学習操作は未実施で、工程0/3XP/12コイン/HP29。通常JSON取込で準備し、事前区間を初心者役の学習済み・実操作実績へ含めない。基本50工程を省かず、任意売り18工程は選択と実施を別記録。Chromeは排他、未対応の子IABを前提にしない。
+
+AB実施: AB01はChrome320×720で基本50工程＋3報告完了（最初の受注/門番は準備JSONとして分離）。AB02は学習レビュー＋旧敵再遭遇Majorを実再現し修正後7/7、関連43/43成功。AB03は旧tabの別セッション所有で取得不可を報告、fresh AB01 tab3191は正常に操作できた。AB04は金融68工程/途中復帰/重複拒否、最終4確認表示の独立検算と不変を確認。AB05 phone_engineerは表示専用fx-guidanceと専用19テストを実装、親へ返却。親はinput送信分離・自動遭遇共用・確認表示・説明/矢印/ナレーションを統合し全382 PASS。公開反映とAB01修正後追試を継続する。詳細ch3-verification。
+
+AB guide14再プレイ: 基本50工程/3報告を完了し、旧敵による依頼巻戻しなし・依頼帳回復なし。追加の損益内訳カード4件はguide15に分離、金融担当が時点/固定式/実描画/状態不変23/23を確認。最終全383 PASS/0FAIL。Chromeバトンは最終配信と2画面限定追試で順に渡し、最終tree監査を待つ。
+
+AB最終操作: guide14で初心者役の基本50再一周/3報告を完了。guide15限定2画面は子の接続不調で未実施として分離し、親fresh Chrome3207で公開320の実計算カード/次target1/overflow0を確認。元164XP/48coins/HP20の保存を通常UI復元、親viewportreset/新tabclose。残る子旧tabcloseは未確認。製品383テスト/金融レビュー合格、公開docsと全treeの監査を残す。
