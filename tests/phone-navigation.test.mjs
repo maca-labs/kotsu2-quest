@@ -42,6 +42,20 @@ test('a detour arrow describes the visible return control without replacing the 
  assert.equal(env.phoneGuideStep(step,phone).instruction,'「FX」へ戻ろう。');assert.equal(JSON.stringify(step),before);env.ui.divert=null;assert.equal(env.phoneGuideStep(step,phone),step);
 });
 
+test('other-app detours name their real return button and expose only one target without advancing the lesson',()=>{
+ const make=(tag,props={},...children)=>{const el=new Element(tag);for(const[k,v]of Object.entries(props))if(v!==undefined)el.setAttribute(k,v);const add=value=>{if(Array.isArray(value)){value.forEach(add);return;}if(value===null||value===undefined)return;if(typeof value==='string'){const text=new Element('text');text.textContent=value;el.append(text);}else el.append(value);};children.forEach(add);el.textContent=el.children.map(n=>n.textContent).join('');return el;};
+ const step=steps.find(s=>s.id==='FX-03-001'),state=createState(),before=JSON.stringify(state),calls=[];
+ const env={state,ui:{},h:make,p:t=>make('p',{},t),small:t=>make('small',{},t),btn:(label,fn,cls,attrs={})=>{const el=make('button',attrs,label);el.events.click=fn;return el;},getPhoneResumeTarget,getStepOpenAppId,phoneNavigationForStep:s=>s.navigationAction??null,homeAppNames:{points:'ポイント'},names:{fx:'FX',mail:'メール',memo:'メモ'},questById,getPhoneGuideView:()=>null,render:()=>calls.push('render'),orientPhone:()=>calls.push('orient'),saveQuiet:()=>calls.push('save'),appSymbols:{points:'P',fx:'FX'},appColors:{},operationGuide:null};
+ vm.createContext(env);vm.runInContext(source.slice(source.indexOf('function renderDiverted('),source.indexOf('function scenarioBalances(')),env);
+ for(const appId of ['fx','mail','memo','browser-tab']){
+  env.ui.divert=appId;const body=make('section');env.renderDiverted(body,appId,step);const all=nodes(body),targets=all.filter(n=>n.attributes['data-guide-target']);
+  assert.equal(targets.length,1,appId);assert.equal(targets[0].textContent,'練習中の画面へ戻る');
+  assert.equal(all.find(n=>n.tagName==='DIV'&&n.attributes.class==='current-operation').children.find(n=>n.tagName==='H2').textContent,'「練習中の画面へ戻る」を押そう。');
+  calls.length=0;targets[0].events.click();assert.equal(env.ui.divert,null);assert.deepEqual(calls,['render','orient']);assert.equal(JSON.stringify(state),before);
+ }
+ const navBody=make('section');env.renderDiverted(navBody,'fx',{...step,navigationAction:'home'});assert.equal(nodes(navBody).filter(n=>n.attributes['data-guide-target']).length,0,'navigation target belongs to the real phone navigation bar');assert.match(navBody.children.find(n=>n.attributes.class==='current-operation').textContent,/下の「ホーム」を押そう。/);
+});
+
 test('explicit app metadata takes priority and the required app is never hidden by chapter filtering',()=>{
  const step={id:'custom',openAppId:'fx',appId:'browser',screenTitle:'スマホホーム'},quest={chapterId:'CH-0'};
  assert.equal(getStepOpenAppId(step),'fx');assert.equal(getPhoneResumeTarget(step),'fx');assert.ok(getPhoneHomeApps(quest,step).some(([id])=>id==='fx'));
