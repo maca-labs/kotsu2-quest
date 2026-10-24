@@ -398,3 +398,10 @@ test('confirmation is absent-safe, has no boss/review output and does not call c
   assert.match(rowValue(settled, '確認の状態'), /建玉がありません/);
   assert.deepEqual(quoteRows(settled), []);
 });
+
+test('opened profit breakdowns remain readable after the detail operation, separate from unconfirmed cash',()=>{
+ for(const[id,formula,meaning]of [['FX-02-009','（149.98−150.00）×1,000＝−20円','まだ現金に確定していません'],['FX-02-020','（149.88−150.00）×1,000ドル＝−120円','99,880円'],['FX-02-S-012','（160.00−160.03）×1,000＝−30円','本編の資金には足しません'],['FX-02-S-018','（160.00−159.93）×1,000ユーロ＝＋70円','100,070円']]){
+  const step=freeze(structuredClone(stepById[id])),before=structuredClone(step),copy=getFxConceptCards(step).map(c=>c.title+' '+c.text).join('\n');
+  assert.ok(copy.includes(formula),id);assert.ok(copy.includes(meaning),id);assert.match(copy,/教材/);assert.deepEqual(step,before);
+ }
+});
