@@ -1,6 +1,7 @@
 import {questById,stepById} from './content.js';
 import {activeStep} from './engine.js';
 import {questBrief} from './adventure.js';
+import {getFxOperationInstruction} from './fx-guidance.js';
 
 // These are short previews of the existing operations. Reading or closing one
 // must not perform an operation, copy a code or change a saved learning record.
@@ -34,7 +35,7 @@ const lessons={
   '新規の注文と、できた建玉を見る。','値動き後の損益を確かめる。','その建玉から、全数量を決済する。','残量ゼロと、終えた取引の記録を確かめる。'),
  'FX-02-S':lesson('売りから始めた別の取引を、買って閉じよう','売りから始める副練習です。本編とは別の資金で、元の建玉から決済する向きを確かめます。',
   '別練習の通貨と、売りの向きを確かめる。','新規の売りと、その建玉を見る。','元の建玉を決済買いで閉じる。','残量ゼロと結果を照合する。'),
- 'FX-03':lesson('案件の条件に、どの取引が合うか見よう','条件に合う新規の取引量と、決済を終えた記録を比べる練習です。クリック回数では数えません。',
+ 'FX-03':lesson('案件の条件に、どの取引が合うか見よう','ポイントアプリ（コツコツモール）で、保存した条件と取引記録を比べます。新規の取引量だけを数えます。',
   '手帳に控えた案件の条件を開く。','新規と決済を、履歴で分けて見る。','条件に合う数量と残量を照合する。','練習記録を提出して判定を見る。'),
  'TC-01':lesson('相場と傷を調べて、仕入れを確かめよう','相場は、同じ条件で売れた値段の目安。版、枚数、傷、費用をそろえて比べる練習です。',
   '同じ版、枚数、状態で売れた記録を比べる。','カードの表と裏を検品する。','仕入れ代と届くまでの費用を見る。','仕入れを確認し、受け取った品物と照合する。'),
@@ -124,7 +125,7 @@ export function getLessonGuide({state,quest,step}={}){
  if(!q)return {title:'練習の前に、用事を聞こう',story:'町の人が、あなたの手を待っています。',practice:'依頼の内容を聞き、練習スマホで一つずつ確かめます。',steps:['町の人の話を聞く。','練習で行うことを読む。','今の操作を一つ進め、結果を見る。'],firstAction:'町の人に話を聞こう。'};
  const brief=questBrief(q),copy=lessons[q.id]??lesson(q.title??'頼まれた用事を確かめよう',brief.goal,'用事の内容を見る。','入力と確認を分けて進める。','結果を依頼人へ知らせる。');
  const current=currentOperation(state,q,step),preview=current?remainingPreview(q,current,copy):{steps:['終えた用事の結果を見る。','依頼人へ結果を知らせる。','次の用事か、別条件の復習を選ぶ。'],showFlow:false};
- const firstAction=current?current.instruction??current.label??'今の操作を確かめよう。':'この用事は終わっています。依頼人へ結果を知らせよう。';
+ const firstAction=current?getFxOperationInstruction(current)||current.label||'今の操作を確かめよう。':'この用事は終わっています。依頼人へ結果を知らせよう。';
  const practice=copy.practice+(preview.showFlow?' 別の用事でコピーした内容は使いません。':'');
  return {title:copy.title,story:`${brief.client}からのお願いです。${brief.incident}`,practice,steps:preview.steps,firstAction,...(preview.showFlow?{flow:{...mailFlows[q.id]}}:{})};
 }

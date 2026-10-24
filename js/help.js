@@ -25,6 +25,9 @@ const library=[
  topic('fx-lot','lot（ロット）は何の数？','注文する量の、ひとまとまりを表す単位です。','lotの数字だけでは、実際の通貨量が分からないからです。','この教材では1lot＝1,000通貨。lotと実際の量を一緒に見よう。','0.2lotなら200通貨。実サービスでは1lotの定義が違う場合があります。',['lot数','× 1,000','実際の通貨量']),
  topic('bid-ask','BidとAskは何が違う？','Bidは売る値段、Askは買う値段です。','同じ時でも、買う値段と売る値段に差があるからです。','買いで始めるときはAsk、売りで始めるときはBidを見よう。','買った建玉を閉じる売りはBid、売った建玉を閉じる買いはAskです。',['売る値段 Bid','二つの値段の差','買う値段 Ask']),
  topic('fx-position','建玉（たてぎょく）って何？','売買が成立して、まだ閉じていない取引の記録です。','注文の下書きや、すでに終えた取引と区別するためです。','建玉一覧で、通貨・買い売り・数量・始めた値段を見よう。','注文を確認しただけでは、建玉はまだできません。',['注文の下書き','確定・約定','保有する建玉','決済']),
+ topic('fx-direction','新規の買い・売りは何をする？','新規買いは、通貨の値段が上がると有利になる向き。新規売りは、下がると有利になる向きです。','始める向きと、持っている取引を閉じる操作を取り違えないためです。','新しく始めるなら新規注文。終えるなら建玉一覧でその記録を選び、決済しよう。','買い建玉を閉じるのは決済売りです。新規売りを押すと、別の取引を始めることになります。',['新規買い：上昇が有利','新規売り：下落が有利','元の建玉から決済']),
+ topic('fx-margin','FXの証拠金（しょうこきん）って何？','取引のために確保して、ほかの取引には使えなくなるお金です。代金として払って消えるお金ではありません。','取引する金額と、持っている現金を別々に確かめるためです。','教材の取引額150,000円を5で割ると、必要な証拠金は30,000円。新規後も現金残高は100,000円です。','確保した分と値動きの損益を合わせて、使える余りを計算します。この教材の買いは新規直後−20円なので、使える余りは69,980円です。実サービス共通の倍率・料金ではありません。',['現金100,000円','取引額150,000円','確保30,000円','値動き後の余りも確認']),
+ topic('fx-sell-margin','売り副練習の証拠金は？','売りの副練習も、現金の一部を取引のために確保します。使い切った代金ではありません。','主経路の買いと、別財布の売り練習を混ぜないためです。','この副練習は取引額160,000円÷5＝必要証拠金32,000円。新規後も現金残高は100,000円です。','新規直後の値動きの損益は−30円。使える余りは100,000−30−32,000＝67,970円です。主経路や実サービスの共通条件ではありません。'),
  topic('fx-close','決済（けっさい）は何をする？','持っている建玉を閉じ、値動きの結果を確定します。','反対向きの新しい注文と、元の建玉を閉じる操作は別だからです。','建玉一覧から対象を選び、決済する数量と残量を見よう。','買い建玉を閉じるなら決済売りです。利益でも損失でも、残量ゼロを確認できます。'),
  topic('offer-evidence','案件の取引量はどう数える？','条件に合う新規の約定量だけを数えます。','決済した量や、ボタンを押した回数を足さないためです。','先に保存した条件と、新規・決済が対応する履歴を比べよう。','新規500通貨と決済500通貨でも、新規量は500通貨です。'),
  topic('card-market','相場は何を比べる？','同じ版・枚数・状態で、実際に売れた値段を比べます。','高く出品されていても、その値段で売れたとは限らないからです。','売れた商品の絞り込みを使い、写真と状態も合わせよう。','傷のない1枚と、傷のある3枚セットは、そのまま同じ条件では比べません。'),
@@ -86,6 +89,7 @@ const fieldLabels={email:'練習メール',password:'練習用パスワード',r
 const valueLabels={employee:'会社員','self-employed':'自営業',student:'学生',salary:'給与の受け取り',living:'生活費の支払い',ordinary:'普通預金',current:'当座預金',today:'今日の教材日付',reserved:'予約日',hoshi:'ほしあかり銀行',tabidachi:'旅立ち支店',port:'港支店',departure:'旅立ち銀行',sunset:'ゆうやけ銀行','ic-face':'IC読取と顔合わせ',inside:'枠の中',outside:'枠の外',bright:'明るい指定位置',left:'左へずれた位置',dark:'暗い位置','minor-scratches':'小さな傷あり',mint:'目立つ傷なし',sold:'売れた商品',listing:'出品中の商品',buy:'買い',sell:'売り',market:'成行',limit:'指値',overdue:'承認予定を過ぎている','before-due':'まだ承認予定日前',cancel:'取り消す','offer-conditions':'保存した案件条件','product-page':'商品紹介画面','daily-standard':'標準の日用品セット','daily-small':'石けん小の比較セット','tracked-200':'追跡ありの教材配送','untracked-100':'追跡なしの比較用配送','set-50':'台紙と防水袋の梱包セット','card-front':'教材カードの表面写真','card-back':'教材カードの裏面写真',none:'未選択',all:'使える全額',journey:'運用を見送る',spot:'現物',hlp:'HLP',stake:'HYPEステーキング',perp:'任意の無期限先物',lighthouse:'灯台ノード',forest:'森の歯車',starwave:'星波ノード','bright-centered':'明るい場所で枠に合わせた位置',clear:'輪郭が読める画像',blurred:'ぼやけた画像'};
 const aliases={'MCHI':'mchi','USDC':'usdc','ETH':'eth','Arbitrum':'arbitrum','HyperCore':'hypercore','HyperEVM':'hyperevm','KYC':'kyc','lot':'fx-lot','Bid/Ask':'bid-ask','Bid':'bid-ask','Ask':'bid-ask','swap':'swap','bridge':'bridge','gas':'gas','wallet':'wallet','network':'network','HLP':'hlp','SL':'stop','TP':'stop','funding':'funding'};
 Object.assign(aliases,{'販売所':'dealer','板':'order-book','板取引所':'order-book','取引所':'domestic-account','成行':'market-order','指値':'limit-order','未約定':'order-state','約定':'order-state','予約金':'order-reserve','予約枚数':'order-reserve','レンディング':'lending','貸出':'lending','年率':'annual-rate','元本':'principal','返還':'lending-return','ロング':'long-short','ショート':'long-short','倍率':'leverage-choice','long':'long-short','short':'long-short','leverage':'leverage-choice'});
+Object.assign(aliases,{'新規買い':'fx-direction','新規売り':'fx-direction','FXの証拠金':'fx-margin'});
 Object.assign(fieldLabels,{participated:'案件への参加記録',viaRecorded:'ショップへ進んだ経由記録',cartItem:'カートの商品',mockDataConsent:'架空データで練習する同意',depositRecipient:'円の入金先',depositJPY:'入金する円の金額',purchaseAsset:'購入する教材資産',withdrawAsset:'出庫する資産',withdrawNetwork:'出庫する道',withdrawAddress:'自分の練習財布の宛先',swapPair:'交換する資産の組合せ',swapQuantity:'交換に使う数量',bridgeNetwork:'道替えの移動先',gasPayment:'ガス準備に使う数量',yenLocation:'円の置き場所',assetType:'資産の種類',walletRole:'ウォレットの役割',networkRole:'ネットワークの役割',coreLocation:'サービス内の資産の場所',destinationLayer:'移動先の仕組み',recentApp:'最近使ったアプリ',clipboard:'ゲーム内でコピーした内容',limitSide:'指値の買い・売り',limitType:'指値の注文方法',openOrder:'保留している注文',marginMode:'証拠金の使い方',lossPlan:'損失が出たときの計画'});
 Object.assign(valueLabels,{isolated:'分離証拠金',cross:'口座内で共有する証拠金',long:'買い（ロング）',short:'売り（ショート）',memo:'メモ',browser:'ブラウザー',mail:'メール',bank:'銀行',wallet:'練習財布',hyper:'取引練習のサービス',approved:'承認済み',pending:'判定待ち',received:'受取済み'});
 Object.assign(fieldLabels,{venue:'使う売買の窓口',domesticEmail:'国内窓口の練習メール',domesticPassword:'国内窓口の練習パスワード',domesticCode:'国内窓口のメール確認コード',exchangeCode:'国内窓口のメール確認コード',dealerQuantity:'販売所で売買する枚数',marketQuantity:'成行で売買する枚数',lendingQuantity:'貸し出す数量',lendingAmount:'貸し出す数量',lendingTerm:'貸出期間',annualRate:'教材の年率',principal:'貸し出した元本',interest:'利息',returnAmount:'返還される合計',returnPolicy:'返還の条件',markPrice:'値動き後の価格',priceMove:'教材の値動き',availableJPY:'使える円',reservedJPY:'注文用に予約した円',reservedCoin:'注文用に予約した枚数',closeAll:'建玉の全決済',documentFront:'練習書類の表',documentBack:'練習書類の裏',documentQuality:'書類画像の読みやすさ',reviewPrice:'確認課題の教材価格'});
@@ -120,8 +124,9 @@ function questTopics(id){
  if(id==='BK-02-R')return ['kyc-photo','kyc'];
  if(id==='BK-02')return ['kyc','bank-application'];
  if(id==='TR-01')return ['bank-transfer','profile'];
- if(id==='FX-01')return ['fx-pair','fx-lot','bid-ask'];
- if(id==='FX-02'||id==='FX-02-S')return ['fx-close','fx-position','bid-ask'];
+ if(id==='FX-01')return ['fx-pair','fx-lot','bid-ask','fx-direction'];
+ if(id==='FX-02')return ['fx-close','fx-position','bid-ask','fx-direction','fx-margin'];
+ if(id==='FX-02-S')return ['fx-close','fx-position','bid-ask','fx-direction','fx-sell-margin'];
  if(id==='FX-03')return ['offer-evidence','approval'];
  if(id==='TC-01')return ['card-market','card-costs'];
  if(id==='TC-02')return ['card-payment','card-description','card-shipping'];
@@ -165,6 +170,8 @@ export function getHelpTopics(step={},quest={}){
  if(/ブリッジ|道替え/.test(step.instruction||''))focused.push('bridge');
  if(/lot|ロット/.test(text))focused.push('fx-lot');
  if(/Bid|Ask/.test(step.instruction||''))focused.push('bid-ask');
+ if(qid.startsWith('FX-')&&/新規.*買い|新規.*売り|買いと売り|向き/.test(text))focused.push('fx-direction');
+ if(qid.startsWith('FX-')&&/証拠金|取引額/.test(text))focused.push(qid==='FX-02-S'?'fx-sell-margin':'fx-margin');
  if(/資金調達|funding/.test(step.instruction||''))focused.push('funding');
  if(/清算/.test(step.instruction||''))focused.push('liquidation');
  if(/SL|TP|発動/.test(step.instruction||''))focused.push('stop');

@@ -2,6 +2,7 @@ import {getPhoneGuideView} from './phone-guide.js';
 import {scenarioForStep,scenarioSummary} from './finance.js';
 import {practiceProfile,comparisonPanels} from './content-points.js';
 import {getStepOpenAppId,getPhoneHomeApps,getPhoneSurfaceAppId} from './phone-navigation.js';
+import {getFxSelectionSummary} from './fx-guidance.js';
 
 const appNames={memo:'旅人のメモ',mail:'ゲーム内メール',browser:'まいにちストア',points:'コツコツモール',bank:'ほしあかり銀行',wallet:'練習ウォレット',hyper:'そらの運用ラボ',fx:'ほしぞらFX',market:'星札マーケット',gift:'練習ギフト',exchange:'ポイント交換所'};
 export const phoneFieldLabels={asset:'送る資産',receiveAsset:'受け取る資産',network:'送るネットワーク',receiveNetwork:'受け取るネットワーク',address:'練習用の宛先',quantity:'数量',sellQuantity:'売却する数量',withdrawQuantity:'引き出す数量',moveDestination:'移動先',delegateQuantity:'委任する数量',undelegateQuantity:'委任を解除する数量',returnQuantity:'現物へ戻す数量',validator:'預け先の候補',collateral:'配分する証拠金',leverage:'倍率',side:'買い・売り',symbol:'銘柄',orderType:'注文方法',stopPrice:'SLの発動価格',closeQuantity:'決済する数量',limitPrice:'指値の価格',limitQuantity:'指値の数量',returnHorizon:'戻したい時期',route:'学ぶ経路',wallet:'練習用ウォレット',available:'使える残高',received:'受け取った数量',expected:'受取予定の数量',valuation:'評価額',profit:'確定した利益',loss:'損失額',funding:'資金調達料',notional:'建玉金額',totalHype:'HYPEの合計数量',receivedSpot:'現物へ届いた数量',extraQuantity:'追加で預ける数量'};
@@ -92,7 +93,7 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
   else body.append(box('出品と発送','希望価格3,000円 / 販売手数料10% / 梱包50円 / 発送200円'),box('荷物の準備','袋：水濡れを防ぐ / 台紙：折れを防ぐ。発送済みでも、入金の確認が必要です。'));
   body.append(ledger());
  }else if(step.appId==='fx'){
-  body.append(box('通貨ペアの注文パネル','USD/JPY（米ドル/円） / EUR/JPY（ユーロ/円）'),box('数量の単位','この教材では1 lot = 1,000通貨。買い・売り、新規・決済は別の操作です。'),ledger());
+  const selection=getFxSelectionSummary(state,step);if(selection){const current=box(selection.title);for(const item of selection.rows)current.append(row(item.label,item.value));body.append(current);for(const explanation of selection.cards)body.append(box(explanation.title,explanation.text));}else{const position=scenario?.data?.position,fill=scenario?.data?.fills?.at(-1),pairName=pair=>({USDJPY:'USD/JPY 米ドル/円',EURJPY:'EUR/JPY ユーロ/円'}[pair]??pair);body.append(box('いまの建玉',position?`${pairName(position.pair)} · ${position.side==='buy'?'買い':'売り'} · ${fmt(position.baseQuantity)}通貨 · 開始${fmt(position.entryPrice)}円`:'未決済の建玉は0件です。'));if(fill)body.append(box('直前に成立した記録',`${fill.kind==='new'?'新規':'決済'}${fill.side==='buy'?'買い':'売り'} · ${fmt(fill.baseQuantity)}通貨 · ${fmt(fill.price??fill.entryPrice)}円`));}body.append(box('数量の単位','この教材では1 lot = 1,000通貨。買い・売り、新規・決済は別の操作です。'),ledger());
  }else if(step.appId==='browser'||step.appId==='points'){
   if(quest?.id==='PO-02'){for(const offer of comparisonPanels.shoppingOffers)body.append(box(`${offer.name} · ${offer.points} P`,`追加費用${offer.additionalCost.toLocaleString('ja-JP')}円 / ${offer.description}`));}
   else if(quest?.id==='PO-03'){const goods=box('日用品セット');goods.append(pixel('goods'),row('洗剤','900円'),row('ティッシュ','600円'),row('石けん大','500円'),row('送料','0円'));body.append(goods);}
