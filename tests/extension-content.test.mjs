@@ -63,7 +63,7 @@ test('review mail uses the separate code and clipboard',()=>{
  assert.ok(!text(panel.element).includes(extensionProfile.verificationCode));
  const paste=q.reviewVariant.tasks[0].actions.find(a=>a.type==='input'&&a.field==='verificationCode');let sent;
  const pastePanel=renderExtensionPanel({document:doc,state,step:paste,quest:q,reviewSnapshot:rs,onAction:v=>sent=v});
- button(pastePanel.element,'ゲーム内コードを貼り付け').listeners.click();assert.equal(sent,extensionReviewProfile.verificationCode);
+ button(pastePanel.element,'確認コードを貼り付け').listeners.click();assert.equal(sent,extensionReviewProfile.verificationCode);
 });
 
 test('venue previews use financial view prices and cannot submit an order',()=>{

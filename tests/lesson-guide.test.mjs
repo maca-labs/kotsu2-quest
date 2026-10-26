@@ -66,14 +66,14 @@ test('resuming at prologue app switching uses the saved current action and only 
  let state=until(accept('PR-01'),'PR-01-007');
  const before=JSON.stringify(state),xp=totalXp(state);
  const guide=getLessonGuide({state:freeze(state),quest:questById['PR-01'],step:stepById['PR-01-001']});
- assert.equal(guide.firstAction,'アプリ切替を押す');
+ assert.equal(guide.firstAction,'「アプリ切替」を押そう。');
  assert.match(guide.steps[0],/アプリ切替.*メモへ戻る/);
  assert.equal(guide.steps.some(text=>/メールを開き|合言葉をコピー/.test(text)),false);
  assert.deepEqual(getLessonGuide({state:parseSave(before),quest:questById['PR-01']}),guide);
  assert.equal(totalXp(state),xp);assert.equal(JSON.stringify(state),before);
  // The next app card also remains the next action; it does not restart copying.
  state=act(state,{type:'STEP',id:'PR-01-007',value:stepById['PR-01-007'].value});
- assert.equal(getLessonGuide({state,quest:questById['PR-01']}).firstAction,'メモを押す');
+ assert.equal(getLessonGuide({state,quest:questById['PR-01']}).firstAction,'アプリ一覧の「旅人のメモ — 入力していた画面」を押そう。');
 });
 
 test('registration and domestic exchange restart at their actual return, paste and profile stages',()=>{
@@ -127,9 +127,9 @@ test('financial previews distinguish sending, reservations and lending from comp
  assert.equal(state.questStates['HY-HLP'],undefined);
 });
 
-test('resuming a lot input names its actual field and value button in the narration too',()=>{
+test('resuming a lot input names its actual field and required value in the narration too',()=>{
  let initial=act(createState(),{type:'START'});initial=act(initial,{type:'CHAPTER',id:'CH-3'});initial=act(initial,{type:'NPC',chapterId:'CH-3',index:0});initial=act(initial,{type:'SAVE_OFFER'});initial=act(initial,{type:'ACCEPT',id:'FX-01'});
  const state=until(initial,'FX-01-010'),before=structuredClone(state);
  const guide=getLessonGuide({state,quest:questById['FX-01']});
- assert.match(guide.firstAction,/lot数/);assert.match(guide.firstAction,/カードの値を入力：0\.1/);assert.doesNotMatch(guide.firstAction,/チップ/);assert.deepEqual(state,before);
+ assert.match(guide.firstAction,/lot数.*欄/);assert.match(guide.firstAction,/0\.1/);assert.doesNotMatch(guide.firstAction,/チップ/);assert.deepEqual(state,before);
 });

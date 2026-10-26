@@ -83,6 +83,21 @@ test('typing or choosing moves the arrow to confirmation and clearing restores t
  }
 });
 
+test('the filled-field instruction names the actual submit button and never submits for the learner',()=>{
+ for(const tag of ['input','textarea','select']){
+  const s=scene({tag}),submit=new Element('button',{left:30,top:400,width:260,height:44});
+  submit.textContent='入力した内容で進む';s.phone.append(submit);
+  s.phone.querySelector=selector=>selector==='[data-guide-submit]'?submit:s.target;
+  s.target.value='';const instruction='「数量」の欄に100を入力しよう。';
+  const control=mountOperationGuide({document:s.doc,phone:s.phone,step:{type:tag==='select'?'select':'input',instruction},showInstruction:true});
+  assert.equal(s.marker().children[0].textContent,instruction);
+  s.target.value='100';s.phone.emit(tag==='select'?'change':'input');s.win.flush();
+  assert.equal(s.marker().children[0].textContent,'「入力した内容で進む」を押そう。');
+  assert.equal(submit.clicks,0);assert.equal(s.target.focuses,0);
+  s.target.value='';s.phone.emit('input');s.win.flush();assert.equal(s.marker().children[0].textContent,instruction);control.destroy();
+ }
+});
+
 test('guided venue switch marks only the requested real tab; previews, reviews, and boss copies reveal no answer target',()=>{
  const state={financialScenarios:initialExtensionScenarios()},before=structuredClone(state),doc={createElement:tag=>new Element(tag)},submitted=[],visited=[];
  const tree=node=>[node,...node.children.flatMap(child=>tree(child))];

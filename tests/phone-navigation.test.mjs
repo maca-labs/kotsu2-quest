@@ -18,6 +18,15 @@ class Element{
 const doc={createElement:tag=>new Element(tag)},nodes=root=>[root,...root.children.flatMap(n=>nodes(n))];
 const source=fs.readFileSync(new URL('../js/app.js',import.meta.url),'utf8');
 
+test('phone navigation uses stable action metadata and IDs after Japanese copy changes',()=>{
+ const env={};vm.createContext(env);vm.runInContext(source.slice(source.indexOf('function phoneNavigationForStep('),source.indexOf('function phoneGuideStep(')),env);
+ for(const id of ['P049','BK-01-010']){
+  const step=steps.find(s=>s.id===id);assert.equal(env.phoneNavigationForStep({...step,instruction:'別の言い方に変わっても動く。'}),'switcher');
+ }
+ for(const step of steps.filter(s=>s.navigationAction))assert.equal(env.phoneNavigationForStep({...step,instruction:'説明の文。'}),step.navigationAction,step.id);
+ assert.equal(env.phoneNavigationForStep({id:'unrelated',instruction:'アプリ切替を押す'}),null);
+});
+
 test('each authored home opening has exactly one real app target and advances only on that icon',()=>{
  const expected={'PR-01-001':'memo','PR-01-004':'mail',P001:'browser',P012:'mail','BK-01-001':'bank','TR-01-001':'bank','FX-01-001':'fx','FX-03-001':'points','TC-01-001':'market'};
  assert.equal(steps.filter(s=>/スマホホーム/.test(s.screenTitle??'')).length,Object.keys(expected).length);

@@ -55,7 +55,7 @@ test('withdrawal, swap, bridge and gas confirmation show actual choices separate
  for(const [id,field,bad]of [['FI-02-S012','withdrawNetwork','HoshiNet'],['FI-02-S016','withdrawAddress','DEMO-WALLET-B'],['FI-03-S005','swapQuantity',100],['FI-03-S013','bridgeNetwork','MichiNet'],['FI-03-S020','gasPayment',20]]){
   const state=fresh();through(state,id);scenario(state).phoneState.formDrafts.funding[field]=bad;const before=structuredClone(state),view=getFundingView(state,step(id));
   assert.equal(view.quoteReady,false,id);assert.notEqual(view.inputs.find(item=>item.key===field).value,'未入力');assert.deepEqual(state,before,id);
-  const rendered=renderFundingPanel({document:doc,state,step:step(id)});assert.equal(rendered.handlesAction,false);const text=all(rendered.element).map(item=>item.textContent).join(' ');assert.match(text,/今回、入力した内容/);assert.match(text,/確定前の予定/);assert.match(text,/台帳に記録された/);
+  const rendered=renderFundingPanel({document:doc,state,step:step(id)});assert.equal(rendered.handlesAction,false);const text=all(rendered.element).map(item=>item.textContent).join(' ');assert.match(text,/今回、入力した内容/);assert.match(text,/確定前の予定/);assert.match(text,/資金がある場所と、いまの残高/);
  }
 });
 

@@ -162,7 +162,7 @@ test('domestic application and KYC lead to the distinct funding journey without 
  state=hear(state,'CH-5');const before=JSON.stringify(state);
  const guide=getStoryGuide(freeze(state));
  assert.equal(guide.questId,'FI-01');assert.equal(guide.milestones[0].state,'done');
- assert.match(guide.story,/申込済み.*別の財布/);
+ assert.match(guide.story,/申込と本人確認を終えた設定.*別の財布/);
  assert.equal(state.questStates['FI-01'],undefined);
  assert.equal(state.questStates['CR-03'],undefined);
  assert.equal(JSON.stringify(state),before);

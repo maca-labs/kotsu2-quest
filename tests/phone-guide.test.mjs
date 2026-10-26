@@ -31,8 +31,8 @@ test('copy display requires this mail read, its actual copy step, and matching c
 test('a previous quest clipboard never appears as the current registration code',()=>{
  const state=createState(),quest=questById['PO-01'],step={id:'P017',questId:'PO-01'};
  state.phoneState.clipboard='一歩ずつ';state.phoneState.mailById['registration-mail']={read:true,code:'735921'};state.questStates['PO-01']={questId:'PO-01',completedSteps:['P014']};
- const view=getPhoneGuideView(state,quest,step),dom=renderPhoneGuide({document:doc,state,quest,step});assert.equal(view.copyText,null);assert.match(view.copyMessage,/この用事のコード.*ゲーム内コピーにありません/);assert.doesNotMatch(text(dom),/一歩ずつ|735921/);
- assert.match(view.flow[0].target,/コツコツモール/);assert.match(view.flow[1].target,/入力中.*認証画面/);assert.match(view.flow[2].target,/確認コードの欄/);
+ const view=getPhoneGuideView(state,quest,step),dom=renderPhoneGuide({document:doc,state,quest,step});assert.equal(view.copyText,null);assert.match(view.copyMessage,/確認コード.*ゲーム内の一時メモに残っていません/);assert.doesNotMatch(text(dom),/一歩ずつ|735921/);
+ assert.match(view.flow[0].target,/コツコツモール/);assert.match(view.flow[1].target,/入力中.*認証画面/);assert.equal(view.flow[2].target,'コツコツモールの「メールの確認コード」欄');
 });
 
 test('PR actual 12 operations show source, return, paste, save, and persistent completion without rewards from the guide',()=>{
@@ -59,7 +59,7 @@ test('DX actual mail and profile phases use only the exchange code and preserve 
  state=through(state,'DX-01-S012');assert.equal(getPhoneGuideView(state,quest,activeStep(state)).copyText,null);
  state=through(state,'DX-01-S013');view=getPhoneGuideView(state,quest,activeStep(state));assert.equal(view.copyText,'482615');assert.equal(view.phase,'return');assert.match(view.flow[1].target,/あかつき取引所/);
  state=through(state,'DX-01-S017');view=getPhoneGuideView(state,quest,activeStep(state));assert.equal(view.pasted,true);assert.equal(view.finished,false);
- state=through(state,'DX-01-S018');const before=structuredClone(state),dom=renderPhoneGuide({document:doc,state,quest,step:activeStep(state)});view=getPhoneGuideView(state,quest,activeStep(state));assert.equal(view.phase,'done');assert.match(view.summary,/プロフィール/);assert.deepEqual(state,before);assert.equal(dom.children[1].tag,'details');
+ state=through(state,'DX-01-S018');const before=structuredClone(state),dom=renderPhoneGuide({document:doc,state,quest,step:activeStep(state)});view=getPhoneGuideView(state,quest,activeStep(state));assert.equal(view.phase,'done');assert.match(view.summary,/架空の申込者の情報/);assert.deepEqual(state,before);assert.equal(dom.children[1].tag,'details');
 });
 
 test('unrelated quests receive no guide and the guide has no action controls or clipboard access',()=>{
@@ -75,7 +75,7 @@ test('DX main paste rejects a foreign clipboard, offers mail recovery, then subm
  all(panel.element).find(node=>node.tag==='button'&&node.textContent==='今回の確認メールを見直す').events.click();assert.deepEqual(navigated,['mail']);assert.deepEqual(submitted,[]);assert.deepEqual(state,before);
  // The existing mail revisit copies locally; no STEP or extra reward is issued.
  state.phoneState.clipboard=state.phoneState.mailById['domestic-registration'].code;const recoveredBefore=structuredClone(state),valid=renderExtensionPanel({document:doc,state,quest,step,onAction:value=>submitted.push(value)});
- assert.match(text(valid.element),/今回の確認メールから.*コピー済み/);assert.match(text(valid.element),/482615/);all(valid.element).find(node=>node.tag==='button'&&/貼り付け/.test(node.textContent)).events.click();assert.deepEqual(submitted,['482615']);assert.deepEqual(state,recoveredBefore);
+ assert.match(text(valid.element),/今回の確認メールから.*コピー済み/);assert.match(text(valid.element),/482615/);const paste=all(valid.element).find(node=>node.tag==='button'&&/貼り付け/.test(node.textContent));assert.equal(paste.textContent,'確認コードを貼り付け');assert.ok(getPhoneGuideView(state,quest,step).summary.includes(`「${paste.textContent}」`));paste.events.click();assert.deepEqual(submitted,['482615']);assert.deepEqual(state,recoveredBefore);
 });
 
 test('DX review paste uses only its own mail-read flag and profile code, including recovery',()=>{

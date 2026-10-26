@@ -13,7 +13,7 @@ function freeze(value) {
   return value;
 }
 
-test('the four authored chip inputs describe the real field and optional value button', () => {
+test('the four current lot instructions name the real field and preserve legacy display adaptation', () => {
   const expected = {
     'FX-01-010': ['lots', 0.1],
     'FX-01-014': ['lots', 1],
@@ -21,7 +21,7 @@ test('the four authored chip inputs describe the real field and optional value b
     'FX-02-S-006': ['lots', 1],
   };
   const changed = steps.filter(step => getFxOperationInstruction(step) !== step.instruction);
-  assert.deepEqual(changed.map(step => step.id).sort(), Object.keys(expected).sort());
+  assert.deepEqual(changed, []);
   for (const [id, [field, value]] of Object.entries(expected)) {
     const original = structuredClone(stepById[id]);
     const step = freeze(structuredClone(original));
@@ -29,9 +29,13 @@ test('the four authored chip inputs describe the real field and optional value b
     assert.equal(step.type, 'input');
     assert.equal(step.field, field);
     assert.equal(step.value, value);
-    assert.ok(instruction.includes(`「${step.fieldLabel}」の欄に練習値「${value}」を入れよう`), id);
-    assert.ok(instruction.includes(`カードの値を入力：${value}`), id);
+    assert.ok(instruction.includes(`「${step.fieldLabel}」の欄`), id);
+    assert.ok(instruction.includes(String(value)), id);
     assert.doesNotMatch(instruction, /チップ/);
+    const legacy=freeze({...original,instruction:'練習値のチップを押す'});
+    const adapted=getFxOperationInstruction(legacy);
+    assert.ok(adapted.includes(`カードの値を入力：${value}`),id);
+    assert.ok(adapted.includes(`「${step.fieldLabel}」の欄`),id);
     assert.deepEqual(step, original, 'display adaptation must not mutate the authored operation');
   }
 });
