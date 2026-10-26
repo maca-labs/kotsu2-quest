@@ -175,3 +175,28 @@ AB guide14再プレイ: 基本50工程/3報告を完了し、旧敵による依�
 AB最終操作: guide14で初心者役の基本50再一周/3報告を完了。guide15限定2画面は子の接続不調で未実施として分離し、親fresh Chrome3207で公開320の実計算カード/次target1/overflow0を確認。元164XP/48coins/HP20の保存を通常UI復元、親viewportreset/新tabclose。残る子旧tabcloseは未確認。製品383テスト/金融レビュー合格、公開docsと全treeの監査を残す。
 
 AB納品監査: c8d425eと公開83ddd413の全210 path/blob/mode一致、欠落/相違/余分0、Pages40087167492同SHA success。最終監査報告と本状態記録の補記だけを公開し、その後はAB06が報告を編集せずread-onlyで全treeを再照合する。実機・人間の理解/楽しさと子旧タブのcloseは未確認のまま。実コード/383自動検証/AI初心者の50再一周/親の追加2画面/元保存復元は完了。
+
+## AC — 日本語表現の精査 / 2026-10-26
+
+基準f22855d/guide15、作業前clean。上位/下位AGENTSを再確認（適用はrepo直下のみ）。主語と述語、動作の対象、操作する人と連絡を返すサービスを明確にする。段階を省かず、保存schema3/RPGversion1/818工程/ID/固定XP/数値・金融処理を保つ。原文が処理型/画面/補助UIに使われる箇所は、表示変更と動作変更を混同しない。
+
+|ID|担当|状態|所有|
+|---|---|---|---|
+|AC-01|ac_learning / learning_reviewer|完了|ポイント297工程/共通操作の言葉、AC01reportのみ|
+|AC-02|ac_story / quest_designer|完了|会話/ナレーション/次の一歩、AC02reportのみ|
+|AC-03|ac_finance / finance_reviewer|完了|資金準備/暗号資産/追加講座/用語、AC03reportのみ|
+|AC-04|ac_points_editor / quest_designer|完了|content-points、新規日本語テスト|
+|AC-05|ac_story_editor / quest_designer|完了|adventure/story-guide/lesson-guide、新規日本語テスト|
+|AC-06/06b|ac_crypto_editor / quest_designer|完了|content-crypto/funding/extension、新規日本語テスト|
+|AC-07|ac_learning / learning_reviewer|完了|独立言語レビュー、AC07reportのみ|
+|AC-08|ac_finance / finance_reviewer|完了|独立金融レビュー、AC08reportのみ|
+|AC-09|ac_story / quest_designer|完了|独立会話/共通UI再レビュー、AC09reportのみ|
+|AC-10|親統合|公開反映中|共通UI/文言規則/非表示契約の比較/統合/公開|
+|AC-11|beginner_player / playtest_analyst|完了|別originの320幅で4対象、AC11reportのみ|
+|AC-12|ac_qa / qa_reviewer|候補QA完了|独立411テスト/79構文/全動作契約、AC12reportのみ|
+
+変更前の818工程の非表示契約と36依頼の工程/前提/報酬等をrepo外へ退避。初回3レビュー後に編集範囲を分け、同時編集者を重ねず修正する。新規の人間観察として扱わない。
+
+AC統合 / 2026-10-27: 全411自動テスト合格。変更前818工程/36依頼と比較し、型・field/value・選択肢値・画面/文脈キー・前提・金融処理・固定XPの差分0。別枠の表示panelはFIの55工程で日本語キー/説明を変更。親IAB320では受注案内と、通常dispatchで入口戦勝利まで用意した途中セーブからPR12工程・再読込復帰・帰還・報告を実操作。独立役の4画面確認と公開反映は引き続き実施する。
+
+AC最終レビュー: AC07の残件05〜09解消、AC08の結果全文345行と重点31更新の照合合格、AC09の主要不一致解消。AC11は専用Chrome320でDX貼付→認証、BK日付手入力→住所、FI別比較→別の送信確定工程、FX0.1入力→実ボタン名引用→100ドル表示を確認。補助候補ボタンへの吹き出し重なりはP3として残し、実送信ボタンは遮蔽なし。DX/BKの戦闘割込み後も通常UIから戻れた。実機・人間理解・タッチ操作は未確認。親はChrome viewportをresetし、同時操作せず所有者の公開UIへ移った。
