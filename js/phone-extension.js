@@ -70,7 +70,7 @@ export function renderExtensionPanel({document:doc,state,step,quest,onAction,onN
   }else if(step.field==='verificationCode'&&step.type==='input'){
    const copiedCode=reviewSnapshot?(mailOpened&&clipboard===String(profile.verificationCode)&&clipboard!==''?clipboard:null):(getPhoneGuideView(state,quest??{id:step.questId},step)?.copyText??null);
    const code=box('メールから持ってきたコード',copiedCode!==null?'今回の確認メールから、ゲーム内でコピー済みです。':reviewSnapshot?'確認課題のメール操作からやり直そう。':'今回の確認メールへ戻り、コピーし直そう。');
-   const codeLabel=node('label','メールの確認コード');const codeField=node('input');codeField.type='text';codeField.readOnly=true;codeField.value='';codeField.placeholder='貼り付ける前は空の欄です';codeField.setAttribute('aria-label','メールの確認コード');codeLabel.append(codeField);code.append(codeLabel);if(copiedCode!==null){code.append(node('strong',copiedCode,'extension-code'),button('ゲーム内コードを貼り付け',()=>onAction?.(copiedCode),true));}
+   const codeLabel=node('label','メールの確認コード');const codeField=node('input');codeField.type='text';codeField.readOnly=true;codeField.value='';codeField.placeholder='貼り付ける前は空の欄です';codeField.setAttribute('aria-label','メールの確認コード');codeLabel.append(codeField);code.append(codeLabel);if(copiedCode!==null){code.append(node('strong',copiedCode,'extension-code'),button('確認コードを貼り付け',()=>onAction?.(copiedCode),true));}
    else if(onAppNavigate)code.append(button('今回の確認メールを見直す',()=>onAppNavigate('mail'),true));
    body.append(code);handlesAction=true;
   }else if(step.phoneScreen==='terms'||step.field==='termsAccepted'){
@@ -89,7 +89,7 @@ export function renderExtensionPanel({document:doc,state,step,quest,onAction,onN
     card.append(identityPicture(doc,face?'person':step.phoneScreen==='identity-back'?'back':'front'),lines([{label:'教材の氏名',value:profile.fullName},{label:'生年月日',value:profile.birthDate},{label:'住所・部屋番号',value:profile.address},{label:'教材の日付',value:profile.today},{label:'カードの有効期限',value:profile.documentExpires}]));body.append(card);
    }
    if(step.identityControl){const choices=node('div','','extension-choices');for(const c of step.choices)choices.append(button(c.label,()=>onAction?.(c.value),c.value===step.value));body.append(choices);handlesAction=true;}
-   if(/審査|履歴|結果|利用/.test(step.instruction))body.append(box('口座の状態','申込受付 → 本人確認を提出 → 審査中 → 承認通知を確認 → 利用可能。通知を見る前に入金や売買ができたことにはしません。'));
+   if(/審査|履歴|結果|利用/.test(step.instruction))body.append(box('口座の状態','あかつき取引所が、申込内容と本人確認の結果を審査します。利用を認めたお知らせと、利用開始の表示を確認してから、入金や売買へ進みます。'));
   }else{
    const fields=['email','password','fullName','birthDate','address','phone','occupation','purpose'];
    const labels={email:'練習メール',password:'練習パスワード',fullName:'氏名',birthDate:'生年月日',address:'住所・部屋番号',phone:'練習電話番号',occupation:'仕事',purpose:'利用の目的'};
@@ -107,7 +107,7 @@ export function renderExtensionPanel({document:doc,state,step,quest,onAction,onN
   }
   if(view.quote?.length){const title=view.scenarioId==='lending-lab'?'今回の貸出条件':view.scenarioId==='leverage-choice'?'選んだ条件の内訳':'今回の注文の見積り';const q=box(title);q.append(lines(view.quote));body.append(q);}
   if(view.scenarioId==='lending-lab'){
-   body.append(box('元本と利息','元本は自分が貸したお金。利息は契約にそって別に計算する分です。貸出中と返還処理中のお金を、手元の使える残高に重ねません。'));
+   body.append(box('元本と利息','元本は、あなたが貸した数量です。利息は、契約の条件から計算する追加の数量です。貸出中や返還処理中の数量は、手元の使える残高と分けて表示します。'));
    if(step.phoneScreen==='lending-early'){const early=box('満期前の返還窓口','この教材の契約では、満期前に返還を申し込めません。元本は貸出中のままです。');const unavailable=button('満期前の返還はできません',()=>{});unavailable.disabled=true;early.append(unavailable);body.append(early);}
   }
   if(view.metrics)body.append(box('損益の読み方','ロングは上がると利益、下がると損失。ショートはその逆です。倍率が大きいほど同じ値動きで損益も大きくなります。利益が出る方を当てる課題ではありません。'));

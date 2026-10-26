@@ -1,4 +1,4 @@
-// Original Japanese learning data. Each row is one stable, individually completed action.
+// Stable behavior seeds. Resolve types and navigation from these before applying display copy.
 const catalog = {
   "CR-01": [
     "スマホの「資産の地図」アプリを開く。",
@@ -295,6 +295,185 @@ const catalog = {
   ]
 };
 
+// Japanese display copy is separate because defaultType() reads the stable behavior seeds.
+// Changing a sentence must not change an operation type, screen ID, tab ID, or context key.
+const displayInstructions = {
+ 'CR-01':{
+  3:'銀行の円が置かれている場所として「銀行」を選ぶ。',
+  5:'USDCの種類として「暗号資産」を選ぶ。',
+  7:'ウォレットの役割として「資産を操作する入口」を選ぶ。',
+  9:'ネットワークの役割として「送る道」を選ぶ。',
+  11:'Hyperliquid内の残高の置き場所として「サービス内の置き場所」を選ぶ。',
+  13:'今回の練習で使う場所として「HyperCore」を選ぶ。',
+  15:'練習ウォレットにある1,000 Mock USDCの明細を開く。',
+  16:'処理費用に使う0.001 Mock ETHの明細を開く。',
+  18:'資産の地図を確認した記録を保存する。'
+ },
+ 'CR-02':{
+  4:'接続する財布として「練習ウォレット」を選ぶ。',
+  6:'接続を求めているサービスの名前を開く。',
+  7:'練習ウォレットへの接続を許可すると、サービスが何をできるか読む。',
+  12:'練習アプリの取引を有効にすると、何ができるか読む。',
+  13:'内容を読んで、取引の練習を有効にする。',
+  14:'練習ウォレットの接続と、取引の有効化の状態を開く。',
+  17:'サポートを名乗るメールの差出人名を開く。',
+  18:'復元情報を求めているメールの本文を開く。',
+  23:'復元情報を入力しない理由を、ゲーム内ヘルプの教材メモで読む。',
+  24:'復元情報を入力しないための安全メモを保存する。',
+  25:'接続状態に戻り、偽メールを閉じたことと、今回の送金が未実行であることを確認する。'
+ },
+ 'CR-03':{
+  2:'HyperCoreで受け取る資産の欄を押す。',
+  4:'HyperCoreへの入金に使うネットワークの欄を押す。',
+  6:'HyperCoreの受取カードで、資産・ネットワーク・宛先・最低額・教材費を見る。',
+  7:'受取カードの宛先DEMO-VAULT-Aを、ゲーム内でコピーする。',
+  11:'練習ウォレットから送る資産の欄を押す。',
+  13:'練習ウォレットから送るネットワークの欄を押す。',
+  15:'HyperCoreの受取先を入れる宛先欄を押す。',
+  16:'コピーしたDEMO-VAULT-Aを宛先欄に貼り付ける。',
+  17:'送るMock USDCの数量欄を押す。',
+  18:'数量欄に練習値100を入力する。',
+  19:'送信に使うMock ETHと、送信後に残るMock ETHの内訳を開く。',
+  21:'送る資産が、受取カードと同じUSDCであることを確認する。',
+  22:'送るネットワークが、受取カードと同じArbitrumであることを確認する。',
+  23:'送る宛先が、受取カードと同じDEMO-VAULT-Aであることを確認する。',
+  24:'送る100 Mock USDCと、教材費1、受取予定99の内訳を開く。',
+  25:'練習ウォレットからHyperCoreへ、100 Mock USDCを送る申請を確定する。',
+  26:'教材の処理を完了まで進め、HyperCoreに資金を届ける。',
+  27:'HyperCoreへの入金が完了した通知を開く。',
+  29:'今回、HyperCoreに届いた入金の明細を開く。',
+  30:'HyperCoreで受け取った99 Mock USDCを、今回の入金明細と照合する。',
+  32:'送信後の練習ウォレットに、900 Mock USDCと0.0009 Mock ETHが残ることを確認する。'
+ },
+ 'CR-04':{
+  3:'現物を持っている間に、1枚の価格と保有分の評価額がどう変わるか読む。',
+  6:'HLPの戦略による損益と、引き出せるまでの待ち時間の説明を開く。',
+  9:'HYPEの保有数量と、その数量全体の評価額の違いを読む。',
+  10:'HYPEの委任を解除してから、現物残高へ戻るまでの説明を開く。',
+  13:'先物の証拠金・資金調達料・清算の説明を開く。',
+  15:'資金をいつ手元へ戻したいかを選ぶ欄を開く。',
+  16:'今回の練習で、資金を手元へ戻したい時期を選ぶ。',
+  17:'選んだ時期に資金を戻せるか、各運用方法の条件と比べる欄を開く。',
+  18:'第6章で学ぶラボを予約するか、今回は運用せず出金だけ練習するかを選ぶ。'
+ },
+ 'HY-SPOT':{
+  2:'このラボだけの練習資金1,000 Mock USDCを使うことを確認する。',
+  7:'購入するHYPEの数量欄を押す。',
+  8:'購入数量に2を入力する。',
+  9:'HYPEを2枚買うための支払額と、購入後に残る資金の内訳を開く。',
+  10:'購入の支払予定200 Mock USDCと、購入後の残高予定800 Mock USDCを確認する。',
+  12:'HYPEを2枚買う成行注文を確定する。',
+  15:'HYPE1枚の教材価格を、100から90 Mock USDCへ進める。',
+  16:'1枚90 Mock USDCのとき、保有するHYPE2枚の評価額が180になる内訳を開く。',
+  17:'まだ売っていないHYPEに、評価損20 Mock USDCが出ている理由を読む。',
+  19:'売るHYPEの数量欄を押す。',
+  22:'保有するHYPE2枚の売却を確定する。',
+  24:'売却明細で、確定損失20 Mock USDCと利用可能残高980 Mock USDCを照合する。',
+  26:'指値の小練習は、元の現物ラボとは別の資金と状態を使うことを確認する。',
+  29:'指値で買いたい1枚の価格欄を押す。',
+  30:'指値価格に95を入力する。',
+  31:'指値で買うHYPEの数量欄を押す。',
+  32:'指値注文の数量に1を入力する。',
+  33:'指値価格95・数量1の買い注文を確認画面で見る。',
+  34:'指値価格95・数量1の買い注文を確定する。',
+  35:'まだ売買が成立していない注文の一覧を開く。',
+  36:'保留中の指値価格95・数量1の買い注文を選ぶ。',
+  38:'この指値買い注文の取消を確定する。',
+  39:'取消後、拘束されていた95 Mock USDCが使える残高へ戻った明細を開く。',
+  41:'元の現物ラボから出金へ引き継ぐ980 Mock USDCを確認する。'
+ },
+ 'HY-HLP':{
+  2:'このラボだけの練習資金1,000 Mock USDCを使うことを確認する。',
+  4:'HLPから資金を引き出せる時期と条件を読む。',
+  6:'HLPへ預けるMock USDCの数量欄を押す。',
+  7:'預ける数量に300を入力する。',
+  8:'HLPへ預ける資金の確認画面を開く。',
+  9:'HLPへ預ける予定の300 Mock USDCと、手元に残す700 Mock USDCを照合する。',
+  10:'HLPへ300 Mock USDCを預ける申請を確定する。',
+  12:'今回、HLPから資金を引き出せる最短の日時を開く。',
+  14:'HLPの模擬口数に掛ける評価単価が、100から97へ下がった内訳を開く。',
+  15:'HLPに預けた分の評価額291 Mock USDCを確認する。',
+  17:'最後にHLPへ預けてから、まだ2日しかたっていないことを読む。',
+  18:'HLPから引き出せる日まで、ゲーム内の時間を進める。',
+  20:'HLPから引き出す数量の欄を押す。',
+  22:'HLPから引き出した後に受け取る予定の金額を、確認画面で見る。',
+  23:'HLPから引き出す予定の291 Mock USDCを照合する。',
+  24:'HLPから291 Mock USDCを引き出す申請を確定する。',
+  25:'HLPから引き出した履歴を開く。',
+  27:'手元に残した700 Mock USDCと、引出しで受け取った291 Mock USDCの合計991を確認する。'
+ },
+ 'HY-STAKE':{
+  2:'このラボはHYPE10枚とMock USDC0から始めることを確認する。',
+  5:'現物残高のHYPEを、別の残高へ移す画面を開く。',
+  7:'現物からステーキングへ移すHYPEの数量欄を押す。',
+  8:'移す数量に10を入力する。',
+  10:'HYPE10枚を、現物残高からステーキング残高へ移す操作を確定する。',
+  12:'運営を支える相手の候補（バリデータ）の一覧を開く。',
+  13:'稼働状態と教材手数料を見て、HYPEを委任する相手を選ぶ。',
+  15:'選んだ相手に委任するHYPEの数量欄を押す。',
+  18:'選んだ相手にHYPE10枚を委任する申請を確定する。',
+  20:'委任してからのゲーム内の時間を1日進める。',
+  21:'この教材で1回だけ加わる報酬0.1 HYPEの明細を開く。',
+  22:'HYPEが1枚80 Mock USDCのとき、10.1枚全体の評価額808を開く。',
+  26:'HYPE10.1枚の委任を解除する申請を確定する。',
+  27:'委任を解除したHYPE10.1枚が、ステーキング残高へ戻った明細を開く。',
+  30:'ステーキングから現物へ、HYPE10.1枚を戻す申請の確認画面を開く。',
+  31:'10.1 HYPEを、ステーキング残高から現物残高へ戻す申請を確定する。',
+  32:'現物への到着を待っている10.1 HYPEの明細を開く。',
+  33:'現物へ戻す申請からのゲーム内の時間を7日進める。',
+  38:'HYPE10.1枚を1枚80 Mock USDC、手数料0で売る確認画面を開く。',
+  39:'現物に戻ったHYPE10.1枚の売却を確定する。',
+  40:'売却後、使える残高が808 Mock USDCになったことを確認する。'
+ },
+ 'HY-PERP':{
+  2:'このラボだけの練習資金1,000 Mock USDCを使うことを確認する。',
+  8:'先物取引の倍率を選ぶ欄を押す。',
+  10:'新規注文に使う倍率を2倍に確定する。',
+  12:'証拠金に100を入力する。',
+  13:'証拠金100 Mock USDCから、倍率2倍の取引量を求める内訳を開く。',
+  14:'証拠金100 Mock USDCの2倍で、建玉金額が200 Mock USDCになることを確認する。',
+  15:'建玉金額200 Mock USDCを価格100で割り、取引数量が2になることを確認する。',
+  19:'証拠金100 Mock USDC、2倍、ロング数量2の新規注文を確定する。',
+  22:'ロング数量2で価格が100から95へ下がり、評価損10 Mock USDCが出た内訳を開く。',
+  25:'ロング数量2を全決済した場合に戻る資金を、確認画面で見る。',
+  26:'このロング建玉の全数量2を決済する。',
+  27:'決済後、使える残高が990 Mock USDCになったことを履歴で確認する。',
+  29:'SLの小練習は別の状態を使い、開始価格100・ロング数量2であることを確認する。',
+  31:'SLを発動させる価格の欄を押す。',
+  32:'SLの発動価格に97を入力する。',
+  34:'SLの発動価格を97に確定する。',
+  37:'SLが発動した後に96.5で売買が成立し、損失7 Mock USDCが確定した明細を開く。',
+  38:'資金調達料の小練習を開く。',
+  39:'資金調達料の小練習は別の状態を使い、数量2・計算基準価格100であることを確認する。',
+  40:'この小練習の資金調達料に使う、1時間率＋0.01%の表示を開く。',
+  41:'次の1時間分の資金調達料を計算する時刻へ進める。',
+  42:'ロング側が払う資金調達料0.02 Mock USDCの明細を開く。',
+  44:'清算の判定に使う、自己資本と維持証拠金の説明を開く。',
+  46:'清算の見学で、取引を終えた後に残る4 Mock USDCの明細を開く。',
+  48:'元の先物ラボから出金へ引き継ぐ990 Mock USDCを確認する。'
+ },
+ 'HY-EXIT':{
+  2:'今回選んだ経路から引き継いだ、出金用の残高明細を開く。',
+  3:'今回の経路に拘束中の資金がなく、残高を出金できることを確認する。',
+  5:'HyperCoreから出金する資産の欄を押す。',
+  7:'練習ウォレットで受け取るネットワークの欄を押す。',
+  9:'出金した資金を受け取る宛先の欄を押す。',
+  10:'自分の練習ウォレットの宛先DEMO-WALLET-Aを選ぶ。',
+  11:'HyperCoreから出金する数量の欄を押す。',
+  13:'HyperCoreから練習ウォレットへ出金する内容を、確認画面で見る。',
+  14:'申請額から教材費1 Mock USDCを引き、受取予定額を求める内訳を開く。',
+  15:'出金する資産が、受取カードと同じUSDCであることを確認する。',
+  16:'出金するネットワークが、受取カードと同じArbitrumであることを確認する。',
+  17:'出金先が、自分の受取カードと同じDEMO-WALLET-Aであることを確認する。',
+  18:'HyperCoreから自分の練習ウォレットへの出金申請を確定する。',
+  19:'申請後、まだ練習ウォレットへ届ける処理が終わっていない履歴を開く。',
+  20:'教材の処理を完了まで進め、練習ウォレットに資金を届ける。',
+  21:'練習ウォレットに資金が届いた通知を開く。',
+  24:'今回、練習ウォレットに届いた数量を、申請額から教材費1 Mock USDCを引いた値と比べる。',
+  26:'受取まで確かめた記録を保存し、町で灯台守ルカに結果を知らせる準備をする。'
+ }
+};
+
 const option = (label, value = label) => ({label, value});
 const choose = (field, value, labels, extra = {}) => ({
   type:'select', field, value,
@@ -328,7 +507,7 @@ const definitions = {
   guidedObjectiveMap:{crypto_basics:{1:'CR-02-S025'}}},
  'CR-03':{title:'ネットワークと入金',chapterId:'CH-5',requesterId:'npc-keys',scenarioId:'journey',prerequisites:['CR-02'],
   sections:[[1,7,'受取条件'],[8,19,'練習ウォレットから送る'],[20,25,'送信確認'],[26,32,'処理と到着明細']],
-  details:['今回の練習ルート：Arbitrum上のUSDC → HyperCore。別の入口や対応経路もあります。','受取カード：USDC / Arbitrum / DEMO-VAULT-A。練習最低額10、教材コスト1 Mock USDC。','今回の送信100から教材コスト1を引き、到着は99。ガス0.0001 Mock ETHはETH残高から使います。'],
+  details:['今回は、練習ウォレットのArbitrum上にあるMock USDCを、HyperCoreへ送る練習です。別の入口や対応経路もあります。','受取カード：USDC / Arbitrum / DEMO-VAULT-A。練習最低額10、教材コスト1 Mock USDC。','100 Mock USDCを送ると、そのうち教材費は1、届く予定は99です。ガス代0.0001 Mock ETHは、別のETH残高から使います。'],
   hint:'受取カードと送る画面の、資産、道、宛先を同じにしよう。直す前の正しい入力は残るよ。',
   guidedObjectiveMap:{crypto_basics:{2:'CR-03-S025',3:'CR-03-S032'}}},
  'CR-04':{title:'運用方法の比較',chapterId:'CH-5',requesterId:'npc-keys',scenarioId:'journey',prerequisites:['CR-03'],
@@ -338,23 +517,23 @@ const definitions = {
   guidedObjectiveMap:{crypto_basics:{4:'CR-04-S018'}}},
  'HY-SPOT':{title:'現物の塔',chapterId:'CH-6',requesterId:'npc-sky',scenarioId:'spot',routeId:'spot',prerequisites:['CR-04'],requiresChapterSeal:'CH-5',
   sections:[[1,2,'独立ラボの準備'],[3,12,'現物注文'],[13,17,'保有と評価'],[18,24,'売却と取引履歴'],[25,39,'指値の別練習'],[40,41,'ラボの出口']],
-  details:['ここからは別の練習です。元手1000 Mock USDCを新しく用意します。他のラボや共通入金の資金と合算しません。','教材価格100、数量2、支払200。手数料を除いた例です。価格は実相場ではありません。','価格90では保有評価180、評価損20。売るまでは確定損失ではありません。'],
+  details:['ここからは別の練習です。元手1000 Mock USDCを新しく用意します。他のラボや共通入金の資金と合算しません。','教材価格100、数量2、支払200。手数料を除いた例です。価格は実相場ではありません。','HYPE1枚の教材価格が90 Mock USDCなら、保有する2枚の評価額は180、評価損は20 Mock USDCです。売るまでは確定損失ではありません。'],
   hint:'注文した記録と、買えた記録は別だよ。指値95の買い注文は価格100では保留になるよ。',
   guidedObjectiveMap:{spot:{0:'HY-SPOT-S006',1:'HY-SPOT-S010',2:'HY-SPOT-S024',3:'HY-SPOT-S036',4:'HY-SPOT-S039'}}},
  'HY-HLP':{title:'流動性の塔',chapterId:'CH-6',requesterId:'npc-sky',scenarioId:'hlp',routeId:'hlp',prerequisites:['CR-04'],requiresChapterSeal:'CH-5',
   sections:[[1,4,'独立ラボと仕組み'],[5,10,'預入'],[11,17,'評価と出金ロック'],[18,24,'引出し'],[25,27,'受取明細']],
-  details:['ここからは別の練習です。元手1000 Mock USDCを新しく用意します。','HLPは市場形成、清算、USDC供給などの戦略の損益を共有します。預金の固定利息ではありません。','300を預け、手元は700。評価単価100→97で預入分は291、評価損9。合計評価991です。','直近の預入から4日が出金ロック。待ち時間はゲーム内で進めます。実生活で4日待つ必要はありません。'],
+  details:['ここからは別の練習です。元手1000 Mock USDCを新しく用意します。','HLPは市場形成、清算、USDC供給などの戦略の損益を共有します。預金の固定利息ではありません。','300 Mock USDCをHLPに預けると、手元に700が残ります。評価単価が100から97へ下がると、預けた分の評価額は291、評価損は9です。手元と合わせた評価額は991 Mock USDCです。','最後にHLPへ預けた時から、ゲーム内で4日たつまで引き出せません。待ち時間は教材のボタンで進めます。実生活で4日待つ必要はありません。'],
   hint:'最後に預けた日から4日を数えるよ。ロック中も、いつ引き出せるか明細で見よう。',
   guidedObjectiveMap:{hlp:{0:'HY-HLP-S003',1:'HY-HLP-S010',2:'HY-HLP-S015',3:'HY-HLP-S018',4:'HY-HLP-S027'}}},
  'HY-STAKE':{title:'委任の塔',chapterId:'CH-6',requesterId:'npc-sky',scenarioId:'stake',routeId:'stake',prerequisites:['CR-04'],requiresChapterSeal:'CH-5',
   sections:[[1,10,'現物からステーキングへ'],[11,18,'預け先と委任'],[19,22,'1日のロックと単発報酬'],[23,27,'委任解除'],[28,35,'現物への7日待機'],[36,40,'売却と出口']],
-  details:['独立した開始資産：HYPE10、Mock USDC0。教材価格100で合計1000相当です。USDC1000を同時には配りません。','委任は運営を支える相手を選ぶこと。現物 → ステーキング → 委任 → ステーキング → 待機 → 現物の順で動かします。','委任のロック1日と、ステーキングから現物へ戻す7日は別の時間です。','単発の教材報酬0.1で10.1 HYPEになっても、価格80なら評価808。元の評価1000より192減っています。'],
+  details:['このラボはHYPE10枚、Mock USDC0から始めます。1枚の教材価格が100 Mock USDCなので、HYPE全体の評価額は1,000 Mock USDC相当です。USDC1,000を同時には配りません。','委任は運営を支える相手を選ぶこと。現物 → ステーキング → 委任 → ステーキング → 待機 → 現物の順で動かします。','委任のロック1日と、ステーキングから現物へ戻す7日は別の時間です。','1回だけの教材報酬0.1 HYPEを加えると、数量は10.1 HYPEです。それでも1枚の価格が80 Mock USDCなら、全体の評価額は808です。元の評価額1,000より192 Mock USDC減っています。'],
   hint:'委任をやめても、まだステーキングの場所にあるよ。7日の待機後に現物へ届くよ。',
   guidedObjectiveMap:{staking:{0:'HY-STAKE-S010',1:'HY-STAKE-S018',2:'HY-STAKE-S033',3:'HY-STAKE-S022',4:'HY-STAKE-S040'}}},
  'HY-PERP':{title:'鏡の塔（任意）',chapterId:'CH-6',requesterId:'npc-sky',scenarioId:'perp',routeId:'perp',prerequisites:['CR-04'],requiresChapterSeal:'CH-5',optional:true,
   sections:[[1,10,'独立ラボと注文設定'],[11,19,'証拠金と損失対応計画'],[20,27,'評価と手動決済'],[28,37,'SLの別練習'],[38,42,'資金調達料の別練習'],[43,46,'清算の見学'],[47,48,'元のラボへ']],
-  details:['任意のラボです。ここからは別の練習で元手1000 Mock USDC。現物の学習に受講は不要です。','証拠金は取引に割り当てるお金。100、2倍、建玉金額200、価格100なら数量2です。','分離証拠金のみを操作します。クロス証拠金は口座内の資金を共有する別方式で、この教材では説明だけです。','基本場面は手数料0・資金調達料0。SL、資金調達料、清算はそれぞれ独立した小練習です。'],
-  hint:'元手100で値動き200ぶんを持つよ。建玉200を残高から重ねて引かないよ。',
+  details:['任意のラボです。ここからは別の練習で元手1000 Mock USDC。現物の学習に受講は不要です。','証拠金は、取引のために割り当てるお金です。100 Mock USDCを証拠金にして2倍を選ぶと、建玉金額は200 Mock USDCです。取引価格100なら、数量は2です。','分離証拠金のみを操作します。クロス証拠金は口座内の資金を共有する別方式で、この教材では説明だけです。','基本場面は手数料0・資金調達料0。SL、資金調達料、清算はそれぞれ独立した小練習です。'],
+  hint:'証拠金100 Mock USDCを割り当て、2倍で200 Mock USDC分の取引をするよ。取引量200を残高からさらに引くことはないよ。',
   guidedObjectiveMap:{perps:{0:'HY-PERP-S015',1:'HY-PERP-S022',2:'HY-PERP-S027',3:'HY-PERP-S037',4:'HY-PERP-S046'}}},
  'HY-EXIT':{title:'帰りの船',chapterId:'CH-6',requesterId:'npc-sky',scenarioId:'route',prerequisites:['CR-04'],requiresChapterSeal:'CH-5',routePrerequisites:true,
   sections:[[1,3,'選んだ経路の出口'],[4,12,'出金申請'],[13,18,'出金確認'],[19,24,'処理と受取'],[25,26,'残高の現在地']],
@@ -373,7 +552,7 @@ const overrides = {
   13:choose('destinationLayer','HyperCore',['HyperCore','HyperEVM']),
   15:{details:['練習ウォレット：1000 Mock USDC。ドルや円そのものではありません。']},
   16:{details:['ガス代用：0.001 Mock ETH。USDCとは別単位です。']},
-  17:confirm('送る前の確認メモを保存'),18:confirm('地図を確認できた・町へ戻る')},
+  17:confirm('送る前の確認メモを保存'),18:confirm('資産の地図を確認した記録を保存')},
  'CR-02':{
   4:choose('wallet','DEMO-WALLET-A',[['練習ウォレット：DEMO-WALLET-A','DEMO-WALLET-A'],['メールログインの説明を見る','mail-explanation']]),
   5:{appId:'wallet',tabId:'notifications',details:['要求元：そらの取引練習。ウォレットの識別子を見てよいかという練習通知です。']},
@@ -395,17 +574,17 @@ const overrides = {
   7:{label:'DEMO-VAULT-Aをゲーム内でコピー',field:'clipboard',value:'DEMO-VAULT-A'},8:{appId:'memo',tabId:'home'},
   9:{appId:'wallet'},10:{appId:'wallet'},11:{...focus('asset'),appId:'wallet'},12:{...choose('asset','USDC',assetChoices),appId:'wallet'},
   13:{...focus('network'),appId:'wallet'},14:{...choose('network','Arbitrum',networkChoices),appId:'wallet'},
-  15:{...focus('address'),appId:'wallet'},16:{type:'tap',field:'address',value:'DEMO-VAULT-A',label:'ゲーム内クリップボードから貼り付け',appId:'wallet',details:['コピーした宛先：DEMO-VAULT-A。別のDEMO宛先とは一致しません。']},
-  17:{...focus('quantity'),appId:'wallet'},18:{...input('quantity',100),appId:'wallet'},19:{appId:'wallet',details:['保有ガス：0.001 Mock ETH / 今回必要：0.0001 Mock ETH / 送信後：0.0009 Mock ETH。']},
+  15:{...focus('address'),appId:'wallet'},16:{type:'tap',field:'address',value:'DEMO-VAULT-A',label:'コピーした宛先を貼り付け',appId:'wallet',details:['コピーした宛先：DEMO-VAULT-A。別のDEMO宛先とは一致しません。']},
+  17:{...focus('quantity'),appId:'wallet'},18:{...input('quantity',100),appId:'wallet'},19:{appId:'wallet',details:['送信前のガス残高は0.001 Mock ETH、今回使う予定は0.0001 Mock ETHです。送信後には0.0009 Mock ETHが残る予定です。']},
   20:{appId:'wallet',label:'送信の確認へ'},21:check('送るUSDCと受取USDCを照合',{appId:'wallet'}),22:check('Arbitrum同士を照合',{appId:'wallet'}),
-  23:check('DEMO-VAULT-A同士を照合',{appId:'wallet'}),24:{appId:'wallet',details:['送信100 − 教材コスト1 = 到着99 Mock USDC。ETHのガスは別計算です。']},
-  25:confirm('練習の送信を確定',{appId:'wallet',result:'100を送る申請を記録。送信元900 USDC、ガス0.0009 ETH。到着はまだ処理中です。'}),
+  23:check('DEMO-VAULT-A同士を照合',{appId:'wallet'}),24:{appId:'wallet',details:['練習ウォレットからHyperCoreへ送ります。100 Mock USDCのうち教材費は1、届く予定は99です。ガス代0.0001 Mock ETHは、別のETH残高から使います。']},
+  25:confirm('練習の送信を確定',{appId:'wallet',result:'100 Mock USDCを送る申請を記録しました。練習ウォレットには900 Mock USDCと0.0009 Mock ETHが残っています。HyperCoreへ届ける処理はまだ終わっていません。'}),
   26:wait('教材の処理完了まで進める',{result:'HyperCoreに99 Mock USDCが到着しました。通知と明細で確かめましょう。'}),
   30:check('今回の入金99を照合'),31:{appId:'wallet'},32:check('送信元900 USDC・0.0009 ETHを照合',{appId:'wallet'})},
  'CR-04':{
-  3:{details:['現物は資産そのものを買います。HYPEを2持つなら、価格100で評価200、価格90で評価180です。']},
+  3:{details:['現物は資産そのものを買う取引です。HYPEを2枚持つ場合、1枚100 Mock USDCなら評価額は200、1枚90 Mock USDCなら評価額は180です。']},
   6:{details:['HLPの戦略には利益も損失もあります。直近の預入から4日後まで引き出せません。追加入金すると待つ期限が更新されます。']},
-  9:{details:['10 HYPE×100=1000。数量が10.1に増えても、価格80なら808。数量が増えることと評価額が増えることは別です。']},
+  9:{details:['HYPE10枚は、1枚100 Mock USDCなら評価額1,000です。数量が10.1枚に増えても、1枚80 Mock USDCなら評価額は808です。数量が増えても評価額が増えるとは限りません。']},
   10:{details:['委任の1日ロック → 委任解除 → ステーキング残高 → 現物への7日待機。委任解除だけではウォレットへ戻りません。']},
   13:{details:['先物は証拠金で値動きへの建玉を持ちます。保有中の資金調達料と、自己資本が維持証拠金以下になる清算があります。任意の学習です。']},
   15:focus('returnHorizon'),16:choose('returnHorizon',undefined,[['近いうちに戻したい','soon'],['ゲーム内の待機も練習したい','flexible']],{acceptAnyChoice:true}),
@@ -414,32 +593,32 @@ const overrides = {
  'HY-SPOT':{
   4:choose('symbol','HYPE',[['教材HYPE','HYPE'],['別の教材銘柄','OTHER']]),5:choose('side','buy',[['買い','buy'],['売り','sell']]),
   6:choose('orderType','market',[['成行（今の教材価格）','market'],['指値（指定した価格）','limit']]),7:focus('quantity'),8:input('quantity',2),
-  9:{details:['価格100 × 数量2 = 支払200。手数料0。利用可能1000 − 200 = 800、保有HYPE2。']},
-  10:check('支払200・購入後800を照合'),11:{label:'現物の注文確認へ'},12:confirm('練習の購入を確定',{result:'200でHYPE2を購入。未使用USDC800、保有評価200、確定損益0。'}),
+  9:{details:['1枚100 Mock USDC × HYPE2枚 = 支払予定200 Mock USDCです。教材手数料は0です。購入後は、利用可能800 Mock USDCと保有HYPE2枚になる予定です。']},
+  10:check('支払予定200・購入後の残高予定800を照合'),11:{label:'現物の注文確認へ'},12:confirm('練習の購入を確定',{result:'200でHYPE2を購入。未使用USDC800、保有評価200、確定損益0。'}),
   15:wait('教材価格を100から90へ進める'),16:{details:['保有2 HYPE × 教材価格90 = 評価180。未使用800と合計980。実相場ではありません。']},
   17:{details:['取得に200を使った保有分は評価180で、評価損20。まだ売っていないので確定損失ではありません。']},
   19:focus('sellQuantity'),20:choose('sellQuantity',2,[['全数量2 HYPE',2],['1 HYPEのみ',1]]),21:{label:'現物の売却確認を開く'},22:confirm('練習の売却を確定'),
   24:check('確定損失20・利用可能980を照合',{details:['売却180 + 未使用800 = 利用可能980。ここで値動きの損失20が確定しました。']}),
   25:{details:['ここからは別の小練習。価格100、開始1000の独立した状態です。元の980は保存したままです。']},26:check('指値は別の練習状態であると確認'),
   27:choose('limitSide','buy',[['買い','buy'],['売り','sell']]),28:choose('limitType','limit',[['指値','limit'],['成行','market']]),29:focus('limitPrice'),30:input('limitPrice',95),
-  31:focus('limitQuantity'),32:input('limitQuantity',1),33:{details:['現在100 / 買い指値95 / 数量1。価格条件未達なので注文は保留。必要な95を拘束します。']},
+  31:focus('limitQuantity'),32:input('limitQuantity',1),33:{details:['現在の1枚の価格は100 Mock USDCで、買い指値は95、数量は1です。このまま注文すると価格条件に届かず保留になり、必要な95 Mock USDCが拘束されます。']},
   34:confirm('指値の練習注文を確定'),36:choose('openOrder','limit-95',[['買い指値95・数量1・保留','limit-95'],['約定した注文（今回はなし）','filled']]),
-  38:confirm('この指値注文の取消を確定'),39:{details:['小練習の拘束95 → 0。利用可能905 → 1000。HYPEは買えていません。']},40:{label:'元の現物ラボへ戻る'},41:check('主ラボの出金可能980を確認')},
+  38:confirm('この指値注文の取消を確定'),39:{details:['小練習の拘束95 → 0。利用可能905 → 1000。HYPEは買えていません。']},40:{label:'元の現物ラボへ戻る'},41:check('元の現物ラボの出金可能額を確認')},
  'HY-HLP':{
   4:{details:['出金できるのは直近の預入から4日後。追加入金したら、新しい預入時刻から4日後に変わります。']},
-  6:focus('quantity'),7:input('quantity',300),9:check('預入300・手元700を照合'),10:confirm('HLPへの練習預入を確定'),
+  6:focus('quantity'),7:input('quantity',300),9:check('預ける予定300・手元に残す700を照合'),10:confirm('HLPへの練習預入を確定'),
   11:{details:['教材上の模擬口数3 × 評価単価100 = 300。譲渡できるHLPトークンを発行したという意味ではありません。']},
   12:{details:['預入：ゲーム内0日目。最短の引出し：ゲーム内4日目。実時間の24時間チャレンジとは別です。']},
   13:wait('ゲーム内時間を2日進める'),14:{details:['架空の評価単価100 → 97（3%低下）。実際の利回りや実績ではありません。']},15:check('HLP評価291を照合'),
   16:{label:'引出し可否を確かめる',details:['現在2日目 / 最短4日目。ロック中なので、この操作で資金は引き出されません。']},
   17:{details:['最後の預入からまだ2日。あとゲーム内2日で引き出せます。評価額があることと出金できることは別です。']},
   18:wait('出金可能日までゲーム内2日進める'),20:focus('withdrawQuantity'),21:choose('withdrawQuantity','all',[['全額（模擬口数3）','all'],['半分だけ','half']]),
-  22:{details:['引出す評価額291 / 手元700 / 引出し後の利用可能991。教材手数料0。']},23:check('今回の受取291を照合'),24:confirm('HLPの練習引出しを確定'),27:check('700 + 291 = 991を照合')},
+  22:{details:['HLPから引き出して受け取る予定は291 Mock USDC、手元は700です。引出し後の利用可能残高は991 Mock USDCになる予定です。教材手数料は0です。']},23:check('引出し後の受取予定291を照合'),24:confirm('HLPの練習引出しを確定'),27:check('700 + 291 = 991を照合')},
  'HY-STAKE':{
   2:check('HYPE10・USDC0から始めると確認'),4:choose('symbol','HYPE',[['HYPE','HYPE'],['USDC（保有0）','USDC']]),
   6:choose('moveDestination','staking',[['ステーキング残高','staking'],['外部ウォレット','wallet']]),7:focus('quantity'),8:input('quantity',10),10:confirm('HYPE10をステーキング残高へ移す'),
   12:{details:['預け先の候補（バリデータ）：灯台ノード / 森の歯車 / 星波ノード。すべて架空です。稼働、手数料、委任条件を見ます。']},
-  13:choose('validator',undefined,[['灯台ノード：稼働中・教材手数料5%','lighthouse'],['森の歯車：稼働中・教材手数料8%','forest'],['星波ノード：点検表示・教材手数料3%','starwave']],{acceptAnyChoice:true,details:['この数字は候補の見方を学ぶ架空データ。実在先の推奨ではありません。単発報酬0.1は候補の年利から計算しません。']}),
+  13:choose('validator',undefined,[['灯台ノード：稼働中・教材手数料5%','lighthouse'],['森の歯車：稼働中・教材手数料8%','forest'],['星波ノード：点検表示・教材手数料3%','starwave']],{acceptAnyChoice:true,details:['表示の教材手数料は、候補の条件を読むための架空データです。実在する委任先の推奨ではありません。単発報酬0.1 HYPEは、この手数料や候補の年利から計算した値ではありません。']}),
   15:focus('delegateQuantity'),16:choose('delegateQuantity',10,[['全数量10 HYPE',10],['5 HYPE',5]]),18:confirm('HYPE10の委任を確定'),
   19:{details:['現物0 / ステーキング手元0 / 委任中10 HYPE。委任のロックはゲーム内1日です。']},20:wait('委任後のゲーム内時間を1日進める'),
   21:{details:['単発の教材報酬0.1 HYPEを委任中残高へ1回だけ加算。委任中10.1。日利や年利ではありません。']},
@@ -447,29 +626,29 @@ const overrides = {
   24:choose('undelegateQuantity',10.1,[['全数量10.1 HYPE',10.1],['元の10 HYPEだけ',10]]),26:confirm('委任解除を確定'),
   27:{details:['委任中0 / ステーキング手元10.1 / 現物0。委任解除だけでは現物やウォレットへ届いていません。']},
   29:choose('returnQuantity',10.1,[['全数量10.1 HYPE',10.1],['5 HYPE',5]]),30:{details:['移動元：ステーキング / 移動先：現物 / 数量10.1。到着までゲーム内7日待機。']},
-  31:confirm('現物への練習出金を確定'),32:{details:['待機中10.1 HYPE / 現物0。ステーキング手元からは移動済み。二重に数えません。']},33:wait('待機のゲーム内時間を7日進める'),
+  31:confirm('現物へ戻す申請を確定'),32:{details:['待機中10.1 HYPE / 現物0。ステーキング手元からは移動済み。二重に数えません。']},33:wait('待機のゲーム内時間を7日進める'),
   35:{details:['待機中0 / 現物10.1 HYPE。いま売れる場所へ到着しました。']},37:choose('sellQuantity',10.1,[['全数量10.1 HYPE',10.1],['10 HYPE',10]]),
   38:{details:['数量10.1 × 教材価格80 − 手数料0 = 売却代金808 Mock USDC。']},39:confirm('現物に戻ったHYPEの売却を確定'),40:check('利用可能808 Mock USDCを照合')},
  'HY-PERP':{
   4:choose('marginMode','isolated',[['分離証拠金（今回使う方式）','isolated'],['クロス証拠金（説明のみ）','cross']]),6:choose('symbol','DEMO',[['教材トークン・価格100','DEMO'],['別の教材トークン','OTHER']]),
   7:choose('side','long',[['買い・ロング','long'],['売り・ショート','short']]),8:focus('leverage'),9:choose('leverage',2,[['1倍',1],['2倍',2],['5倍',5]]),10:confirm('新規注文前の倍率2倍を確定'),
-  11:focus('collateral'),12:input('collateral',100),13:{details:['証拠金100 × 倍率2 = 建玉金額200。建玉200 ÷ 約定価格100 = 数量2。未配分USDC900。']},14:check('建玉金額200を確認'),15:check('値動きの数量2を確認'),
+  11:focus('collateral'),12:input('collateral',100),13:{details:['証拠金100 Mock USDC × 倍率2 = 建玉金額200 Mock USDCです。建玉金額200 ÷ 取引予定価格100 = 数量2です。注文後には、未配分資金900 Mock USDCが手元に残る予定です。']},14:check('建玉金額200を確認'),15:check('取引数量2を確認'),
   16:{details:['この小練習は教材価格95で手動決済する計画。SLの別練習とは分かれています。損失額の保証ではありません。']},
   17:choose('lossPlan','manual-95',[['教材価格95で手動決済する計画','manual-95'],['計画を決めずに進む','no-plan']]),
-  18:{details:['分離証拠金100 / 2倍 / ロング / 建玉200 / 数量2 / 手数料0・資金調達料0。100だけを拘束し、200を重ねて引きません。']},
+  18:{details:['注文予定は分離証拠金100 Mock USDC、2倍、ロング、建玉金額200 Mock USDC、数量2です。教材手数料・資金調達料は0です。注文を確定すると証拠金100だけを拘束し、建玉金額200をさらに引くことはありません。']},
   19:confirm('先物の練習注文を確定'),21:wait('教材の判定用価格を95へ進める'),22:{details:['数量2 × (95 − 100) = 評価損10。配分した100の自己資本は90。未配分900とは別です。']},
-  24:choose('closeQuantity',2,[['全数量2',2],['数量1のみ',1]]),25:{details:['返却100 − 確定損失10 = 90。未配分900 + 返却90 = 利用可能990。']},26:confirm('練習建玉の全決済を確定'),27:check('決済履歴の利用可能990を照合'),
+  24:choose('closeQuantity',2,[['全数量2',2],['数量1のみ',1]]),25:{details:['この建玉を全決済すると、証拠金100から損失10を引いた90 Mock USDCが戻る予定です。未配分900と合わせ、利用可能残高は990 Mock USDCになる予定です。']},26:confirm('練習建玉の全決済を確定'),27:check('決済履歴の利用可能990を照合'),
   28:{details:['独立したSL練習へ。元の決済済み990は変えません。別のロング数量2、開始価格100を使います。']},29:check('SLは別状態・価格100・数量2と確認'),
   31:focus('stopPrice'),32:input('stopPrice',97),33:{details:['SLは判定用価格97で発動。急変時の売却価格は別に決まり、97で売れる保証ではありません。']},34:confirm('練習のSL発動価格97を確定'),
   35:wait('SL発動97・売却96.5の急変コマへ進める'),36:{details:['判定用価格97で発動 → 売却価格96.5で約定（売買が成立）。発動と約定は別です。']},
   37:{details:['数量2 × (96.5 − 100) = 確定損失7。発動価格97で計算した損失6とは限りません。']},
-  38:{details:['独立した資金調達料の練習。数量2のロング、基準価格100。主ラボとSLの損益は持ち込みません。']},39:check('別状態の数量2・計算基準価格100を照合'),
+  38:{details:['元の先物ラボとは別に行う、資金調達料の練習です。数量2のロング、基準価格100を使います。元の先物ラボとSLの小練習の損益は持ち込みません。']},39:check('別状態の数量2・計算基準価格100を照合'),
   40:{details:['今回だけの教材1時間率 +0.01% = 0.0001。8時間率や年率ではありません。正の率ではロングが支払い、ショートが受け取ります。']},41:wait('次の1時間の資金調達時刻へ進める'),
-  42:{details:['数量2 × 計算基準価格100 × 0.0001 = 0.02の支払い。同じ時刻の表示を開き直しても再課金しません。']},
+  42:{details:['この小練習の1時間率は＋0.01%なので、ロング側が払い、ショート側が受け取ります。数量2 × 計算基準価格100 × 0.0001 = 0.02 Mock USDCです。同じ時刻の明細を開き直しても、再び支払うことはありません。']},
   43:{details:['清算の見学用の別状態。証拠金100、2倍、数量2、開始100、未配分900。教材の簡略清算判定です。']},
   44:{details:['自己資本 = 証拠金 + 評価損益 − 費用。維持証拠金 = 数量 × 判定用価格 × 教材維持率5%。自己資本が維持証拠金以下で模擬清算。']},
   45:wait('見学用の判定価格52へ進める'),46:{details:['価格52では評価損96、自己資本4、維持証拠金5.2。模擬清算で残余4を返し、未配分900と合計904。関連SL・TPは終了。']},
-  47:{label:'元の先物ラボへ戻る'},48:check('主ラボの出金可能990を照合')},
+  47:{label:'元の先物ラボへ戻る'},48:check('元の先物ラボの出金可能額を照合')},
  'HY-EXIT':{
   2:{details:['共通入金99 / 現物980 / HLP991 / ステーキング808 / 先物990。それぞれ別の状態です。画面で選ばれた今回の経路だけを使います。']},
   3:check('今回の経路に拘束が残っていないと確認'),5:focus('asset'),6:choose('asset','USDC',assetChoices),7:focus('network'),8:choose('network','Arbitrum',networkChoices),
@@ -477,9 +656,9 @@ const overrides = {
   11:focus('quantity'),12:choose('quantity','all',[['今回の経路の出金可能額・全額','all'],['入力をやり直す','edit']]),
   14:{details:['教材手数料1を申請額から控除します。共通経路99→98 / 現物980→979 / HLP991→990 / 委任808→807 / 先物990→989。']},
   15:check('申請USDCと受取USDCを照合'),16:check('送る道Arbitrumと受け取る道を照合'),17:check('自分のDEMO-WALLET-Aと照合'),
-  18:confirm('今回の経路の練習出金を確定'),19:{details:['状態：処理中。申請しただけでは、受取を確かめたことになりません。']},20:wait('教材の処理完了まで進める'),
+  18:confirm('今回の経路の練習出金を確定'),19:{details:['出金は処理中です。HyperCoreから練習ウォレットへ届ける処理が終わるまで、受取先で使える残高には足しません。']},20:wait('教材の処理完了まで進める'),
   24:check('今回の申請額から1を引いた到着額を照合'),25:{details:['今回の出金分は受取ウォレットにあります。共通の見送り経路なら元の900に98が届き998 USDC、ETHは別に0.0009です。未体験ラボは未学習のままです。']},
-  26:confirm('町へ戻り、港の村長に練習明細を渡す')}
+  26:confirm('灯台守ルカへの報告用に結果を保存')}
 };
 
 function labelFor(copy) {
@@ -497,13 +676,134 @@ function defaultType(copy) {
 function sectionFor(def,n) {
  return def.sections.find(([start,end])=>n>=start&&n<=end)?.[2] || def.title;
 }
+// These outcomes describe the effect of this operation, never a later receipt or report.
+const displayResults={
+ 'CR-01':{
+  2:'銀行の円のカードを開きました。',
+  4:'USDCのカードを開きました。',
+  6:'ウォレットのカードを開きました。',
+  8:'ネットワークのカードを開きました。',
+  10:'Hyperliquid内の残高のカードを開きました。',
+  17:'送る前に確かめる内容を、メモに保存しました。',
+  18:'資産の地図を確認した記録を保存し、今回の練習を終えました。町への移動と、依頼人への報告はこの後に行います。'
+ },
+ 'CR-02':{
+  2:'練習ウォレットを接続する方法の画面を開きました。',
+  6:'接続を求めているサービス名を表示しました。',
+  7:'ウォレットへの接続を許可すると、サービスが何をできるかを説明する画面を開きました。',
+  9:'最近使ったアプリの一覧を開きました。',
+  10:'取引練習アプリへ戻りました。',
+  11:'取引の練習を有効にするための、確認画面を開きました。',
+  12:'取引の練習を有効にすると、何ができるかを説明する画面を開きました。',
+  13:'取引の練習を有効にしました。ウォレット内の資産はまだ動かしていません。',
+  17:'サポートを名乗るメールの差出人名を表示しました。',
+  20:'練習スマホのホームを開きました。',
+  23:'復元情報を入力しない理由を説明する、教材メモを開きました。',
+  24:'復元情報を入力しないための安全メモを保存しました。'
+ },
+ 'CR-03':{
+  1:'HyperCoreへの入金に使う受取条件の画面を開きました。',
+  7:'受取カードの宛先を、ゲーム内の一時メモにコピーしました。',
+  8:'練習スマホのホームを開きました。',
+  10:'練習ウォレットから資産を送る画面を開きました。',
+  16:'コピーした宛先を、送信先の欄に貼り付けました。まだ送信は確定していません。',
+  20:'送信内容の確認画面を開きました。まだ送信は確定していません。'
+ },
+ 'CR-04':{
+  3:'現物を持っている間に、価格と保有分の評価額がどう変わるかを説明する画面を開きました。',
+  4:'運用方法を比べる表へ戻りました。',
+  7:'運用方法を比べる表へ戻りました。',
+  9:'HYPEの保有数量と、その数量全体の評価額を比べる説明を開きました。',
+  11:'運用方法を比べる表へ戻りました。',
+  14:'運用方法を比べる表へ戻りました。',
+  18:'第6章で学ぶ経路を予約しました。選んでいないラボは、まだ学習していない状態です。'
+ },
+ 'HY-SPOT':{
+  11:'現物の買い注文を確認する画面を開きました。まだ購入は確定していません。',
+  12:'200 Mock USDCでHYPE2枚を購入しました。未使用のMock USDCは800です。HYPEの評価額は200 Mock USDCで、確定損益は0です。',
+  15:'HYPEの教材価格を次の場面へ進めました。保有分の評価額も変わりましたが、まだ売却していません。',
+  17:'まだ売っていないHYPEに出ている、評価損の説明を開きました。',
+  18:'保有しているHYPEを売る画面を開きました。',
+  22:'保有していたHYPEの売却が成立しました。売却代金が使える残高に加わり、値動きによる損失が確定しました。',
+  25:'元の現物ラボとは別の資金で、指値と取消の小練習を開きました。',
+  33:'指値で買う価格と数量の確認画面を開きました。まだ注文は確定していません。',
+  34:'指値の買い注文を受け付けました。売買はまだ成立しておらず、注文に使う資金は拘束中です。',
+  37:'まだ成立していない買い注文を取り消す、確認画面を開きました。',
+  38:'指値の買い注文を取り消しました。拘束していた資金が使える残高へ戻りました。HYPEは買っていません。',
+  40:'元の現物ラボへ戻りました。小練習の資金は、このラボの残高に足していません。'
+ },
+ 'HY-HLP':{
+  4:'HLPから資金を引き出せる時期と条件の説明を開きました。',
+  5:'HLPへ預ける資金を入力する画面を開きました。',
+  10:'資金をHLPへ預けました。手元で使える資金と、HLPに預けた資金が分かれました。',
+  13:'預けてからのゲーム内の時間を2日進めました。まだ引き出せません。',
+  14:'HLPの評価単価が下がった例を開きました。預けた分の評価額も下がっています。',
+  16:'引き出せるか確かめる画面を開きました。待ち時間が残っているため、資金はHLPに預けたままです。',
+  17:'最後に預けてからの待ち時間が、まだ残っている理由を説明する画面を開きました。',
+  18:'最後に預けた時からの待ち時間を進め、資金を引き出せる時刻になりました。まだ引き出していません。',
+  19:'HLPから資金を引き出す画面を開きました。',
+  22:'HLPから受け取る予定額の確認画面を開きました。まだ引き出していません。',
+  24:'HLPから資金を引き出しました。受け取った資金が、手元で使える残高に加わりました。'
+ },
+ 'HY-STAKE':{
+  5:'現物のHYPEを別の残高へ移す画面を開きました。',
+  10:'HYPEを現物残高からステーキング残高へ移しました。まだ委任はしていません。',
+  14:'選んだ相手に委任するHYPEの数量を、確認する画面を開きました。',
+  18:'選んだ相手へHYPEを委任しました。このHYPEは現物残高にはありません。',
+  20:'委任してからのゲーム内の時間を1日進め、1回だけの教材報酬が委任中のHYPEに加わりました。委任を解除できる時刻になりました。',
+  21:'委任中のHYPEに加わった、1回だけの教材報酬の明細を開きました。',
+  22:'HYPEの数量と1枚の価格から計算した、保有分全体の評価額を表示しました。',
+  23:'HYPEの委任を解除する画面を開きました。',
+  26:'HYPEの委任を解除しました。HYPEはステーキング残高へ戻り、まだ現物残高にはありません。',
+  28:'ステーキング残高のHYPEを、現物残高へ戻す画面を開きました。',
+  31:'現物へ戻す申請を受け付けました。HYPEは到着まで待機中で、まだ現物として売れません。',
+  33:'ゲーム内の7日の待機が終わり、HYPEが現物残高に届きました。',
+  36:'現物残高に戻ったHYPEを売る画面を開きました。',
+  39:'現物のHYPEの売却が成立し、売却代金が使えるMock USDC残高に加わりました。'
+ },
+ 'HY-PERP':{
+  10:'新規注文に使う倍率を保存しました。まだ建玉は作っていません。',
+  19:'新規注文が成立し、ロングの建玉を持ちました。配分した証拠金は、この取引に使われています。',
+  21:'教材価格を次の場面へ進めました。建玉に評価損が出ていますが、まだ決済していません。',
+  23:'持っている建玉を決済する画面を開きました。',
+  25:'全決済した場合に戻る資金の確認画面を開きました。まだ決済していません。',
+  26:'建玉の全数量を決済し、損失が確定しました。証拠金から損失を引いた資金が、使える残高へ戻りました。',
+  28:'元の先物ラボとは別の資金で、SLの小練習を開きました。',
+  30:'SLを発動させる価格を入力する画面を開きました。',
+  34:'小練習の建玉に、SLの発動価格を設定しました。まだSLは発動していません。',
+  35:'教材の場面を進め、SLが発動して売買が成立しました。発動価格と、売れた価格は別でした。',
+  38:'元の先物ラボとは別の資金で、資金調達料の小練習を開きました。',
+  41:'次の資金調達時刻へ進め、今回のロング側が資金調達料を支払いました。',
+  45:'見学用の価格を進め、自己資本が維持証拠金以下になったため、教材の清算が行われました。',
+  47:'元の先物ラボへ戻りました。各小練習の損益は、このラボの残高に足していません。'
+ },
+ 'HY-EXIT':{
+  1:'今回選んだ経路の資金を、練習ウォレットへ戻す画面を開きました。',
+  4:'HyperCoreから出金する内容を入力する画面を開きました。',
+  13:'出金先と数量の確認画面を開きました。まだ出金は確定していません。',
+  18:'出金申請を受け付けました。練習ウォレットへ届ける処理は、まだ終わっていません。',
+  20:'出金の処理が終わり、今回の出金分が練習ウォレットに届きました。通知と受取明細で確かめられます。',
+  26:'受取まで確かめた記録を保存し、今回の練習を終えました。町で灯台守ルカに結果を知らせる準備ができました。'
+ }
+};
+function actionResult(type,instruction) {
+ if(type==='focus')return /欄を(?:押す|開く)。$/.test(instruction)?instruction.replace(/欄を(?:押す|開く)。$/,'欄を開きました。'):'入力や選択に使う欄を開きました。';
+ if(type==='input')return '入力した内容を保存しました。資産を動かす操作は、まだ行っていません。';
+ if(type==='select')return '選んだ内容を保存しました。';
+ if(type==='check')return '表示した内容を確かめた記録を残しました。';
+ if(type==='wait')return '教材の場面を進めました。いまの状態は画面の明細で確かめられます。';
+ if(type==='confirm')return '確認した内容で、この操作を確定しました。';
+ if(/を開く。$/.test(instruction))return instruction.replace(/を開く。$/,'を開きました。');
+ if(/を見る。$/.test(instruction))return instruction.replace(/を見る。$/,'を表示しました。');
+ if(/を読む。$/.test(instruction))return instruction.replace(/を読む。$/,'を開きました。');
+ return '次の内容を確認する画面を開きました。';
+}
 export const steps = Object.entries(catalog).flatMap(([questId,rows]) => rows.map((instruction,index)=>{
  const number=index+1, id=`${questId}-S${String(number).padStart(3,'0')}`, def=definitions[questId], patch=overrides[questId]?.[number] || {};
  const tabId=sectionFor(def,number), type=patch.type || defaultType(instruction);
  const details=[...def.details,...(patch.details || [])];
- return {id,questId,screenId:`${questId}:${tabId}`,appId:questId==='CR-01'?'memo':'hyper',tabId,
+ const step={id,questId,screenId:`${questId}:${tabId}`,appId:questId==='CR-01'?'memo':'hyper',tabId,
   instruction,targetAction:labelFor(instruction),label:labelFor(instruction),type,
-  result:`${labelFor(instruction)}。この操作を練習の記録に保存しました。`,
   preconditions:index?[`${questId}-S${String(index).padStart(3,'0')}`]:[],
   requiredState:{scenarioId:def.scenarioId,previousStepId:index?`${questId}-S${String(index).padStart(3,'0')}`:null},
   completionRule:'action',completionEvent:`action:${id}`,nextStepIds:index+1<rows.length?[`${questId}-S${String(number+1).padStart(3,'0')}`]:[],
@@ -511,6 +811,10 @@ export const steps = Object.entries(catalog).flatMap(([questId,rows]) => rows.ma
   checkpoint:`${questId}:${String(number).padStart(3,'0')}`,hintIds:[`${questId}:hint`],hint:def.hint,
   recovery:'入力や明細は残っています。表示された確認箇所へ戻って直せます。',
   effect:id,...patch,details,context:tabId};
+ // Only visible text changes after all behavior and navigation metadata are resolved.
+ const copy=displayInstructions[questId]?.[number] || instruction;
+ const label=type==='input'?'入力した内容で進む':patch.label || labelFor(copy);
+ return {...step,instruction:copy,label,targetAction:label,result:displayResults[questId]?.[number] || patch.result || actionResult(type,copy)};
 }));
 
 export const quests = Object.entries(definitions).map(([id,def])=>({
@@ -564,7 +868,7 @@ function task(id,title,details,actions,domain,objectiveIndex,extra={}) {
 const aTap = (label,details=[])=>({label,type:'tap',details});
 const aCheck = (label,details=[])=>({label,type:'check',details});
 const aSelect = (label,field,value,choices)=>({label,...choose(field,value,choices)});
-const aInput = (label,field,value)=>({label,...input(field,value)});
+const aInput = (instruction,field,value)=>({instruction:instruction.replace('入力して照合','入力'),label:'入力した内容で進む',...input(field,value)});
 const aFocus = (label,field)=>({label,...focus(field)});
 const aConfirm = (label,effect,details=[])=>({label,type:'confirm',effect,details});
 const aWait = (label,effect,details=[])=>({label,type:'wait',effect,details});
@@ -580,7 +884,7 @@ const ch5Tasks = [
   aTap('本文の外の「この案内を閉じる」を押す'),aTap('ゲーム内ヘルプから接続状況へ戻る'),
   aCheck('接続済み・今回の送金未実行を確認',['接続の許可は、資産を送った記録ではありません。'])
  ],'crypto_basics',1),
- task('CH5-B3','受取カードに送信フォームを合わせる',['受取カード：USDC / Arbitrum / DEMO-VAULT-B。初期フォームのUSDT・別network・DEMO-VAULT-Aを直します。'],[
+ task('CH5-B3','受取カードに送信フォームを合わせる',['受取カード：USDC / Arbitrum / DEMO-VAULT-B。初期の送信フォームはUSDT・別のネットワーク・DEMO-VAULT-Aになっています。受取カードと同じ内容に直します。'],[
   aFocus('送信資産の欄を押す','asset'),aSelect('USDTからUSDCへ直す','asset','USDC',assetChoices),
   aFocus('送るネットワークの欄を押す','network'),aSelect('受取側と同じArbitrumへ直す','network','Arbitrum',networkChoices),
   aFocus('宛先の欄を押す','address'),aSelect('DEMO-VAULT-Bへ直す','address','DEMO-VAULT-B',[['DEMO-VAULT-A','DEMO-VAULT-A'],['DEMO-VAULT-B','DEMO-VAULT-B']]),
@@ -588,7 +892,7 @@ const ch5Tasks = [
  ],'crypto_basics',2),
  task('CH5-B4','50を送り、49の到着を照合する',['独立したボス用状態：ウォレット1000 USDC・0.001 ETH。受取条件USDC / Arbitrum / DEMO-VAULT-B。教材コスト1、ガス0.0001 ETH。'],[
   aFocus('数量の欄を押す','quantity'),aInput('練習値50を入力する','quantity',50),
-  aTap('送信50・コスト1・到着49の内訳を開く',['USDCの費用は送信額から引きます。ETHのガスとは足しません。']),
+  aTap('送る50 Mock USDC・教材費1・到着予定49の内訳を開く',['USDCの費用は送信額から引きます。ETHのガスとは足しません。']),
   aCheck('必要ガス0.0001 ETHと残高0.001 ETHを照合'),
   aConfirm('ボス専用の練習送信を確定','boss:CH5-B4:send',['確定後：送信元950 USDC・0.0009 ETH。今回の49はまだ処理中。']),
   aWait('教材の処理を進める','boss:CH5-B4:receive'),aTap('今回の受取履歴を開く',['今回の到着：49 USDC。']),
@@ -604,16 +908,16 @@ const ch5Tasks = [
 
 const bossAmounts={spot:105,hlp:100,stake:80,perp:50,journey:100};
 const bossPreparation = {
- spot:[aTap('ボス用の現物保有1 HYPEを開く',['教材価格105・手数料0。他残高0。']),aTap('保有明細から売るを押す'),aFocus('売却数量の欄を押す','sellQuantity'),aInput('数量1を入力する','sellQuantity',1),aTap('売却代金105の確認画面を開く'),aConfirm('1 HYPEの売却を確定','boss:CH6-B1:spot:sell')],
+ spot:[aTap('ボス用の現物保有1 HYPEを開く',['教材価格105・手数料0。他残高0。']),aTap('保有明細から売るを押す'),aFocus('売却数量の欄を押す','sellQuantity'),aInput('数量1を入力する','sellQuantity',1),aTap('売却代金の受取予定105 Mock USDCを確認画面で見る'),aConfirm('1 HYPEの売却を確定','boss:CH6-B1:spot:sell')],
  hlp:[aTap('ボス用のHLP保有を開く',['預入100・評価100・他残高0。ロックの残りはゲーム内2日。']),aTap('出金可能日時を開く'),aWait('残りのゲーム内2日を進める','boss:CH6-B1:hlp:wait'),aTap('引き出すを押す'),aSelect('評価額100の全額を選ぶ','withdrawQuantity','all',[['全額100','all'],['半分50','half']]),aTap('引出し確認画面を開く'),aConfirm('HLP100の引出しを確定','boss:CH6-B1:hlp:withdraw')],
- stake:[aTap('ボス用の委任中1 HYPEを開く',['委任から1日が過ぎ、委任ロックは終了した専用例。他残高0。売却教材価格80。']),aTap('委任を解除を押す'),aSelect('全数量1 HYPEを選ぶ','undelegateQuantity',1,[['全数量1 HYPE',1],['0.5 HYPE',0.5]]),aConfirm('委任解除を確定','boss:CH6-B1:stake:undelegate'),aTap('ステーキング残高1 HYPEを開く'),aTap('現物残高へ移すを押す'),aConfirm('現物への出金を確定','boss:CH6-B1:stake:request'),aWait('ゲーム内の待機7日を進める','boss:CH6-B1:stake:wait'),aTap('現物に届いた1 HYPEを開く'),aTap('価格80・数量1の売却確認を開く'),aConfirm('売却80を確定','boss:CH6-B1:stake:sell')],
- perp:[aTap('ボス用の分離証拠金の建玉を開く',['証拠金50 / 1倍 / 数量0.5 / 開始100 / 判定用価格100 / 手数料0 / 他残高0。']),aTap('決済を押す'),aSelect('全数量0.5を選ぶ','closeQuantity',0.5,[['全数量0.5',0.5],['数量0.25',0.25]]),aTap('損益0・返却50の確認画面を開く'),aConfirm('建玉の全決済を確定','boss:CH6-B1:perp:close')],
+ stake:[aTap('ボス用の委任中1 HYPEを開く',['委任から1日が過ぎ、委任ロックは終了した専用例。他残高0。売却教材価格80。']),aTap('委任を解除を押す'),aSelect('全数量1 HYPEを選ぶ','undelegateQuantity',1,[['全数量1 HYPE',1],['0.5 HYPE',0.5]]),aConfirm('委任解除を確定','boss:CH6-B1:stake:undelegate'),aTap('ステーキング残高1 HYPEを開く'),aTap('現物残高へ移すを押す'),aConfirm('ステーキングから現物へ戻す申請を確定','boss:CH6-B1:stake:request'),aWait('ゲーム内の待機7日を進める','boss:CH6-B1:stake:wait'),aTap('現物に届いた1 HYPEを開く'),aTap('価格80・数量1の売却確認を開く'),aConfirm('売却80を確定','boss:CH6-B1:stake:sell')],
+ perp:[aTap('ボス用の分離証拠金の建玉を開く',['証拠金50 / 1倍 / 数量0.5 / 開始100 / 判定用価格100 / 手数料0 / 他残高0。']),aTap('決済を押す'),aSelect('全数量0.5を選ぶ','closeQuantity',0.5,[['全数量0.5',0.5],['数量0.25',0.25]]),aTap('損益0と、証拠金から戻る予定の50 Mock USDCを確認する'),aConfirm('建玉の全決済を確定','boss:CH6-B1:perp:close')],
  journey:[aTap('ボス用の未運用100を開く',['保有・委任・建玉・ロックはすべて0。未運用の100だけが使えます。']),aCheck('運用していないので解除操作は不要と確認')]
 };
 function routeTasks(routeId) {
  const amount=bossAmounts[routeId], receipt=amount-1, domain='crypto_exit';
  return [
-  task('CH6-B1','選んだ道の出口を整える',[`選択経路：${routeId}。このボスだけの独立した練習資金を使います。主ラボの資金は動かしません。`],bossPreparation[routeId],domain,0,{scenarioId:`boss-ch6-${routeId}`,routeId}),
+  task('CH6-B1','選んだ道の出口を整える',[`選んだ経路：${({spot:'現物',hlp:'HLP',stake:'ステーキング',perp:'先物',journey:'運用を見送る経路'})[routeId]}。このボスだけの独立した練習資金を使います。元のラボの資金は動かしません。`],bossPreparation[routeId],domain,0,{scenarioId:`boss-ch6-${routeId}`,routeId}),
   task('CH6-B2','出金できる額を残高画面で照合する',[`準備後の使える額は${amount} Mock USDC。解除前の拘束額を重ねて数えません。`],[
    aTap('ボス用の利用可能残高を開く'),aFocus('使える額を照合する欄を押す','available'),aInput(`画面の利用可能${amount}を入力して照合`,'available',amount),aCheck('保有・拘束が0であることを確認')
   ],domain,1,{scenarioId:`boss-ch6-${routeId}`,routeId}),
@@ -660,9 +964,9 @@ const reviewVariants = {
    aFocus('資産欄を押す','asset'),aSelect('USDCを選ぶ','asset','USDC',assetChoices),aFocus('ネットワーク欄を押す','network'),aSelect('Arbitrumを選ぶ','network','Arbitrum',networkChoices),
    aFocus('宛先欄を押す','address'),aSelect('DEMO-VAULT-Cを選ぶ','address','DEMO-VAULT-C',[['DEMO-VAULT-A','DEMO-VAULT-A'],['DEMO-VAULT-C','DEMO-VAULT-C']]),aCheck('3つの一致を確認')
   ],'crypto_basics',2),
-  reviewTask('RV-CR03-2','費用と到着49を照合する',['別snapshotのwallet1000・ETH0.001。送信50、教材コスト1、ガス0.0001 ETH。'],[
-   aFocus('数量欄を押す','quantity'),aInput('50を入力','quantity',50),aTap('送信50・教材コスト1・到着49の確認画面を開く'),aConfirm('この確認課題の送信を確定','review:network:send'),
-   aWait('この確認課題の処理を進める','review:network:receive'),aTap('今回の到着明細を開く'),aFocus('到着数量の照合欄を押す','received'),aInput('49を入力して照合','received',49),aCheck('wallet950・ETH0.0009・受取49を確認')
+  reviewTask('RV-CR03-2','費用と到着49を照合する',['元の練習とは別に、練習ウォレットの1,000 Mock USDCと0.001 Mock ETHから始めます。送る50 Mock USDCから教材費1を引き、ガス代は別に0.0001 Mock ETHを使います。'],[
+   aFocus('数量欄を押す','quantity'),aInput('50を入力','quantity',50),aTap('送る50 Mock USDC・教材費1・到着予定49の確認画面を開く'),aConfirm('この確認課題の送信を確定','review:network:send'),
+   aWait('この確認課題の処理を進める','review:network:receive'),aTap('今回の到着明細を開く'),aFocus('到着数量の照合欄を押す','received'),aInput('49を入力して照合','received',49),aCheck('練習ウォレットに950 Mock USDCと0.0009 Mock ETHが残り、HyperCoreで49 Mock USDCを受け取ったことを確認')
   ],'crypto_basics',3)
  ]),
  'CR-04':review('review-comparison','近いうちに必要な資金',{route:null},[
@@ -673,14 +977,14 @@ const reviewVariants = {
   ],'crypto_basics',4)
  ]),
  'HY-SPOT':review('review-spot','数量1・上昇と注文取消',{available:1000,hype:0,price:100,cost:0,unrealized:0,realized:0,limitAvailable:1000,reserved:0},[
-  reviewTask('RV-SPOT-1','銘柄と方向を設定する',['元手1000、教材HYPE価格100。主ラボとは別の状態です。'],[
+  reviewTask('RV-SPOT-1','銘柄と方向を設定する',['元手1000、教材HYPE価格100。元のラボとは別の状態です。'],[
    aTap('現物の注文画面を開く'),aSelect('教材HYPEを選ぶ','symbol','HYPE',[['教材HYPE','HYPE'],['別銘柄','OTHER']]),aSelect('買いを選ぶ','side','buy',[['買い','buy'],['売り','sell']])
   ],'spot',0),
-  reviewTask('RV-SPOT-2','数量1の支払を確かめて購入',['価格100 × 数量1 = 支払100。手数料0。'],[
-   aFocus('数量欄を押す','quantity'),aInput('数量1を入力','quantity',1),aTap('支払100・残高900の内訳を開く'),aConfirm('この確認課題の購入を確定','review:spot:buy')
+  reviewTask('RV-SPOT-2','数量1の支払を確かめて購入',['1枚の価格100 Mock USDC × HYPE1枚 = 支払予定100 Mock USDCです。教材手数料は0です。'],[
+   aFocus('数量欄を押す','quantity'),aInput('数量1を入力','quantity',1),aTap('支払予定100 Mock USDCと、購入後の残高予定900 Mock USDCの内訳を開く'),aConfirm('この確認課題の購入を確定','review:spot:buy')
   ],'spot',1),
   reviewTask('RV-SPOT-3','評価益と確定益を分ける',['価格105では保有評価105、評価益5。売る前と売った後を比べます。'],[
-   aWait('教材価格を105へ進める','review:spot:tick'),aTap('保有評価105・評価益5を開く'),aTap('保有から売るを押す'),aSelect('全数量1を選ぶ','sellQuantity',1,[['全数量1',1],['0.5',0.5]]),aTap('売却105の確認画面を開く'),aConfirm('売却を確定','review:spot:sell'),aFocus('確定益の照合欄を押す','profit'),aInput('確定益5を入力して照合','profit',5),aCheck('利用可能1005を確認')
+   aWait('教材価格を105へ進める','review:spot:tick'),aTap('保有評価105・評価益5を開く'),aTap('保有から売るを押す'),aSelect('全数量1を選ぶ','sellQuantity',1,[['全数量1',1],['0.5',0.5]]),aTap('売却の受取予定105 Mock USDCを確認画面で見る'),aConfirm('売却を確定','review:spot:sell'),aFocus('確定益の照合欄を押す','profit'),aInput('確定益5を入力して照合','profit',5),aCheck('利用可能1005を確認')
   ],'spot',2),
   reviewTask('RV-SPOT-4','指値95が保留になることを確かめる',['指値はさらに独立した元手1000・教材価格100の状態です。主の1005へ合算しません。'],[
    aTap('買い指値の小練習を開く'),aFocus('指値価格欄を押す','limitPrice'),aInput('95を入力','limitPrice',95),aFocus('注文数量欄を押す','limitQuantity'),aInput('1を入力','limitQuantity',1),aTap('価格100では保留となる確認画面を開く'),aConfirm('買い指値を確定','review:spot:limit'),aTap('保留の未約定注文を開く')
@@ -698,10 +1002,10 @@ const reviewVariants = {
    aTap('価格100に固定した今回の保有明細を開く'),aFocus('預入分の評価額欄を押す','valuation'),aInput('300を入力して照合','valuation',300),aCheck('価格が動く例も、利息ではなく戦略の評価変化と確認')
   ],'hlp',2),
   reviewTask('RV-HLP-4','2日後に50を追加して待つ期限を更新する',['最初の預入から2日進み、その日に50を追加します。新しい出金可能日はゲーム内6日目。'],[
-   aWait('ゲーム内2日進める','review:hlp:two-days'),aFocus('追加入金欄を押す','extraQuantity'),aInput('50を入力','extraQuantity',50),aTap('追加後の預入350・手元650の確認画面を開く'),aConfirm('50の追加入金を確定','review:hlp:add'),aTap('直近預入2日目+4日=6日目の明細を開く'),aWait('直近の預入から4日進める','review:hlp:unlock')
+   aWait('ゲーム内2日進める','review:hlp:two-days'),aFocus('追加入金欄を押す','extraQuantity'),aInput('50を入力','extraQuantity',50),aTap('追加後の預入予定350 Mock USDCと、手元に残る予定650 Mock USDCを確認する'),aConfirm('50の追加入金を確定','review:hlp:add'),aTap('直近預入2日目+4日=6日目の明細を開く'),aWait('直近の預入から4日進める','review:hlp:unlock')
   ],'hlp',3),
   reviewTask('RV-HLP-5','引出し後の合計1000を照合する',['価格100に固定。預入350を引き出して、手元650と合わせます。'],[
-   aTap('引き出すを押す'),aSelect('全額350を選ぶ','withdrawQuantity','all',[['全額350','all'],['初回分300のみ','initial-only']]),aTap('受取350の確認画面を開く'),aConfirm('引出しを確定','review:hlp:withdraw'),aFocus('引出し後の残高を照合する欄を押す','available'),aInput('合計1000を入力して照合','available',1000),aCheck('模擬口数と手元を二重に数えていないと確認')
+   aTap('引き出すを押す'),aSelect('全額350を選ぶ','withdrawQuantity','all',[['全額350','all'],['初回分300のみ','initial-only']]),aTap('HLPから引き出した後の受取予定350 Mock USDCを確認する'),aConfirm('引出しを確定','review:hlp:withdraw'),aFocus('引出し後の残高を照合する欄を押す','available'),aInput('合計1000を入力して照合','available',1000),aCheck('模擬口数と手元を二重に数えていないと確認')
   ],'hlp',4)
  ]),
  'HY-STAKE':review('review-stake','10のうち5だけを委任する',{spot:10,staking:0,delegated:0,waiting:0,simulationDay:0,unlockDay:0,arrivalDay:0,price:100},[
@@ -712,7 +1016,7 @@ const reviewVariants = {
    aTap('預け先一覧を開く'),{label:'条件を読んで候補を選ぶ',...choose('validator',undefined,[['灯台ノード','lighthouse'],['森の歯車','forest'],['星波ノード','starwave']],{acceptAnyChoice:true})},aSelect('全数量5を選ぶ','delegateQuantity',5,[['5 HYPE',5],['10 HYPE',10]]),aTap('委任の確認画面を開く'),aConfirm('5 HYPEの委任を確定','review:stake:delegate')
   ],'staking',1),
   reviewTask('RV-STAKE-3','委任の1日と出金の7日を分ける',['現物5+委任5 → 解除後の現物5+ステーキング5 → 現物5+待機5。'],[
-   aWait('委任から1日進める','review:stake:one-day'),aTap('委任解除を押す'),aSelect('5を解除する','undelegateQuantity',5,[['5 HYPE',5],['10 HYPE',10]]),aConfirm('委任解除を確定','review:stake:undelegate'),aTap('ステーキング5を開く'),aTap('現物へ移すを押す'),aConfirm('7日待機する出金を確定','review:stake:request'),aTap('現物5・待機5の内訳を開く')
+   aWait('委任から1日進める','review:stake:one-day'),aTap('委任解除を押す'),aSelect('5を解除する','undelegateQuantity',5,[['5 HYPE',5],['10 HYPE',10]]),aConfirm('委任解除を確定','review:stake:undelegate'),aTap('ステーキング5を開く'),aTap('現物へ移すを押す'),aConfirm('ステーキングから現物へ戻す申請を確定','review:stake:request'),aTap('現物5・待機5の内訳を開く')
   ],'staking',2),
   reviewTask('RV-STAKE-4','場所が違っても数量合計を保つ',['この確認課題には報酬を付けません。現物5+待機5=合計10。価格80なら評価800。'],[
    aTap('HYPEの現在地を開く'),aFocus('合計数量の欄を押す','totalHype'),aInput('合計10を入力して照合','totalHype',10),aFocus('価格80の評価額欄を押す','valuation'),aInput('評価800を入力して照合','valuation',800),aCheck('数量と価格と評価額を分けて確認')
@@ -729,12 +1033,12 @@ const reviewVariants = {
    aSelect('売り・ショートを選ぶ','side','short',[['買い・ロング','long'],['売り・ショート','short']]),aConfirm('別状態のショートを開く','review:perp:short-open'),aWait('教材価格を105へ進める','review:perp:short-tick'),aFocus('損失額の照合欄を押す','loss'),aInput('評価損10を入力して照合','loss',10)
   ],'perps',1),
   reviewTask('RV-PERP-3','売り建玉の決済後残高を照合する',['費用0。未配分900 + 証拠金から戻る90 = 990。'],[
-   aTap('このショートの決済を押す'),aSelect('全数量2を選ぶ','closeQuantity',2,[['数量2',2],['数量1',1]]),aTap('返却90の確認画面を開く'),aConfirm('決済を確定','review:perp:short-close'),aFocus('利用可能残高の照合欄を押す','available'),aInput('990を入力して照合','available',990)
+   aTap('このショートの決済を押す'),aSelect('全数量2を選ぶ','closeQuantity',2,[['数量2',2],['数量1',1]]),aTap('決済後に戻る予定90 Mock USDCを確認画面で見る'),aConfirm('決済を確定','review:perp:short-close'),aFocus('利用可能残高の照合欄を押す','available'),aInput('990を入力して照合','available',990)
   ],'perps',2),
   reviewTask('RV-PERP-4','SLの発動価格と約定価格を分ける',['別状態：ロング数量2、開始100。SL発動97、売却96.5。'],[
    aFocus('SL発動価格欄を押す','stopPrice'),aInput('97を入力','stopPrice',97),aConfirm('別状態にSLを設定','review:perp:sl-set'),aWait('発動97・約定96.5へ進める','review:perp:sl-fill'),aTap('約定明細を開く'),aFocus('確定損失の欄を押す','loss'),aInput('損失7を入力して照合','loss',7)
   ],'perps',3),
-  reviewTask('RV-PERP-5','資金調達の向きと清算の条件を確認する',['以下はそれぞれ独立した見学状態。主ラボや直前の損益とは合算しません。'],[
+  reviewTask('RV-PERP-5','資金調達の向きと清算の条件を確認する',['以下はそれぞれ独立した見学状態。元の先物ラボや直前の損益とは合算しません。'],[
    aTap('数量2・基準価格100・1時間率+0.01%の明細を開く'),aSelect('正の率のロングの向きを選ぶ','positiveLong','pay',[['0.02を支払う','pay'],['0.02を受け取る','receive']]),
    aSelect('正の率のショートの向きを選ぶ','positiveShort','receive',[['0.02を支払う','pay'],['0.02を受け取る','receive']]),aSelect('負の率のショートの向きを選ぶ','negativeShort','pay',[['0.02を支払う','pay'],['0.02を受け取る','receive']]),
    aFocus('1時間の資金調達額の欄を押す','funding'),aInput('0.02を入力して照合','funding',0.02),
@@ -824,13 +1128,13 @@ export const factCatalog = [
 export const glossary = [
  ['ウォレット','資産を操作するための道具。銀行口座そのものと同じ仕組みではありません。'],
  ['ネットワーク','資産を送る道。受取条件と同じ道を選びます。'],
- ['評価額','いまの教材価格で計算した金額。'],['評価損益','持っている資産の値段が変わった分。まだ売っていない場面で使います。'],
+ ['評価額','持っている数量に、いまの1枚の教材価格を掛けた金額。1枚の価格とは区別します。'],['評価損益','持っている資産や建玉について、いま売却・決済した場合に生じる利益や損失。まだ売却・決済していない状態の表示です。'],
  ['確定損益','売却や決済で、値動きの結果が確定した分。'],['約定','注文の売り買いが成立すること。注文を出しただけとは違います。'],
  ['指値','買いたい・売りたい価格を指定する注文。条件に届くまで保留になることがあります。'],
  ['委任','運営を支える相手を選び、HYPEを委ねること。'],['バリデータ','運営を支える預け先の候補。教材ではすべて架空です。'],
  ['証拠金','値動きの取引のために割り当てるお金。'],['建玉','決済前に持っている値動きへの取引。'],
- ['倍率','証拠金に対して、どれだけの金額の値動きを持つか。'],['資金調達料','保有中に、取引の反対側へ払ったり受け取ったりするお金。'],
- ['判定用の価格','教材内で清算やSLの発動を判断する価格。mark priceの役割を簡略化しています。'],
- ['計算基準価格','資金調達料を計算するoracle priceの教材上の役割。判定用の価格とは分けます。'],
+ ['倍率','証拠金に対して、どれだけの金額の値動きを持つか。'],['資金調達料','先物の建玉を持つ間に、ロング側とショート側の間でやり取りするお金。正の率ではロング側が払い、ショート側が受け取り、負の率では向きが逆になります。'],
+ ['判定用の価格','教材内で清算やSLの発動を判断するための価格。売買が成立する価格や資金調達料の計算基準価格とは分けます。'],
+ ['計算基準価格','資金調達料を計算するための教材価格。清算やSLの発動に使う判定用の価格とは分けます。'],
  ['SL','損失を抑えるための注文。発動した価格と売買が成立する価格が同じになる保証はありません。']
 ].map(([term,description])=>({term,description}));

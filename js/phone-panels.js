@@ -54,7 +54,7 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
   const fake=quest?.id==='CR-02';if(fake)selected=['crypto-fake',{from:'おたすけ緊急係（架空）',subject:'復旧のご案内',body:'復元情報を教えてください。',warning:true}];
   body.append(el('div','受信トレイ','font-size:12px;font-weight:700;letter-spacing:.08em'));
   if(selected){const[id,m]=selected;if(m.read===false||/受信一覧|受信トレイ/.test(step.screenTitle??'')){body.append(button((m.read?'':'● ')+(quest?.id==='PR-01'?'郵便屋の練習メール：':'')+(m.subject||m.title||'練習メール'),()=>onAction?.(step.value),true));return {element:root,handlesAction:true};}const message=box(m.subject||m.title||'旅人さんへのお知らせ');message.append(text(`差出人：${quest?.id==='PR-01'?'郵便屋ミナ（練習）':m.from||'ゲーム内の案内係'}`,true),text(m.body||m.text||'このお知らせは練習用です。'));
-   if(m.code)message.append(box('メールの確認コード',String(m.code)));
+   if(m.code)message.append(box(quest?.id==='PR-01'?'メールの合言葉':'メールの確認コード',String(m.code)));
    if(m.warning)message.append(text('この要求には応じず、本文の外のボタンから案内を閉じよう。',true));body.append(message);
    if(/コピー/.test(step.instruction||'')){body.append(actionButton(step.questId==='PR-01'?'合言葉をコピー':'このメールの練習コードをコピー',step.value??m.code));handlesAction=true;}
    else if(/スター/.test(step.instruction||'')){body.append(actionButton('注文メールにスターを付ける',step.value));handlesAction=true;}
@@ -104,7 +104,7 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
  }else if(step.appId==='gift'||step.appId==='exchange'){
   body.append(box('交換先を見比べる','最低交換数・単位・手数料・有効期限・使う予定を確認します。'),ledger());
  }else if(step.appId==='memo'){
-  body.append(box('いまの依頼',quest?.title||'小さな一歩'),box('ゲーム内クリップボード',getPhoneGuideView(state,quest,step)?.copyText??'この用事の言葉は、まだコピーしていません。'));
+  body.append(box('いまの依頼',quest?.title||'小さな一歩'),box('ゲーム内の一時メモ（コピーした言葉）',getPhoneGuideView(state,quest,step)?.copyText??'この用事の言葉は、まだコピーしていません。'));
   if(quest?.id==='PR-01'){
    const memo=box('ミナの買い物メモ','きょうは郵便屋さんから、大切な知らせが届く日。メールを開いて、届いた言葉をこのメモへ残そう。');
    if(step.id==='PR-01-002'){const paper=el('div','','max-height:230px;overflow:auto;border-top:1px dashed #b6c8ba;margin-top:10px');paper.append(text('持ち物：旅人の杖、空っぽの手帳袋。',true),el('div','道の先には、お店と港と空の島。まずは、この村の小さな用事を片づけよう。','padding:35px 0 55px;line-height:1.8;font-size:14px'),actionButton('今日の用事を開く'));memo.append(paper);handlesAction=true;}

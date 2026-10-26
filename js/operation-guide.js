@@ -28,7 +28,8 @@ export function mountOperationGuide({document:doc,phone,step,showInstruction=fal
   const type=String(target.type??'').toLowerCase(),tag=String(target.tagName??'').toUpperCase();
   const edit=['INPUT','TEXTAREA'].includes(tag)&&!target.readOnly&&!['checkbox','radio','button','submit','reset','range','file','hidden'].includes(type)&&step?.type!=='focus';
   const confirming=phone.querySelector('[data-guide-target]')!==target&&phone.querySelector('[data-guide-submit]')===target;
-  const prompt=showInstruction?(confirming?'入力した内容で進もう':step?.instruction??(edit?'ここへ入力':'ここをタップ')):edit?'ここへ入力':'ここをタップ';if(label.textContent!==prompt)label.textContent=prompt;
+  const submitName=String(target.textContent??'').trim()||'次へ';
+  const prompt=showInstruction?(confirming?`「${submitName}」を押そう。`:step?.instruction??(edit?'ここへ入力':'ここをタップ')):edit?'ここへ入力':'ここをタップ';if(label.textContent!==prompt)label.textContent=prompt;
   const host=phone.getBoundingClientRect(),rect=target.getBoundingClientRect(),borderX=phone.clientLeft??0,borderY=phone.clientTop??0;
   const width=phone.clientWidth||Math.max(0,host.width-borderX*2),height=phone.clientHeight||Math.max(0,host.height-borderY*2),sx=phone.scrollLeft||0,sy=phone.scrollTop||0;
   const x=rect.left-host.left-borderX+sx,y=rect.top-host.top-borderY+sy;
