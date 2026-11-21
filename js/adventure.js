@@ -150,9 +150,50 @@ function contiguousProgress(quest, record) {
   for(const id of quest.stepIds||[]){if(!done.has(id))break;count++;}
   return count;
 }
+// The quest log describes the client in the third person. At their door the
+// client speaks to the traveler, with their name and portrait already on screen.
+const clientRequests = {
+  'PR-01': adventureCatalog['PR-01'].incident,
+  'PO-01': 'コツコツモールに登録したいんだ。メールに届く確認コードは、どこに入れればいいのかな？',
+  'PO-02': '店で使う日用品を買いたいんだ。ポイントをもらっても、送料でかえって高くつかないかな？　一緒に比べてくれない？',
+  'PO-03': 'この日用品にクーポンを使うと、ポイントをもらえる金額に届くかな？　注文する前に見てほしいんだ。',
+  'PO-04': '注文の控えを作りたいの。届いたメールを一緒に探してくれる？',
+  'PO-05': '予定日を過ぎたのに、まだ「判定待ち」のままなの。この注文の控えを添えて、調べてもらえないかな？',
+  'PO-06': 'たまったポイントで贈り物を選びたいんだ。いつまで使えるのかな？　交換したら、受け取るところまで付き合ってくれない？',
+  'BK-01': '銀行の申込書を書いているの。練習カードのどの情報を、どの欄に写すのか、一緒に見てくれる？',
+  'BK-02': '申し込んだ人と、画面にいる人は同じかな？　書類の文字と顔を一緒に確かめてほしいの。',
+  'BK-02-R': 'この練習写真、暗くて顔の形が分からないの。画面の人を明るい場所に移して、もう一度撮ってくれる？',
+  'TR-01': '自分名義の別の口座へ振り込みたいんだ。送り先がこのカードと合っているか、一緒に見てくれるかい？',
+  'FX-01': '注文表に「lot」ってあるだろう？　これが何ドル分になるのか、注文を出す前に一緒に確かめてくれ。',
+  'FX-02': '買って始めた取引を、ここで終わらせたい。どの取引を選べば、残りがゼロになるか見てくれ。',
+  'FX-02-S': 'こっちの練習は、ユーロを売って始めるんだ。取引を終わらせるときはどっち向きの注文になるか、一緒に確かめよう。',
+  'FX-03': 'この取引が案件の条件に入るか、記録を調べたいんだ。新しく始めた分はどれだろう？',
+  'TC-01': 'このカードを仕入れていいか迷ってる。送料や袋のお金まで引いたら、いくら手元に残りそうかな？',
+  'TC-02': 'このカードの裏に傷があるんだ。傷のことを書いて出品したい。売れたら包んで送るから、代金が入るまで一緒に見てくれる？',
+  'DX-01': '船の仕入れに使う取引所へ申し込みたいんだ。練習メールが届いたら、一緒に確認してくれる？',
+  'DX-02': '取引所に出す書類をそろえたよ。書いてある情報が申込書と合っているか、顔が本人と合っているか、一緒に見てくれる？',
+  'DX-03': 'コインを買って、同じ枚数をすぐ売ったら、同じだけの円が戻るのかな？　販売所の二つの値段を見比べてみたいんだ。',
+  'DX-04': 'みんなの注文が並ぶ「板」を開いたよ。注文を受け付けたあと、実際にいくらで売買できたか、どこで分かるのかな？',
+  'DX-05': 'この値段になったら買おうと思って、注文を出したいんだ。待っている間も、その円はほかの買い物に使えるのかな？',
+  'FI-01': '銀行の円で教材コインを買いたいんだ。こみち交換所に円が届いたら、一緒に買い方を確かめてくれる？',
+  'FI-02': '買った教材コインを自分の練習財布に移したいんだ。どの道を通って、どの宛先に送れば届くのかな？',
+  'FI-03': '次はハイリキへ送る準備だよ。送るコインと通り道をそろえて、道を使うためのコインも用意したいんだ。',
+  'CR-01': '銀行にも、取引所にも、財布にも残高が出るよね。今のお金がどこにあるか、一緒に地図で確かめてほしいな。',
+  'CR-02': '財布をつなぐようにと手紙が来たんだ。秘密の言葉まで聞かれて心配だよ。安全な入口を一緒に見分けてくれる？',
+  'CR-03': '受取カードを見て。送るものも、通り道も、宛先も合っているかな？　ハイリキに届いた量まで見届けてほしいな。',
+  'CR-04': 'すぐに引き出せる道も、待ち時間のある道もあるよ。値下がりしたときのことも比べてみよう。運用を見送る道も選べるよ。',
+  'HY-SPOT': 'コインを持っているときに表示される金額と、売って戻る金額はどう違うんだろう？　練習の売買で調べてみよう。',
+  'HY-HLP': 'HLPに預けた分は、いつ手元に戻せるんだろう？　最後に預けた時刻から一緒に数えてみよう。',
+  'HY-STAKE': 'HYPEを預けて働きを任せたあと、そのコインはどこにあるんだろう？　任せるのをやめて、手元に戻るまで見届けたいんだ。',
+  'HY-PERP': '取引に用意するお金と、倍率をかけて動かす金額はどう違うんだろう？　損が出たときの対応も一緒に調べたいんだ。',
+  'HY-EXIT': '帰りの船を出そう。出金を頼んだ分が財布にいくら届いたか、受取の記録を一緒に見てくれる？',
+  'LD-01': 'コインを貸すと、いつ自分で使えるようになるんだろう？　相手が返せない危険もあるから、貸す前に約束を一緒に読んでほしい。',
+  'LV-01': '値段の上がり下がりを同じにしても、取引の向きや倍率で結果は変わるかな？　条件を選んで調べてみよう。',
+};
+
 export function questBrief(quest) {
   const s=adventureCatalog[quest?.id];
-  return s?{incident:s.incident,enemyName:s.enemyName,goal:s.goal,client:s.client,summary:`${s.client}「${s.incident}」`,chapterId:quest.chapterId}: {incident:'町の用事を一つずつ確かめよう。',enemyName:'見落としの影',goal:quest?.title||'依頼の内容を確かめよう。',client:'町の人',summary:'困っている人の用事を手伝おう。',chapterId:quest?.chapterId};
+  return s?{incident:s.incident,enemyName:s.enemyName,goal:s.goal,client:s.client,summary:clientRequests[quest.id]??s.goal,chapterId:quest.chapterId}: {incident:'町の用事を一つずつ確かめよう。',enemyName:'見落としの影',goal:quest?.title||'依頼の内容を確かめよう。',client:'町の人',summary:'この用事を手伝ってくれる？',chapterId:quest?.chapterId};
 }
 
 // Milestones are historical evidence. The live bubble must still agree with a
@@ -193,7 +234,7 @@ function buildAdventure(state, quest) {
   const completed=stages.filter(m=>m.completed),currentStage=stages.find(m=>!m.completed)||null;
   const financialView=quest.extension?getExtensionView(state,catalogSteps.find(step=>step.questId===quest.id)):null;
   const selection=quest.id==='LV-01'?financialView?.metrics:null;
-  const lastReaction=completed.at(-1)?.reaction||{id:`adventure:${quest.id}:intro`,speaker:s.client,text:s.incident,kind:'intro',worldEffect:null};
+  const lastReaction=completed.at(-1)?.reaction||{id:`adventure:${quest.id}:intro`,speaker:s.client,text:clientRequests[quest.id]??s.goal,kind:'intro',worldEffect:null};
   const currentText=currentFinancialReaction(state,quest,count,length,financialView);
   return {enemy:{id:`enemy:${quest.id}`,name:s.enemyName,hp,maxHp,kind:s.kind},stages,milestones:stages,currentStage,selection,
     latestReaction:currentText?{...lastReaction,text:currentText,currentStatus:true}:lastReaction,
@@ -248,6 +289,7 @@ const advisors=[
  {id:'senna',name:'船便係セナ',role:'円からの支度と荷物の現在地の相談役',topicId:'yen-funding',line:'ようこそ。円を入金し、コインを買って練習財布へ移す。一つずつたどる旅だよ。いま資金はどこかな？',before:'円でコインを買い、練習財布へ出し、種類とネットワークを替え、ガス用ETHを用意する。別々の用事として見よう。',ids:['FI-01-S008','FI-01-S015','FI-01-S023','FI-02-S009','FI-02-S021','FI-03-S008','FI-03-S016','FI-03-S023','FI-03-S026']},
  {id:'elder',name:'長老オリベ',role:'冒険の記録庫',topicId:'phone',line:'おかえり、旅人。できた道も、途中で休んだ道も、ここに残しておこう。何を確かめたのか、つまずきやすい所と一緒に読み返せるぞ。',before:'まだ白いページだ。依頼で一つ操作を終えたら、その一歩から記録に残るぞ。',ids:[]},
 ];
+export const tavernAdvisorNames=Object.freeze(advisors.map(advisor=>advisor.name));
 const referenceCopy={
  P030:'保存した条件：割引後の商品代金が2,000円以上。送料は対象に入れず、参加と経由が必要。',
  P038:'クーポンを外すと、対象金額は1,900円から2,000円へ戻った。',

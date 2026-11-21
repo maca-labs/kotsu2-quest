@@ -72,7 +72,8 @@ test('bank identity compares the applicant with records and transfer goes to one
 
 test('selling a card starts with inspection and listing, and only then packaging and receipt',()=>{
  const quest=questById['TC-02'],before=getAdventure(progress('TC-02',0),quest);
- assert.match(before.latestReaction.text,/シノ.*出品から入金.*手順/);
+ assert.equal(before.latestReaction.speaker,'梱包屋シノ');
+ assert.match(before.latestReaction.text,/傷.*出品.*売れたら.*送る.*代金が入る/);
  assert.doesNotMatch(before.latestReaction.text,/売れた.*荷物|発送.*止まって/);
  assert.match(questBrief(quest).goal,/出品.*売れたらカードを梱包.*相手の受取.*入金/);
  const listed=getAdventure(progress('TC-02',22),quest),shipped=getAdventure(progress('TC-02',28),quest);

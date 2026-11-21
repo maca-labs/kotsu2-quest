@@ -98,6 +98,76 @@ test('the filled-field instruction names the actual submit button and never subm
  }
 });
 
+test('form hints keep their own line between the field, optional value and confirmation', () => {
+ const s = scene({tag: 'input'});
+ const form = new Element('form');
+ const candidate = new Element('button');
+ const submit = new Element('button');
+ submit.textContent = 'このlot数で進む';
+ s.target.remove();
+ s.phone.append(form);
+ form.append(s.target, candidate, submit);
+ for (const target of [s.target, submit]) {
+  target.closest = selector => selector === '.action-group' ? form : null;
+  const move = (node, offset) => {
+   node.remove();
+   form.children.splice(form.children.indexOf(target) + offset, 0, node);
+   node.parent = form;
+  };
+  target.before = node => move(node, 0);
+  target.after = node => move(node, 1);
+  Object.defineProperty(target, 'previousSibling', {get: () => form.children[form.children.indexOf(target) - 1]});
+  Object.defineProperty(target, 'nextSibling', {get: () => form.children[form.children.indexOf(target) + 1]});
+ }
+ s.phone.querySelector = selector => selector === '[data-guide-submit]' ? submit : s.target;
+ const guide = mountOperationGuide({document: s.doc, phone: s.phone, step: {type: 'input'}, showInstruction: true});
+ const marker = s.target.nextSibling;
+ assert.equal(marker.attributes['data-flow'], 'field');
+ assert.deepEqual(form.children, [s.target, marker, candidate, submit]);
+
+ s.target.value = '0.1';
+ s.phone.emit('input');
+ s.win.flush();
+ assert.deepEqual(form.children, [s.target, candidate, marker, submit]);
+ assert.equal(marker.attributes['data-placement'], 'above');
+ assert.equal(marker.children[0].textContent, '「このlot数で進む」を押そう。');
+ assert.equal(submit.clicks, 0);
+
+ s.target.value = '';
+ s.phone.emit('input');
+ s.win.flush();
+ assert.deepEqual(form.children, [s.target, marker, candidate, submit]);
+ guide.destroy();
+ assert.deepEqual(form.children, [s.target, candidate, submit]);
+});
+
+test('the home arrow occupies a separate row above the requested app', () => {
+ const s = scene({targetTop: 220, targetLeft: 120, targetWidth: 80});
+ const grid = new Element('div');
+ const topTile = new Element('button', {top: 120, left: 20, width: 80, height: 70});
+ const rowStart = new Element('button', {top: 220, left: 20, width: 80, height: 70});
+ s.target.remove();
+ s.phone.append(grid);
+ grid.append(topTile, rowStart, s.target);
+ grid.querySelectorAll = () => [topTile, rowStart, s.target];
+ s.target.hasAttribute = key => key === 'data-phone-app';
+ s.target.parentElement = grid;
+ rowStart.before = node => {
+  node.remove();
+  grid.children.splice(grid.children.indexOf(rowStart), 0, node);
+  node.parent = grid;
+ };
+ Object.defineProperty(rowStart, 'previousSibling', {get: () => grid.children[grid.children.indexOf(rowStart) - 1]});
+ const guide = mountOperationGuide({document: s.doc, phone: s.phone, step: {type: 'tap'}});
+ const marker = rowStart.previousSibling;
+ assert.equal(marker.attributes['data-flow'], 'apps');
+ assert.deepEqual(grid.children, [topTile, marker, rowStart, s.target]);
+ assert.equal(marker.style['--guide-arrow-left'], '160px');
+ assert.equal(s.target.clicks, 0);
+ guide.destroy();
+ assert.deepEqual(grid.children, [topTile, rowStart, s.target]);
+});
+
 test('guided venue switch marks only the requested real tab; previews, reviews, and boss copies reveal no answer target',()=>{
  const state={financialScenarios:initialExtensionScenarios()},before=structuredClone(state),doc={createElement:tag=>new Element(tag)},submitted=[],visited=[];
  const tree=node=>[node,...node.children.flatMap(child=>tree(child))];

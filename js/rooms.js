@@ -1,3 +1,5 @@
+import {drawWalkingCharacter} from './character-art.js';
+import {tavernAdvisorNames} from './adventure.js';
 import {drawPerson} from './world.js';
 import {getTownLayout} from './towns.js';
 
@@ -121,7 +123,11 @@ export function renderRoom(canvas,state,room){
  }
  }
  rect(184,230,32,24,'#d9bb77');rect(190,240,20,16,'#3b4d45');rect(196,245,8,3,'#f4d780');rect(198,248,4,6,'#f4d780');
- roomPeople(room.id,state.currentChapter).forEach((n,i)=>{drawPerson(c,n.x*16,n.y*16-9,room.id==='elder'?5:(i+1)%7);if(room.id==='church'){rect(n.x*16+3,n.y*16-8,11,4,'#ebe4cb');rect(n.x*16+4,n.y*16+5,9,7,'#eee4c4');rect(n.x*16+8,n.y*16+5,2,7,'#87aaa7');}rect(n.x*16+7,n.y*16-18,3,6,'#f5d47f');rect(n.x*16+7,n.y*16-10,3,2,'#f5d47f');});
+ roomPeople(room.id,state.currentChapter).forEach((person,i)=>{
+  const identity = room.id==='tavern' ? tavernAdvisorNames[i] : room.id==='elder' ? 'elder' : room.id==='church' ? person.name : room.client;
+  drawWalkingCharacter(c,person.x*16,person.y*16-9,identity ?? 'villager');
+  rect(person.x*16+7,person.y*16-18,3,6,'#f5d47f');rect(person.x*16+7,person.y*16-10,3,2,'#f5d47f');
+ });
  drawPerson(c,room.position.x*16,room.position.y*16-9,state.avatar,room.position.direction,room.position.walkFrame,state.equippedItems);
  c.fillStyle='#fff1c3';c.font='10px sans-serif';c.fillText('出口 ↓',230,251);
 }

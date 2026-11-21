@@ -1,0 +1,166 @@
+/* The field guide and exploration frame share the town's ink, paper and brass. */
+:root {
+  --atlas-ink: #192f31;
+  --atlas-paper: #f7f4e9;
+  --atlas-leaf: #205548;
+  --atlas-brass: #ddba78;
+  --atlas-line: #cbc7b5;
+  --atlas-serif: "Yu Mincho", "Hiragino Mincho ProN", "MS PMincho", Georgia, serif;
+  --ink: #213836;
+  --muted: #53665e;
+  --paper: var(--atlas-paper);
+  --line: #c2c6b7;
+}
+body {
+  background-color: var(--atlas-paper);
+  background-image: radial-gradient(#7d735a18 .7px,transparent .8px);
+  background-size: 5px 5px;
+}
+.game-bar {
+  display: flex;
+  gap: clamp(8px,1.6vw,24px);
+  min-height: 60px;
+  padding-inline: max(16px,calc((100vw - 1192px)/2));
+  color: #f8f3dd;
+  background: #162d31;
+  border-bottom: 3px solid #be9961;
+  box-shadow: 0 2px 0 #0e252638;
+}
+.quest-brand { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.quest-brand img { width:32px; height:32px; image-rendering:pixelated; }
+.quest-brand span { font: 700 19px/1.3 var(--atlas-serif); letter-spacing:.04em; }
+.game-place { padding-left:clamp(8px,1.6vw,22px); border-left:1px solid #65766c; }
+.game-place small { color:#f1cc88; font-weight:700; }
+.game-bar .game-vitals { display:flex; align-items:center; gap:8px; margin-left:auto; }
+.game-bar .game-vitals div {display:grid; text-align:left; line-height:1.4; white-space:nowrap;}
+.game-vitals .portrait { width:34px; height:34px; image-rendering:pixelated; background:#365350; border-radius:4px; }
+.game-bar .game-menu-toggle { display:flex; gap:8px; justify-content:center; align-items:center; padding-inline:12px; background:#29433f; border:1px solid #778378; color:#fff8e2; box-shadow:none; }
+.game-bar .game-menu-toggle:hover { background:#3b554d; }
+.game-bar.at-home .quest-brand { margin-right:auto; }
+.menu-lines { width:13px; height:11px; border-block:2px solid #f1d69a; display:inline-flex; align-items:center; }
+.menu-lines::after { content:""; width:100%; height:2px; background:#f1d69a; }
+.atlas-home.content { max-width:1240px; margin:0 auto; padding:clamp(12px,2.8vw,32px) clamp(10px,3vw,32px) 42px; }
+.cover {
+  position:relative; isolation:isolate; overflow:hidden; display:flex; align-items:end;
+  min-height:clamp(350px,34vw,430px); color:#fff8df; background:#163336;
+  border:1px solid #293e3c; border-radius:8px; box-shadow:0 4px 0 #ada994;
+}
+.cover-art { position:absolute; inset:0; z-index:-2; width:100%; height:100%; object-fit:cover; object-position:70% 54%; }
+.cover::before {
+  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background:linear-gradient(90deg,#081e24e6 0%,#10282bc7 28%,#12292d25 60%,transparent 80%),linear-gradient(0deg,#0b252966,transparent 40%);
+}
+.cover-copy { padding:clamp(24px,4.2vw,56px); max-width: min(670px,70%); text-shadow:0 2px 3px #0c2026; }
+.cover .cover-subtitle { display:flex;align-items:center;gap:10px; color:#ffde95; font:700 clamp(14px,1.45vw,18px)/1.5 var(--atlas-serif); margin:0 0 10px; letter-spacing:.12em; }
+.cover-subtitle::before { content:""; width:27px; height:2px; background:#edc781; }
+.cover h1 { margin:0; color:#fff8e3; letter-spacing:.025em; font:800 clamp(42px,5vw,66px)/1.15 var(--atlas-serif); text-shadow:0 3px #173332,0 5px 12px #142a2f80; }
+.cover h1 span {display:inline-block;white-space:nowrap;}
+.cover-copy > p:not(.cover-subtitle) { font-size:clamp(15px,1.25vw,17px); line-height:1.85; max-width:29em; margin:17px 0 22px; color:#fffdf0; }
+.cover-actions {display:flex;flex-wrap:wrap;gap:9px;}
+.cover-actions button { min-height:46px; border-radius:4px; padding:10px 17px; font-weight:700; line-height:1.45; }
+.cover-primary { color:#20302e; background:#f7cf81; border:1px solid #ffde9f; box-shadow:0 3px 0 #80603f; }
+.cover-primary:hover { background:#ffe3a5; }.cover-primary b { padding-left:6px; }
+.cover-secondary { color:#fffbe8; border:1px solid #c6c6ae; background:#213a38e8; }
+.cover-secondary:hover { background:#36554e; }
+.trip-prep { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 20px; margin:16px 0 30px; background:#fffdf3; border:1px solid var(--atlas-line); border-radius:6px; }
+.trip-brief,.traveler-picker,.traveler-choices { display:flex;align-items:center;gap:12px; }
+.trip-brief > div {display:grid;gap:3px;}
+.trip-brief small,.traveler-picker > strong {font-size:12px;color:#536558;font-weight:700;}
+.trip-brief strong {font-size:15px;line-height:1.55;}
+.trip-brief .portrait {width:46px;height:46px;image-rendering:pixelated;background:#e4ddbc;border:1px solid #c0b68d;border-radius:4px;flex:none;}
+.traveler-picker { flex-shrink:0; }
+.traveler-choices {gap:5px;}
+.traveler-choice {display:grid;place-items:center;padding:2px;background:#eeeada;border:1px solid #cac7b4;border-radius:4px;min-width:44px;min-height:44px;}
+.traveler-choice .portrait {width:36px;height:36px;image-rendering:pixelated;}
+.traveler-choice[aria-pressed="true"] {background:#dbe8db;border:2px solid #25715c;box-shadow:inset 0 -3px #25715c;}
+.atlas-heading { margin-bottom:17px; }
+.atlas-heading h2 {font:700 clamp(23px,2.5vw,31px)/1.45 var(--atlas-serif);color:var(--atlas-ink);margin:0;scroll-margin-top:80px;}
+.atlas-heading p,.atlas-footnote {font-size:14px;color:#50635c;margin:5px 0 0;}
+.chapter-tickets {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;}
+.chapter-ticket { display:flex;flex-direction:column;align-items:stretch;min-width:0;text-align:left;overflow:hidden;padding:0;border:1px solid #bdbea9;border-radius:6px;background:#fffcf2;box-shadow:0 2px 0 #b4b8a6; }
+.chapter-ticket:hover { background:#fffdf8;border-color:#557966;box-shadow:0 3px 0 #678879; }
+.ticket-map {position:relative;display:block;height:95px;overflow:hidden;background:#668c68;border-bottom:2px solid #b3a77d;}
+.chapter-preview { display:block;width:100%;height:100%;object-fit:cover;object-position:50% 38%;image-rendering:pixelated; }
+.ticket-chapter {position:absolute;left:9px;bottom:8px;background:#1b3833;color:#fff1c8;border:1px solid #c9bd91;border-radius:2px;font:700 12px/1.5 system-ui,sans-serif;padding:2px 8px;}
+.ticket-copy {flex:1;display:flex;flex-direction:column;gap:6px;padding:14px;}
+.ticket-copy strong {font:700 20px/1.4 var(--atlas-serif);color:#1b3e36;}
+.ticket-copy > span:not(.ticket-link) {font-size:13px;color:#455e50;line-height:1.65;}
+.ticket-link {display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;color:#275c49;border-top:1px solid #e0dfce;padding-top:8px;margin-top:auto;}
+.ticket-link b {font:700 20px/1 sans-serif;}
+.atlas-footnote {margin-top:20px;}
+/* Keep the full playing surface in view, with the controls beside it on wide screens. */
+body.exploring {background-color:#e5e9db;background-image:radial-gradient(#42573419 .8px,transparent 1px);background-size:6px 6px;}
+.exploring .exploration-content {max-width:1080px;padding-top:14px;gap:12px;}
+.exploration-objective {border:1px solid #a9af94;border-left:5px solid #bc914c;border-radius:5px;background:#fffae9;}
+.objective-copy small {color:#775c30;font-weight:700;}
+.objective-button {border-color:#acae91;background:#eeeeda;color:#2b483b;}
+.exploration-stage {background:#213d3c;border:3px solid #273f3e;border-radius:8px;box-shadow:0 3px 0 #9aab95;}
+.exploration-stage .world-view {border-bottom:2px solid #a88f60;}
+.exploration-stage .world-controls {background:#203c3c;color:#fff2cc;}
+.exploration-stage .world-controls-note {color:#dbe5ce;}
+.exploration-stage .world-position-status {color:#e2e8d5;background:#1c3535;}
+.exploration-stage .world-direction,.exploration-stage .world-talk {border-radius:7px;}
+.exploration-stage .world-direction {color:#fbf3d9;background:#365852;border:1px solid #83968b;box-shadow:inset 0 -3px #1e3836;}
+.exploration-stage .world-direction:hover,.exploration-stage .world-direction.held {background:#4b7168;}
+.exploration-stage .world-talk {color:#2e3729;background:#edd295;border:1px solid #f8dfaa;box-shadow:inset 0 -3px #b99b69;}
+.exploration-stage .world-direction-arrow {color:#f6e4bb;}
+.speaker-identity.has-portrait {grid-template-columns:56px minmax(0,1fr);background:#f5efdc;border-left-color:#a77838;}
+.speaker-portrait {background:#ddd9bb;border:1px solid #b7b899;border-radius:4px;}
+.speaker-portrait canvas.portrait {width:52px!important;height:52px!important;}
+.adventure-menu {border:2px solid #466257;border-radius:8px;background:#fbf8e9;}
+.adventure-menu h2, dialog #modal-title {font-family:var(--atlas-serif);}
+.menu-grid .town-person-action {display:flex;align-items:center;gap:8px;}
+.town-person-action .portrait {width:34px;height:34px;flex:none;image-rendering:pixelated;}
+.town-person-action > span {display:grid;gap:2px;}
+.town-person-action small {font-size:11px;line-height:1.5;color:#536558;}
+@media(max-width:420px) {
+  .menu-grid:has(.town-person-action) {grid-template-columns:1fr;}
+}
+@media(min-width:800px) {
+  .exploring .exploration-content {width:min(100%,calc(112dvh + 230px));}
+  .exploration-stage {display:grid;grid-template-columns:minmax(0,1fr) 244px;grid-template-rows:1fr auto;align-items:stretch;width:100%;max-width:none;}
+  .exploration-stage > .world-view {grid-row:1 / 3;align-self:center;border-bottom:0;border-right:2px solid #a88f60;}
+  .exploration-stage .world-controls {display:flex;flex-direction:column;justify-content:center;align-items:center;padding:16px 12px 3px;}
+  .exploration-stage .world-dpad {--pad-key:58px;}
+  .exploration-stage .world-controls-note {margin:14px 4px 4px;line-height:1.65;}
+  .exploration-stage .world-position-status {padding:10px 14px;}
+}
+@media(max-width:850px) {
+  .chapter-tickets {grid-template-columns:repeat(3,minmax(0,1fr));}
+}
+@media(max-width:799px) {
+  .game-bar{min-height:54px;gap:9px;padding-inline:max(10px,env(safe-area-inset-left));}
+  .game-bar:not(.at-home) .quest-brand {display:none;}
+  .game-place {border:0;padding:0;margin-right:auto;}
+  .game-vitals .portrait {width:28px;height:28px;}
+  .exploring .exploration-content{max-width:650px;gap:6px;padding-top:6px;}
+  .exploration-stage{width:min(100%,clamp(228px,calc((100dvh - 340px) * 1.38),620px));}
+  .exploration-stage .world-dpad {--pad-key:clamp(46px,7.5dvh,58px);gap:4px;}
+  .exploration-stage .world-controls {padding-top:6px;}
+}
+@media(max-width:660px) {
+  .cover {min-height:0;display:flex;flex-direction:column;align-items:stretch;}
+  .cover-art {position:static;z-index:auto;height:auto;aspect-ratio:2.25;object-position:80% 55%;display:block;}
+  .cover::before {display:none;}
+  .cover-copy {max-width:none;padding:16px 18px 18px;background:linear-gradient(100deg,#142f32,#25473f);text-shadow:none;}
+  .cover h1 {font-size:clamp(32px,7.4vw,45px);}
+  .cover .cover-subtitle {font-size:13px;margin-bottom:4px;}
+  .cover-copy > p:not(.cover-subtitle) {font-size:14px;line-height:1.65;margin:9px 0 12px;}
+  .cover-actions button {padding:9px 11px;font-size:14px;}
+  .trip-prep {flex-wrap:wrap;gap:10px;padding:12px;margin:12px 0 19px;}
+  .traveler-picker{justify-content:space-between;width:100%;border-top:1px solid #dfddc9;padding-top:8px;}
+  .chapter-tickets {grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+  .ticket-copy {padding:10px;}
+  .ticket-copy strong {font-size:17px;}
+  .ticket-map {height:75px;}
+  .atlas-heading p {font-size:13px;}
+}
+@media(max-width:360px) {
+  .game-bar.at-home .quest-brand span {font-size:16px;}
+  .game-vitals .portrait {display:none;}
+  .cover h1 {font-size:clamp(26px,8.5vw,30px);}
+  .cover-actions {display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:6px;}
+  .cover-actions button {font-size:13px;padding:9px 4px;}
+  .cover-primary b {display:none;}
+  .ticket-copy > span:not(.ticket-link) {font-size:12px;}
+}

@@ -21,6 +21,15 @@ export function mountOperationGuide({document:doc,phone,step,showInstruction=fal
  const clearTarget=()=>{if(target){if(ownedTargetClass)target.classList.remove(TARGET);resizeObserver?.unobserve?.(target);}ownedTargetClass=false;};
  const adoptTarget=next=>{if(next===target&&target.classList.contains(TARGET))return;clearTarget();target=next;if(target){ownedTargetClass=!target.classList.contains(TARGET);target.classList.add(TARGET);resizeObserver?.observe(target);}};
  const initial=target;target=null;adoptTarget(initial);
+ function placeInFlow(anchor, placement, kind) {
+  if (placement === 'above' && anchor.previousSibling !== marker) anchor.before(marker);
+  if (placement === 'below' && anchor.nextSibling !== marker) anchor.after(marker);
+  marker.setAttribute('data-flow', kind);
+  marker.setAttribute('data-placement', placement);
+  const tip = placement === 'above' ? '▼' : '▲';
+  if (arrow.textContent !== tip) arrow.textContent = tip;
+  marker.hidden = false;
+ }
  function update(){
   if(destroyed)return;
   adoptTarget(resolveTarget());
@@ -30,6 +39,30 @@ export function mountOperationGuide({document:doc,phone,step,showInstruction=fal
   const confirming=phone.querySelector('[data-guide-target]')!==target&&phone.querySelector('[data-guide-submit]')===target;
   const submitName=String(target.textContent??'').trim()||'次へ';
   const prompt=showInstruction?(confirming?`「${submitName}」を押そう。`:step?.instruction??(edit?'ここへ入力':'ここをタップ')):edit?'ここへ入力':'ここをタップ';if(label.textContent!==prompt)label.textContent=prompt;
+  if (target.hasAttribute?.('data-phone-app')) {
+   const grid = target.parentElement;
+   const tile = target.getBoundingClientRect();
+   const rowStart = [...grid.querySelectorAll('[data-phone-app]')].find(icon =>
+    Math.abs(icon.getBoundingClientRect().top - tile.top) < 2);
+   if (rowStart) {
+    placeInFlow(rowStart, 'above', 'apps');
+    const left = tile.left + tile.width / 2 - marker.getBoundingClientRect().left;
+    marker.style.setProperty('--guide-arrow-left', `${Math.round(left)}px`);
+    return;
+   }
+  }
+  // Forms need room for the field label, the optional practice value and the
+  // actual submit button. Reserve a line for the hint beside the real target.
+  const inline = target.closest?.('.action-group') && (confirming || edit || tag === 'SELECT');
+  if (inline) {
+   placeInFlow(target, confirming ? 'above' : 'below', 'field');
+   marker.style.setProperty('--guide-arrow-left', '50%');
+   return;
+  }
+  if (marker.hasAttribute?.('data-flow')) {
+   marker.removeAttribute('data-flow');
+   phone.append(marker);
+  }
   const host=phone.getBoundingClientRect(),rect=target.getBoundingClientRect(),borderX=phone.clientLeft??0,borderY=phone.clientTop??0;
   const width=phone.clientWidth||Math.max(0,host.width-borderX*2),height=phone.clientHeight||Math.max(0,host.height-borderY*2),sx=phone.scrollLeft||0,sy=phone.scrollTop||0;
   const x=rect.left-host.left-borderX+sx,y=rect.top-host.top-borderY+sy;
