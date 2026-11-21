@@ -76,3 +76,13 @@ test('extra fingers, secondary mouse buttons and a disabled game cannot start ex
  f.enabled=false;f.advance(145);assert.equal(f.moves.length,2);assert.equal(f.timers.size,0);
  f.button('左へ歩く').emit('pointerdown');f.button('左へ歩く').emit('click');assert.equal(f.moves.length,2);f.controls.destroy();
 });
+
+test('one touch crossing a map entrance cannot step again on the replacement pad',()=>{
+ const f=fixture();
+ f.button('下へ歩く').emit('pointerdown');f.controls.destroy();
+ const next=renderWorldControls({document:f.document,onMove:(dx,dy)=>f.moves.push([dx,dy]),onTalk:()=>{}});
+ const down=next.element.children[0].children.find(b=>b.attributes['aria-label']==='下へ歩く');
+ f.host.emit('pointerup');down.emit('click',{detail:1});assert.deepEqual(f.moves,[[0,1]]);
+ down.emit('pointerdown');f.host.emit('pointerup');down.emit('click',{detail:1});assert.deepEqual(f.moves,[[0,1],[0,1]]);
+ down.emit('click',{detail:0});assert.equal(f.moves.length,3);next.destroy();
+});

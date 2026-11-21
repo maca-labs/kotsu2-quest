@@ -1,3 +1,5 @@
+// A touch may enter another map on pointerdown. Its trailing click can land on the new pad.
+const moveClickDeadline=new WeakMap();
 const directions=[
  {id:'up',label:'上',arrow:'▲',dx:0,dy:-1},
  {id:'left',label:'左',arrow:'◀',dx:-1,dy:0},
@@ -15,7 +17,7 @@ export function renderWorldControls({document,onMove,onTalk,canMove=()=>true}){
  note.className='world-controls-note';note.textContent='押し続けると歩く。指をずらして向きを変えよう。町の人の近くで「話す」。';
  root.append(pad,note);
  const buttons=new Map(),listeners=[];
- let pointerId=null,direction=null,timer=null,destroyed=false,suppressClickUntil=0;
+ let pointerId=null,direction=null,timer=null,destroyed=false;
  const now=()=>host.performance?.now?.()??Date.now();
  const listen=(target,name,fn)=>{target?.addEventListener(name,fn);listeners.push(()=>target?.removeEventListener(name,fn));};
  const usable=()=>!destroyed&&root.isConnected&&!document.hidden&&canMove();
@@ -23,7 +25,7 @@ export function renderWorldControls({document,onMove,onTalk,canMove=()=>true}){
  function stop(){
   if(timer!==null){host.clearTimeout(timer);timer=null;}
   const held=pointerId;pointerId=null;direction=null;mark();
-  if(held!==null){suppressClickUntil=now()+750;try{if(pad.hasPointerCapture?.(held))pad.releasePointerCapture(held);}catch{}}
+  if(held!==null){moveClickDeadline.set(document,now()+750);try{if(pad.hasPointerCapture?.(held))pad.releasePointerCapture(held);}catch{}}
  }
  function step(){if(!usable()){stop();return false;}onMove(direction.dx,direction.dy);return usable()&&pointerId!==null&&direction!==null;}
  function repeat(){timer=null;if(direction&&step())timer=host.setTimeout(repeat,145);}
@@ -35,7 +37,7 @@ export function renderWorldControls({document,onMove,onTalk,canMove=()=>true}){
  }
  function pointerDown(event,d){
   if(destroyed||pointerId!==null||(event.button!==undefined&&event.button!==0)||!usable())return;
-  event.preventDefault();pointerId=event.pointerId??1;suppressClickUntil=now()+750;
+  event.preventDefault();pointerId=event.pointerId??1;moveClickDeadline.set(document,now()+750);
   try{pad.setPointerCapture?.(pointerId);}catch{}
   turn(d,260);
  }
@@ -56,7 +58,7 @@ export function renderWorldControls({document,onMove,onTalk,canMove=()=>true}){
   arrow.className='world-direction-arrow';arrow.textContent=d.arrow;arrow.setAttribute('aria-hidden','true');
   label.textContent=d.label;button.append(arrow,label);buttons.set(button,d);pad.append(button);
   listen(button,'pointerdown',event=>pointerDown(event,d));
-  listen(button,'click',event=>{if(Number(event.detail)>0&&now()<suppressClickUntil){event.preventDefault();return;}stop();if(usable())onMove(d.dx,d.dy);});
+  listen(button,'click',event=>{if(Number(event.detail)>0&&now()<(moveClickDeadline.get(document)??0)){event.preventDefault();return;}stop();if(usable())onMove(d.dx,d.dy);});
  }
  const talk=document.createElement('button');talk.type='button';talk.className='world-talk';talk.textContent='話す';
  listen(talk,'click',()=>{stop();if(!destroyed&&root.isConnected&&!document.hidden)onTalk();});pad.append(talk);
