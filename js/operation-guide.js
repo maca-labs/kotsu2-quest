@@ -7,7 +7,7 @@ export function mountOperationGuide({document:doc,phone,step,showInstruction=fal
  const empty={destroy(){},scrollToTarget(){return false;}};
  if(!doc||!phone)return empty;
  mounted.get(phone)?.destroy();
- const resolveTarget=()=>{const field=phone.querySelector('[data-guide-target]');if(!field)return null;const tag=String(field.tagName??'').toUpperCase(),filled=['INPUT','TEXTAREA','SELECT'].includes(tag)&&!field.readOnly&&String(field.value??'').trim()!=='';return filled?phone.querySelector('[data-guide-submit]')??field:field;};
+ const resolveTarget=()=>{const field=phone.querySelector('[data-guide-target]');if(!field)return null;const tag=String(field.tagName??'').toUpperCase(),filled=['INPUT','TEXTAREA','SELECT'].includes(tag)&&!field.readOnly&&field.getAttribute?.('aria-invalid')!=='true'&&String(field.value??'').trim()!=='';return filled?phone.querySelector('[data-guide-submit]')??field:field;};
  let target=resolveTarget();if(!target)return empty;
  const win=doc.defaultView,hadHost=phone.classList.contains(HOST),listeners=[];
  let destroyed=false,frame=null,ownedTargetClass=false;
@@ -89,6 +89,6 @@ export function mountOperationGuide({document:doc,phone,step,showInstruction=fal
   resizeObserver?.disconnect();mutationObserver?.disconnect();clearTarget();marker.remove();if(!hadHost)phone.classList.remove(HOST);
   if(mounted.get(phone)===controller)mounted.delete(phone);
  }
- function scrollToTarget(){if(destroyed)return false;const current=resolveTarget();if(!current?.scrollIntoView)return false;current.scrollIntoView({block:'center',inline:'nearest',behavior:'auto'});update();return true;}
+ function scrollToTarget(){if(destroyed)return false;update();const current=target;if(!current?.scrollIntoView)return false;current.scrollIntoView({block:'center',inline:'nearest',behavior:'auto'});update();return true;}
  const controller={destroy,scrollToTarget};mounted.set(phone,controller);update();return controller;
 }

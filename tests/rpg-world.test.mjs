@@ -102,3 +102,12 @@ test('the dangerous desert is an optional signed detour and all sand is walkable
  assert.equal(stepRpgMap({mapId:'world',x:52,y:29},1,0).moved,true);
  assert.equal(isDesert({mapId:'cave:CH-0',x:53,y:29}),false);assert.equal(isDesert(null),false);assert.equal(getTerrainLabel({mapId:'unknown'}),'');
 });
+
+test('only the current cave shows one named sign for its entry fight',()=>{
+ const labels=[],ctx={clearRect(){},fillRect(){},fillText(word){labels.push(word);},save(){},restore(){},translate(){},scale(){}};
+ const canvas={width:400,height:288,getContext:()=>ctx},pos=getRpgSpawn('cave:CH-3');
+ for(const chapter of [undefined,'CH-2','CH-3']){
+  labels.length=0;renderRpgMap(canvas,{},pos,chapter);
+  assert.deepEqual(labels,chapter==='CH-3'?['門番']:[]);
+ }
+});

@@ -68,7 +68,7 @@ function makeCave(site,index){
  tiles[9][4+index*2]='#';
  const features=[
   {id:`exit:${site.chapterId}`,type:'exit',label:'世界へ戻る',x:12,y:17,targetMapId:'world',chapterId:site.chapterId},
-  ...[[6,8],[18,8],[12,4]].map(([x,y],i)=>({id:`gate:${site.chapterId}:${i+1}`,type:'quest-gate',chapterId:site.chapterId,label:i===2?'奥の魔物の気配':'案件を抱えた魔物の気配',x,y}))
+  ...[[6,8],[18,8],[12,4]].map(([x,y],i)=>({id:`gate:${site.chapterId}:${i+1}`,type:'quest-gate',mainGate:i===2,chapterId:site.chapterId,label:i===2?'奥の魔物の気配':'案件を抱えた魔物の気配',x,y}))
  ];
  return freezeMap({id:`cave:${site.chapterId}`,title:site.caveTitle,chapterId:site.chapterId,width,height,tiles,features,palette:{...palettes[index]}});
 }
@@ -101,6 +101,38 @@ export function stepRpgMap(location,dx,dy){
  const next={...location,x,y,direction,walkFrame:((location.walkFrame??0)+1)%3},feature=map.features.find(f=>f.x===x&&f.y===y);
  return {location:next,moved:true,...(feature?{feature}:{}),...(feature?.targetMapId?{transition:{mapId:feature.targetMapId}}:{})};
 }
+
+const worldDirections=Object.freeze([
+ {dx:-1,dy:0,arrow:'←',label:'左'}, {dx:1,dy:0,arrow:'→',label:'右'},
+ {dx:0,dy:-1,arrow:'↑',label:'上'}, {dx:0,dy:1,arrow:'↓',label:'下'}
+].map(Object.freeze));
+
+/** Next actual d-pad move on a shortest path to one world-map entrance. */
+export function getWorldWalkStep(location,targetMapId){
+ const map=getRpgMap(location?.mapId);
+ if(map?.id!=='world'||!passable(map,location.x,location.y))return null;
+ const target=map.features.find(feature=>feature.targetMapId===targetMapId);
+ if(!target||location.x===target.x&&location.y===target.y)return null;
+ const queue=[{location,first:null}],seen=new Set([location.y*map.width+location.x]);
+ const leavingDesert=isDesert(location);
+ for(let index=0;index<queue.length;index++){
+  const node=queue[index];
+  for(const direction of worldDirections){
+   const step=stepRpgMap(node.location,direction.dx,direction.dy);
+   if(!step.moved)continue;
+   const first=node.first??direction;
+   if(step.transition?.mapId===targetMapId)return first;
+   // A different entrance takes the player off this map. The desert is an optional encounter.
+   if(step.transition||!leavingDesert&&isDesert(step.location))continue;
+   const key=step.location.y*map.width+step.location.x;
+   if(seen.has(key))continue;
+   seen.add(key);
+   queue.push({location:step.location,first});
+  }
+ }
+ return null;
+}
+
 export function nearbyRpgFeature(location){
  const map=getRpgMap(location?.mapId);if(!map)return null;
  return map.features.filter(f=>Math.abs(f.x-location.x)+Math.abs(f.y-location.y)<=1).sort((a,b)=>Math.abs(a.x-location.x)+Math.abs(a.y-location.y)-Math.abs(b.x-location.x)-Math.abs(b.y-location.y))[0]??null;
@@ -119,7 +151,7 @@ function featureArt(c,feature,x,y,palette){
  }
 }
 /** Draw only. Returns the exact camera also used for map hit testing. */
-export function renderRpgMap(canvas,state,location){
+export function renderRpgMap(canvas,state,location,gateChapter){
  const map=getRpgMap(location?.mapId),camera=getRpgCamera(location);if(!map||!camera)return null;
  const c=canvas.getContext('2d');c.imageSmoothingEnabled=false;c.clearRect(0,0,canvas.width,canvas.height);
  const scaleX=canvas.width/400,scaleY=canvas.height/288;c.save();c.scale(scaleX,scaleY);
@@ -142,7 +174,13 @@ export function renderRpgMap(canvas,state,location){
   }
  }
  const activeRecord=state.questStates?.[state.activeQuestKey],activeChapter=!activeRecord?.completed?questById[activeRecord?.questId]?.chapterId:null;
- for(const feature of map.features){const x=(feature.x-camera.x)*16,y=(feature.y-camera.y)*16;if(x< -32||y< -32||x>400||y>288)continue;const palette=palettes[Number(feature.chapterId?.slice(3))||0];featureArt(c,feature,x,y,palette);if(feature.type==='cave'&&feature.chapterId===activeChapter){
+ for(const feature of map.features){const x=(feature.x-camera.x)*16,y=(feature.y-camera.y)*16;if(x< -32||y< -32||x>400||y>288)continue;const palette=palettes[Number(feature.chapterId?.slice(3))||0];featureArt(c,feature,x,y,palette);
+  if(feature.mainGate && feature.chapterId===gateChapter){
+   c.fillStyle='#20373a';c.fillRect(x-11,y-24,39,16);
+   c.fillStyle='#ffe7a0';c.font='bold 12px sans-serif';c.textAlign='center';c.fillText('門番',x+8,y-12);c.textAlign='start';
+   c.fillRect(x+4,y-8,9,2);c.fillRect(x+6,y-6,5,2);c.fillRect(x+8,y-4,1,2);
+  }
+  if(feature.type==='cave'&&feature.chapterId===activeChapter){
   c.fillStyle='#f6cf78';c.fillRect(x-8,y-8,33,2);c.fillRect(x-8,y+21,33,2);c.fillRect(x-8,y-8,2,31);c.fillRect(x+23,y-8,2,31);c.fillRect(x+22,y-21,2,13);c.fillRect(x+24,y-21,11,7);
  }}
  const visualEquipment={...(state.equippedItems??{}),...(state.rpg?.equipped?.weapon?{weapon:state.rpg.equipped.weapon}:{}),...(state.rpg?.equipped?.armor?{shield:state.rpg.equipped.armor}:{})};

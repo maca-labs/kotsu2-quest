@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-import {createState,dispatch,activeStep,totalXp} from '../js/engine.js';
+import {createState,dispatch,validateAction,activeStep,totalXp} from '../js/engine.js';
+import {questById} from '../js/content.js';
 import {displayPracticeValue,humanFieldLabel} from '../js/help.js';
 import {submissionValue} from '../js/action-input.js';
 import {getFxOperationInstruction,getFxConceptCards,getFxSubmitLabel,getFxOrderConfirmation} from '../js/fx-guidance.js';
@@ -10,6 +11,7 @@ import {getFxOperationInstruction,getFxConceptCards,getFxSubmitLabel,getFxOrderC
 class Element{
  constructor(tag){this.tagName=tag.toUpperCase();this.children=[];this.attributes={};this.listeners={};this.value='';this.ownText='';}
  setAttribute(key,value){this.attributes[key]=value;if(['value','type','id'].includes(key))this[key]=value;}
+ removeAttribute(key){delete this.attributes[key];}
  addEventListener(name,fn){(this.listeners[name]??=[]).push(fn);}
  dispatchEvent(event){for(const fn of this.listeners[event.type]??[])fn({type:event.type,target:this,preventDefault(){}});return true;}
  append(...nodes){this.children.push(...nodes);}
@@ -26,7 +28,7 @@ function setup(id){
  const finish=()=>{while(activeStep(state)){const step=activeStep(state);act({type:'STEP',id:step.id,value:step.type==='check'?true:step.value});}};
  if(id.startsWith('FX-02')){finish();act({type:'ACCEPT',id:'FX-02'});if(id.startsWith('FX-02-S')){finish();act({type:'ACCEPT',id:'FX-02-S'});}}
  while(activeStep(state).id!==id){const step=activeStep(state);act({type:'STEP',id:step.id,value:step.type==='check'?true:step.value});}
- const env={Node:Element,Event:class{constructor(type){this.type=type;}},document:{createElement:tag=>new Element(tag),createTextNode:text=>{const node=new Element('#text');node.textContent=text;return node;},createDocumentFragment:()=>new Element('#fragment')},ui:{inputs:{},reviewId:null},get state(){return state;},getFxOperationInstruction,getFxConceptCards,getFxSubmitLabel,getFxOrderConfirmation,displayPracticeValue,humanFieldLabel,phoneFieldLabels:{},submissionValue,valueDisplay:value=>String(value),saveQuiet:()=>saves++,operationGuide:{scrollToTarget:()=>{scrolls++;}},showError:message=>{throw Error(message);}};
+ const env={Node:Element,Event:class{constructor(type){this.type=type;}},document:{createElement:tag=>new Element(tag),createTextNode:text=>{const node=new Element('#text');node.textContent=text;return node;},createDocumentFragment:()=>new Element('#fragment')},ui:{inputs:{},reviewId:null},get state(){return state;},showRecoveryReaction(){},getFxOperationInstruction,getFxConceptCards,getFxSubmitLabel,getFxOrderConfirmation,displayPracticeValue,humanFieldLabel,phoneFieldLabels:{},submissionValue,validateAction,valueDisplay:value=>String(value),saveQuiet:()=>saves++,operationGuide:{scrollToTarget:()=>{scrolls++;}},showError:message=>{throw Error(message);}};
  vm.createContext(env);
  vm.runInContext(source.split('\n').filter(line=>line.startsWith('function h(')||line.startsWith('const btn=')||line.startsWith('const p=')).join('\n'),env);
  vm.runInContext(source.slice(source.indexOf('function detailsBlock('),source.indexOf('function phoneNavigationForStep(')),env);
@@ -57,4 +59,12 @@ test('the real confirm action shows its saved order and planned price beside its
   assert.equal(nodes.filter(n=>n.attributes['data-guide-target']==='true').length,1);assert.deepEqual(c.state,before);
   assert.ok(nodes.find(n=>n.tagName==='SUMMARY'&&n.textContent==='この練習の開始時の資料'));
  }
+});
+
+test('a rejected lot stays editable and Japanese-width digits confirm only on submit',()=>{
+ const c=setup('FX-01-010'),nodes=all(c.element),field=nodes.find(n=>n.tagName==='INPUT'),form=nodes.find(n=>n.tagName==='FORM'),error=nodes.find(n=>n.className==='lot-field-error'),xp=totalXp(c.state);
+ field.value='0.2';field.dispatchEvent({type:'input'});form.dispatchEvent({type:'submit'});
+ assert.equal(field.attributes['aria-invalid'],'true');assert.equal(error.hidden,false);assert.match(error.textContent,/0\.1/);assert.equal(activeStep(c.state).id,c.step.id);assert.equal(totalXp(c.state),xp);
+ field.value='０．１';field.dispatchEvent({type:'input'});assert.equal(error.hidden,true);assert.equal(field.attributes['aria-invalid'],undefined);assert.equal(activeStep(c.state).id,c.step.id);
+ form.dispatchEvent({type:'submit'});assert.equal(activeStep(c.state).id,'FX-01-011');assert.equal(c.state.phoneState.formDrafts['step:FX-01-010'],'０．１');assert.equal(c.state.phoneState.formDrafts[questById[c.step.questId].scenarioId+':lots'],'0.1');assert.equal(totalXp(c.state),xp+2);
 });

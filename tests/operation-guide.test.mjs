@@ -14,6 +14,7 @@ class Events{
 class Element extends Events{
  constructor(tag='div',rect={left:0,top:0,width:120,height:48}){super();this.tagName=tag.toUpperCase();this.rect=rect;this.children=[];this.attributes={};this.className='';this.textContent='';this.style={setProperty(key,value){this[key]=value;}};const classes=new Set();this.classList={contains:key=>classes.has(key),add:key=>classes.add(key),remove:key=>classes.delete(key)};this.scrollCalls=[];this.clicks=0;this.focuses=0;this.hidden=false;this.clientLeft=0;this.clientTop=0;this.scrollLeft=0;this.scrollTop=0;}
  append(...nodes){for(const node of nodes){this.children.push(node);node.parent=this;}}
+ getAttribute(key){return this.attributes[key];}
  setAttribute(key,value){this.attributes[key]=value;}
  getBoundingClientRect(){return {...this.rect,right:this.rect.left+this.rect.width,bottom:this.rect.top+this.rect.height};}
  querySelector(selector){return selector==='[data-guide-submit]'?null:this.targets?.[0]??null;}
@@ -133,6 +134,10 @@ test('form hints keep their own line between the field, optional value and confi
  assert.equal(marker.children[0].textContent, '「このlot数で進む」を押そう。');
  assert.equal(submit.clicks, 0);
 
+ s.target.setAttribute('aria-invalid','true');
+ guide.scrollToTarget();
+ assert.deepEqual(form.children,[s.target,marker,candidate,submit]);
+ assert.equal(s.target.scrollCalls.length,1);
  s.target.value = '';
  s.phone.emit('input');
  s.win.flush();
