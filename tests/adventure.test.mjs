@@ -250,3 +250,12 @@ test('live order and lending advice follows intervening financial events without
   assert.deepEqual(live.chapterChanges,sameEvidence.chapterChanges);assert.deepEqual(s,before);
  }
 });
+
+test('Shino asks the player to check the deposit once the buyer has received the cards',()=>{
+ const q=byId['TC-02'];
+ const during=(count,data)=>getAdventure({...progress(q,count),financialScenarios:{'cards-trade':{data}}},q).latestReaction.text;
+ assert.match(during(24,{listingStatus:'sold'}),/代金はまだ市場/);
+ assert.match(during(28,{listingStatus:'sold',shipmentStatus:'shipped'}),/受取の知らせを待/);
+ assert.match(during(29,{listingStatus:'sold',settled:true}),/代金も入った/);
+ assert.doesNotMatch(during(31,{settled:true}),/待とう/);
+});

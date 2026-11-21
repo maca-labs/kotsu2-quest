@@ -16,7 +16,8 @@ import {getFxOperationInstruction,getFxConceptCards,getFxSubmitLabel,getFxOrderC
 import {renderPhoneGuide,getPhoneGuideView} from './phone-guide.js';
 import {renderWorldControls} from './world-controls.js';
 import {getTownDoors,doorAt,roomSpawn,roomStep,roomPeople,nearbyRoomPerson,roomTitle,drawTownDoors,renderRoom,getTavern} from './rooms.js';
-import {submissionValue} from './action-input.js';
+import {getMarketReceipt} from './market-receipt.js';
+import {submissionValue,yenInput} from './action-input.js';
 import {getAdventure,getChapterChanges,questBrief,recoveryReaction} from './adventure.js';
 import {humanFieldLabel,displayPracticeValue} from './help.js';
 import {adventureScene,openHelp,openCurrentHelp,townChanges} from './ui-adventure.js';
@@ -129,7 +130,7 @@ function talkRoomClient(){
   }
  }
  actions.push(btn('部屋に戻る',()=>{modal.close();render();}));
- showDialog(brief.client+'と話す',[renderSpeakerIdentity({document,name:brief.client,role:'依頼人 · この用事を頼んだ人',portrait:portrait(brief.client)}),p(words),!done?p('今回の作戦：'+brief.goal):p('確かめてくれて、ありがとう。できたことは手帳に残っているよ。')],actions);
+ showDialog(brief.client+'と話す',[renderSpeakerIdentity({document,name:brief.client,role:'依頼人 · この用事を頼んだ人',portrait:portrait(brief.client)}),p(words),done&&q.chapterId==='CH-4'?marketSlip(q.id):null,!done?p('今回の作戦：'+brief.goal):p('確かめてくれて、ありがとう。できたことは手帳に残っているよ。')],actions);
 }
 function roomConversation(){if(ui.room?.id==='church'){showDialog('神官ミルと話す',[renderSpeakerIdentity({document,name:'神官ミル',role:'教会の神官',portrait:portrait('神官ミル')}),p(getRpgView(state).hp===getRpgView(state).maxHp?'おかえり。体力はすっかり戻っているね。':'旅で疲れたね。無料の宿で休むと、体力が全回復するよ。'),p('砂漠には、まだ勝てないほど強い魔物もいるの。にげるを選べば、必ず逃げられるよ。'),p('装備やコイン、受けていた用事は残っているから安心してね。次は街道を選ぶのも、強くなってから挑むのも、あなたの自由だよ。')],[menuAction('教会の外へ',leaveRoom,'primary'),btn('部屋に戻る',()=>modal.close())]);return;}if(ui.room?.id==='client')talkRoomClient();else showCurrentHelp(ui.room?.id==='elder'?'archive':'tavern');}
 function renderRoomView(main){const room=ui.room,title=room.id==='client'?(room.houseName??roomTitle(room.id,room.client,state.currentChapter)):roomTitle(room.id,room.client,state.currentChapter),person=room.id==='client'?room.client:room.id==='elder'?'長老':room.id==='church'?'神官ミル':'酒場の人';const objective=explorationObjective(person+'に話しかけよう',roomConversation,'ここで話す');objective.querySelector('button').setAttribute('aria-label',person+'に話す（ここで話す）');main.append(objective);const canvas=h('canvas',{width:400,height:288,class:'world-canvas room-canvas',role:'img','aria-label':title+'の室内。下の扉が町への出口です。',onClick:e=>{const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*400/r.width/16,y=(e.clientY-r.top)*288/r.height/16;if(y>=14&&x>=11&&x<=14){leaveRoom();return;}if(roomPeople(room.id,state.currentChapter).some(n=>Math.abs(n.x+.5-x)<1.3&&Math.abs(n.y-y)<1.7))roomConversation();}});renderRoom(canvas,visualState(),room);main.append(h('section',{class:'card world-card indoor-card exploration-stage'},h('div',{class:'world-view'},canvas),controlPanel(),p('人の近くで「話す」。下の扉から町へ。','world-position-status')));}
@@ -196,11 +197,20 @@ function routePanel(){return card([h('h3',{},'第6章 · 学びたい道を選�
 function openTaskMail(id){phoneSwitch('mail');if(state.phoneState.mailById[id]){ui.mailId=id;render();}}
 function phoneSwitch(appId){state.phoneState.recentApps=[...new Set([state.phoneState.activeApp,...state.phoneState.recentApps])].filter(x=>x!=='home').slice(0,8);state.phoneState.activeApp=appId;ui.divert=appId;ui.mailId=null;saveQuiet();render();orientPhone();}
 function phoneNav(action){const step=activeStep(state);if(step?.navigationAction===action){runStep(step,step.value);return;}if(step&&((action==='home'&&/ホーム/.test(step.label??step.instruction))||(action==='switcher'&&/アプリ切替|最近使った/.test(step.label??step.instruction))||(action==='back'&&/戻る/.test(step.label??step.instruction)))){runStep(step,step.value);return;}if(action==='back'&&ui.divert){ui.divert=null;render();orientPhone();return;}phoneSwitch(action==='back'?'home':action);}
-function orientPhone(target='guide',focus=false){if(!matchMedia('(max-width:760px)').matches)return;const guided=operationGuide?.scrollToTarget();if(!guided){const node=document.querySelector(target==='action'?'#phone-body .action-group':'#phone-body .current-operation, #phone-body .complete-panel');node?.scrollIntoView({block:'start',behavior:'instant'});}if(focus){const input=document.querySelector('#phone-body .action-group input:not([readonly])');input?.focus({preventScroll:true});const r=input?.getBoundingClientRect();if(r&&(r.top<16||r.bottom>innerHeight-20))input.scrollIntoView({block:'center',behavior:'instant'});}}
+function orientPhone(target='guide',focus=false){if(!matchMedia('(max-width:760px)').matches)return;
+ const receipt=document.querySelector('#phone-body .action-group .market-slip');
+ if(!focus && receipt?.parentElement.querySelector('button[data-guide-target]')){
+  receipt.scrollIntoView({block:'start',behavior:'instant'});return;
+ }
+ const guided=operationGuide?.scrollToTarget();if(!guided){const node=document.querySelector(target==='action'?'#phone-body .action-group':'#phone-body .current-operation, #phone-body .complete-panel');node?.scrollIntoView({block:'start',behavior:'instant'});}if(focus){const input=document.querySelector('#phone-body .action-group input:not([readonly])');input?.focus({preventScroll:true});const r=input?.getBoundingClientRect();if(r&&(r.top<16||r.bottom>innerHeight-20))input.scrollIntoView({block:'center',behavior:'instant'});}}
 function returnToTown(step){if(step?.id==='PR-01-012'){ui.room=null;if(act({type:'STEP',id:step.id,value:step.value},{render:false})){travelArea('town:'+state.currentChapter);window.scrollTo(0,0);}}else nav('world');}
 function runStep(step,value){
  ui.extensionPreviewVenue=null;const q=questById[step.questId],before=getAdventure(state,q,step);
- if(act({type:'STEP',id:step.id,value:value??step.value})){ui.divert=null;const after=getAdventure(state,q,activeStep(state));if(after?.latestReaction.id!==before?.latestReaction.id){toast((after.enemy.hp<before.enemy.hp?'守りがほどけた！ ':'手がかり発見！ ')+after.latestReaction.speaker+'「'+after.latestReaction.text+'」');document.querySelector('.adventure-scene')?.classList.add('milestone-flash');}const next=activeStep(state);const encounter=automaticEncounter();if(next&&encounter&&state.rpg?.location?.mapId?.startsWith('cave:')){beginEncounter(encounter);return;}orientPhone(step.type==='focus'&&next?.type==='input'?'action':'guide',step.type==='focus'&&next?.type==='input');}
+ if(act({type:'STEP',id:step.id,value:value??step.value})){ui.divert=null;const after=getAdventure(state,q,activeStep(state));
+  if(q.id==='TC-02' && after.latestReaction.currentStatus && after.latestReaction.text!==before.latestReaction.text){
+   clearTimeout(ui.toastTimer);const oldToast=document.querySelector('#toast');oldToast.classList.remove('show');oldToast.textContent='';
+  }
+  if(after?.latestReaction.id!==before?.latestReaction.id){toast((after.enemy.hp<before.enemy.hp?'守りがほどけた！ ':'手がかり発見！ ')+after.latestReaction.speaker+'「'+after.latestReaction.text+'」');document.querySelector('.adventure-scene')?.classList.add('milestone-flash');}const next=activeStep(state);const encounter=automaticEncounter();if(next&&encounter&&state.rpg?.location?.mapId?.startsWith('cave:')){beginEncounter(encounter);return;}orientPhone(step.type==='focus'&&next?.type==='input'?'action':'guide',step.type==='focus'&&next?.type==='input');}
  else showRecoveryReaction(step,ui.error);
 }
 function showRecoveryReaction(step,message){
@@ -211,10 +221,30 @@ function showRecoveryReaction(step,message){
 function valueDisplay(v){if(v===undefined||v===null)return '';if(typeof v==='number')return v.toLocaleString('ja-JP',{maximumFractionDigits:6});if(typeof v==='object')return Object.entries(v).map(([k,x])=>`${k}：${valueDisplay(x)}`).join(' / ');return String(v);}
 function detailsBlock(details){if(!details)return document.createDocumentFragment();const items=typeof details==='string'?[details]:Array.isArray(details)?details:Object.entries(details).map(([k,v])=>`${k}：${valueDisplay(v)}`);return h('div',{class:'details'},items.map(x=>p(valueDisplay(x))));}
 function practiceData(step){if(step.hidePracticeValue)return null;const parts=[];if(step.type==='input'&&step.value!==undefined&&!['any','*','all'].includes(step.value))parts.push('使う値：'+displayPracticeValue(step));if(!parts.length)return null;return h('div',{class:'practice-card'},h('strong',{},'依頼人の練習カード'),...parts.map(x=>p(x)));}
-function renderAction(step,callback,namespace='step'){
+function marketSlip(questId,stepId=null){
+ const receipt=getMarketReceipt(state,questId,stepId);
+ if(!receipt)return null;
+ const amounts=rows=>h('dl',{},rows.map(({label,value})=>h('div',{},h('dt',{},label),h('dd',{},value))));
+ return h('section',{class:'market-slip','aria-label':receipt.title},h('h3',{},receipt.title),
+  amounts(receipt.rows),receipt.note?p(receipt.note):null,
+  (receipt.breakdowns??[]).map(detail=>h('details',{},h('summary',{},detail.title),amounts(detail.rows),p(detail.note))));
+}
+function clearPracticeError(field,alert){
+ if(alert&&!alert.hidden){alert.hidden=true;field.removeAttribute('aria-invalid');}
+}
+function checkPracticeField(step,value,field,alert,help){
+ if(!alert)return true;
+ try{validateAction(step,value);return true;}catch(error){
+  showRecoveryReaction(step,error.message);alert.textContent=help;alert.hidden=false;
+  field.setAttribute('aria-invalid','true');operationGuide?.scrollToTarget();return false;
+ }
+}
+function renderAction(step,callback,namespace='step',receipt=null){
  const group=h('div',{class:'action-group',tabindex:'-1'},h('h3',{class:'action-instruction'},namespace==='step'?getFxOperationInstruction(step):step.instruction)),confirmation=namespace==='step'?getFxOrderConfirmation(state,step):null;
  const shownDetails=Array.isArray(step.details)&&step.result?step.details.map(text=>text===step.result?'操作後の変化：'+text:text):step.details,details=detailsBlock(shownDetails);
- if(namespace==='step'&&(step.questId==='FX-01'||confirmation)){if(step.result)group.append(p('操作後の変化：'+step.result,'muted'));group.append(h('details',{class:'fx-offer-material'},h('summary',{},confirmation?'この練習の開始時の資料':'後で使うUSD/JPY案件の資料'),detailsBlock(Array.isArray(step.details)?step.details.filter(text=>text!==step.result):step.details)));}else if(details)group.append(details);
+ const marketLesson=namespace==='step' && (step.questId==='TC-01'||step.questId==='TC-02');
+ if(marketLesson){if(receipt)group.append(receipt);}
+ else if(namespace==='step'&&(step.questId==='FX-01'||confirmation)){if(step.result)group.append(p('操作後の変化：'+step.result,'muted'));group.append(h('details',{class:'fx-offer-material'},h('summary',{},confirmation?'この練習の開始時の資料':'後で使うUSD/JPY案件の資料'),detailsBlock(Array.isArray(step.details)?step.details.filter(text=>text!==step.result):step.details)));}else if(details)group.append(details);
  if(namespace==='step')for(const explanation of getFxConceptCards(step))group.append(h('section',{class:'practice-card fx-concept'},h('strong',{},explanation.title),p(explanation.text)));
  if(confirmation)group.append(h('section',{class:'practice-card fx-confirmation'},h('h4',{},confirmation.title),...confirmation.rows.map(item=>p(item.label+'：'+item.value)),...confirmation.cards.map(item=>h('div',{},h('strong',{},item.title),p(item.text)))));
  if(step.type==='focus'){
@@ -226,31 +256,35 @@ function renderAction(step,callback,namespace='step'){
  const form=h('form',{},h('label',{class:'field-label',for:`field-${step.id}`},label));
  const numeric=typeof step.value==='number'||/金額|数量|lot|証拠金|価格|残高|通貨量|桁|番号/.test(label)&&/^\d+(\.\d+)?$/.test(String(step.value));
  const lotSubmit=namespace==='step'?getFxSubmitLabel(step):undefined;
- const lotError=lotSubmit?h('p',{class:'lot-field-error',id:'error-'+step.id,role:'alert',hidden:true}):null;
- const input=h('input',{id:`field-${step.id}`,readonly:paste,'aria-describedby':lotError?.id,placeholder:paste?'メールでコピーした内容がここへ入ります':'',type:step.inputType==='password'?'password':'text','data-guide-target':paste?undefined:'true',inputmode:step.inputMode??(numeric?'decimal':'text'),autocomplete:'off',value:paste?'':ui.inputs[key]??state.phoneState.formDrafts?.[key]??'','data-action':step.id,onInput:e=>{
-  if(lotError&&!lotError.hidden){lotError.hidden=true;e.target.removeAttribute('aria-invalid');}
+ const fieldError=(lotSubmit||marketLesson)?h('p',{class:'practice-field-error',id:'error-'+step.id,role:'alert',hidden:true}):null;
+ const input=h('input',{id:`field-${step.id}`,readonly:paste,'aria-describedby':fieldError?.id,placeholder:paste?'メールでコピーした内容がここへ入ります':'',type:step.inputType==='password'?'password':'text','data-guide-target':paste?undefined:'true',inputmode:step.inputMode??(numeric?'decimal':'text'),autocomplete:'off',value:paste?'':ui.inputs[key]??state.phoneState.formDrafts?.[key]??'','data-action':step.id,onInput:e=>{
+  clearPracticeError(e.target,fieldError);
   ui.inputs[key]=e.target.value;state.phoneState.formDrafts[key]=e.target.value;saveQuiet();
  }});
+ if(marketLesson&&fieldError)form.append(fieldError);
  form.append(input);
- if(lotError)form.append(lotError);
+ if(lotSubmit&&fieldError)form.append(fieldError);
  const expected=step.value;
  if(namespace==='step'&&!paste&&!step.hidePracticeValue&&expected!==undefined&&expected!=='any'&&expected!=='*')form.append(btn(step.inputType==='password'?'練習用パスワードを入れる':`カードの値を入力：${displayPracticeValue(step)}`,()=>{ui.inputs[key]=String(expected);input.value=String(expected);state.phoneState.formDrafts[key]=String(expected);input.dispatchEvent(new Event('input'));operationGuide?.scrollToTarget();},'candidate'));
  form.append(h('button',{type:'submit',class:'primary wide','data-guide-target':paste?'true':undefined,'data-guide-submit':'true',style:'margin-top:16px'},/貼り付け/.test(step.label??'')?(step.field==='introPhrase'||step.field==='phrase'?'合言葉を貼り付け':'確認コードを貼り付け'):lotSubmit??step.label??'入力する'));
  form.addEventListener('submit',e=>{
   e.preventDefault();
   const value=submissionValue({step,typedValue:input.value,namespace,mainClipboard:state.phoneState.clipboard,reviewClipboard:state.reviewStates[ui.reviewId]?.snapshot?.clipboard});
-  if(lotError){
-   try{validateAction(step,value);}catch(error){
-    showRecoveryReaction(step,error.message);
-    lotError.textContent='練習カードの数量は「'+step.value+'」だよ。この数字を上の欄に入れよう。';
-    lotError.hidden=false;input.setAttribute('aria-invalid','true');operationGuide?.scrollToTarget();return;
-   }
-  }
+  const help=lotSubmit?'練習カードの数量は「'+step.value+'」だよ。この数字を上の欄に入れよう。'
+    :'この欄には「'+displayPracticeValue(step)+'」を入れよう。';
+  if(!checkPracticeField(step,value,input,fieldError,help))return;
   callback(value);
  });
  group.append(form);
  }else if(step.type==='select'){
- if(namespace==='step'){const data=practiceData(step);if(data)group.append(data);}const label=step.fieldLabel??phoneFieldLabels[step.field]??humanFieldLabel(step.field)??'選択する内容';group.append(h('label',{class:'field-label',for:`select-${step.id}`},label));let choices=step.choices??[];if(!choices.length)choices=[{label:valueDisplay(step.value),value:step.value}];const select=h('select',{'data-guide-target':'true',id:`select-${step.id}`,'data-action':step.id,onChange:e=>{ui.inputs[step.id]=e.target.value;state.phoneState.formDrafts[`selection:${step.id}`]=e.target.value;saveQuiet();}});select.append(h('option',{value:''},'選んでください'));choices.forEach(x=>{const v=typeof x==='object'?x.value:x,label=typeof x==='object'?x.label:x;select.append(h('option',{value:v},label));});select.value=ui.inputs[step.id]??state.phoneState.formDrafts[`selection:${step.id}`]??'';group.append(select,btn(step.label??'この内容を選ぶ',()=>{if(!select.value){showError('候補を一つ選ぼう。');return;}callback(select.value);},'primary wide',{'data-guide-submit':'true',style:'margin-top:15px'}));
+ if(namespace==='step'){const data=practiceData(step);if(data)group.append(data);}const label=step.fieldLabel??phoneFieldLabels[step.field]??humanFieldLabel(step.field)??'選択する内容';group.append(h('label',{class:'field-label',for:`select-${step.id}`},label));const choiceError=marketLesson?h('p',{class:'practice-field-error',id:'error-'+step.id,role:'alert',hidden:true}):null;
+ if(choiceError)group.append(choiceError);
+ let choices=step.choices??[];if(!choices.length)choices=[{label:valueDisplay(step.value),value:step.value}];const select=h('select',{'data-guide-target':'true','aria-describedby':choiceError?.id,id:`select-${step.id}`,'data-action':step.id,onChange:e=>{clearPracticeError(e.target,choiceError);ui.inputs[step.id]=e.target.value;state.phoneState.formDrafts[`selection:${step.id}`]=e.target.value;saveQuiet();}});select.append(h('option',{value:''},'選んでください'));choices.forEach(x=>{const v=typeof x==='object'?x.value:x,label=typeof x==='object'?x.label:x;select.append(h('option',{value:v},label));});select.value=ui.inputs[step.id]??state.phoneState.formDrafts[`selection:${step.id}`]??'';group.append(select,btn(step.label??'この内容を選ぶ',()=>{if(choiceError){
+  const correct=choices.find(option=>String(option.value??option)===String(step.value));
+  const help=select.value?'この練習では「'+(correct?.label??correct)+'」を選ぼう。':'欄を押して、候補を一つ選ぼう。';
+  if(!checkPracticeField(step,select.value,select,choiceError,help))return;
+ }else if(!select.value){showError('候補を一つ選ぼう。');return;}
+ callback(select.value);},'primary wide',{'data-guide-submit':'true',style:'margin-top:15px'}));
  }else if(step.type==='check'){
  group.append(h('label',{class:'check-row','data-guide-target':'true','data-action':step.id},h('input',{type:'checkbox',onChange:e=>{if(e.target.checked)callback(true);}}),h('span',{},step.label??'内容を確認しました')));
  }else{
@@ -268,7 +302,7 @@ function renderPhone(main){if(entryEncounter()){ui.view='world';renderWorldView(
  const phone=h('section',{class:'phone '+appId,'aria-label':'ゲーム内スマホ',style:'--app:'+(appColors[appId]??'#347360')},h('div',{class:'phone-status'},'9:41'),h('header',{class:'phone-app-head'},h('strong',{},(['home','mail','switcher'].includes(appId)?({home:'練習スマホ',mail:'ゲーム内メール',switcher:'最近使ったアプリ'}[appId]):ui.divert?names[appId]:step?.appTitle??names[appId])??'練習スマホ'),small('ゲーム内の練習')));
  if(q.id==='FX-03'&&appId==='points')phone.append(h('div',{class:'addressbar'},'▣ コツコツモール / FX練習案件'));else if((appId==='browser'||appId==='points')&&!q.id.startsWith('FI-')&&!q.extension)phone.append(h('div',{class:'addressbar'},'▣ practice.example.invalid'),h('div',{class:'phone-tabs'},btn('コツコツモール',()=>{ui.tab='points';ui.divert='browser-tab';render();}),btn('まいにちストア',()=>{ui.tab='shop';ui.divert='browser-tab';render();})));
  const body=h('div',{class:'phone-body',id:'phone-body'});
- if(qs.completed)body.append(h('div',{class:'complete-panel'},h('span',{class:'tag'},'依頼達成！'),h('h2',{},brief.client+'の困りごとが解決した'),p(a.latestReaction.text),p('町の景色が変わりました。依頼人に知らせよう。'),btn('近道で町の人へ報告する',()=>{enterRoom('client',q.id,state.activeQuestKey);talkRoomClient();},'primary wide'),q.id==='DX-02'&&!questState(state,'FI-01')?.completed?btn('円の入金から、ハイリキへの旅を続ける',()=>offerQuest(questById['FI-01']),'gold wide'):null,btn('洞窟から歩いて帰る',()=>{ui.room=null;ui.view='world';render();window.scrollTo(0,0);},'wide'),btn('次の依頼を探す',()=>nav('quests'),'wide')));
+ if(qs.completed)body.append(h('div',{class:'complete-panel'},h('span',{class:'tag'},'依頼達成！'),h('h2',{},brief.client+'の困りごとが解決した'),p(a.latestReaction.text),marketSlip(q.id),p('町の景色が変わりました。依頼人に知らせよう。'),btn('近道で町の人へ報告する',()=>{enterRoom('client',q.id,state.activeQuestKey);talkRoomClient();},'primary wide'),q.id==='DX-02'&&!questState(state,'FI-01')?.completed?btn('円の入金から、ハイリキへの旅を続ける',()=>offerQuest(questById['FI-01']),'gold wide'):null,btn('洞窟から歩いて帰る',()=>{ui.room=null;ui.view='world';render();window.scrollTo(0,0);},'wide'),btn('次の依頼を探す',()=>nav('quests'),'wide')));
  else if(ui.divert)renderDiverted(body,appId,step);
  else{
   const guide=h('div',{class:'current-operation'},small('いま、すること'),h('h2',{},getFxOperationInstruction(step)));body.append(guide,h('h3',{},step.id==='PR-01-012'?'町へ戻るボタン':step.screenTitle??names[appId]??q.title));const copyGuide=renderPhoneGuide({document,state,quest:q,step});if(copyGuide)body.append(copyGuide);const copyState=getPhoneGuideView(state,q,step);if(!q.extension&&copyState?.copyStepCompleted&&copyState.copyState==='not-copied'&&/貼り付け/.test(step.label??''))body.append(btn('今回のメールを見直してコピーする',()=>openTaskMail(q.id==='PR-01'?'intro-mail':'registration-mail'),'wide'));
@@ -276,7 +310,7 @@ function renderPhone(main){if(entryEncounter()){ui.view='world';renderWorldView(
   if(step.panel&&typeof step.panel==='object')body.append(q.id.startsWith('FI-')?h('details',{class:'funding-plan'},h('summary',{},'依頼の資料・この区間の予定'),detailsBlock(step.panel)):detailsBlock(step.panel));if(q.id.startsWith('FI-'))body.append(h('details',{class:'funding-current'},h('summary',{},'すべての置き場所と残高'),scenarioBalances(q)));
   const panel=q.extension?renderExtensionPanel({document,state,step,quest:q,onAction:v=>runStep(step,v),onAppNavigate:id=>id==='mail'?openTaskMail('domestic-registration'):phoneSwitch(id),previewVenue:ui.extensionPreviewVenue,onNavigate:v=>{ui.extensionPreviewVenue=v;render();}}):q.id.startsWith('FI-')?renderFundingPanel({document,state,step,quest:q,onAction:v=>runStep(step,v)}):renderPhonePanel({document,state,step,quest:q,onAction:v=>runStep(step,v),onNavigate:id=>phoneSwitch(id)});if(panel?.element)body.append(panel.element);
   guide.append(btn('矢印の場所へ',()=>operationGuide?.scrollToTarget(),'operation-jump'));if(step.type==='wait')body.append(p('ゲーム内の時間を進めます。現実の時間で待つ必要はありません。'));
-  if(!panel?.handlesAction&&!navAction&&step.id!=='PR-01-012'){body.append(renderAction(step,v=>runStep(step,v)));}if(step.id==='PR-01-012')body.append(p('合言葉を保存できたことを、郵便屋ミナに伝えよう。下のボタンで町へ戻れます。'),btn('町へ戻って郵便屋へ知らせる',()=>returnToTown(step),'primary wide',{'data-guide-target':'true'}));body.append(h('div',{class:'operation-help'},btn('ことば・やり方を聞く',()=>help('what')),btn('村人に聞く',()=>help('tavern')),btn('この作業の説明を聞く',()=>narrationDialog(q))));
+  if(!panel?.handlesAction&&!navAction&&step.id!=='PR-01-012'){body.append(renderAction(step,v=>runStep(step,v),'step',marketSlip(q.id,step.id)));}if(step.id==='PR-01-012')body.append(p('合言葉を保存できたことを、郵便屋ミナに伝えよう。下のボタンで町へ戻れます。'),btn('町へ戻って郵便屋へ知らせる',()=>returnToTown(step),'primary wide',{'data-guide-target':'true'}));body.append(h('div',{class:'operation-help'},btn('ことば・やり方を聞く',()=>help('what')),btn('村人に聞く',()=>help('tavern')),btn('この作業の説明を聞く',()=>narrationDialog(q))));
   if(q.id.startsWith('PO-'))body.append(btn('案件・費用を見比べる',comparisonDialog,'quiet wide'));
  }
  body.append(h('div',{id:'action-error',class:'error',hidden:!ui.error},ui.error));phone.append(body,h('nav',{class:'phone-nav','aria-label':'練習スマホのナビゲーション'},btn('‹ 戻る',()=>phoneNav('back'),'',{'data-guide-target':navAction==='back'?'true':undefined}),btn('⌂ ホーム',()=>phoneNav('home'),'',{'data-guide-target':navAction==='home'?'true':undefined}),btn('▢ アプリ切替',()=>phoneNav('switcher'),'',{'data-guide-target':navAction==='switcher'?'true':undefined})));
@@ -296,7 +330,7 @@ function scenarioBalances(q,recordOverride){let scenarioId=q.scenarioId;const st
 
 function renderBossView(main){const id=ui.bossId??state.currentChapter;if(!bossAvailable(state,id)){main.append(heading('町を守る、最後の確認','先に依頼帳の用事を終えると、試練が開きます。'),btn('依頼帳へ',()=>nav('quests'),'primary'));return;}const b=bosses.find(x=>x.chapterId===id),tasks=getBossTasks(state,id),bs=state.bossStates[id]??{index:0,actionIndex:0},task=tasks[bs.index];main.append(heading(id==='hidden'?'終章 · 虹の試練':`${id.slice(3)}章 · 最後の確認`,'必要な確認を一つずつ。間違えても、その場で直せます。','独立した確認課題 / 本編の残高は変わりません'));const name=id==='hidden'?'虹の守護竜':b?.name??'町の守り手';const c=h('canvas',{width:96,height:80,class:'boss-canvas',role:'img','aria-label':name});drawBoss(c,id);const stage=h('section',{class:'boss-stage'},c,h('h2',{},name),h('div',{class:'progress'},h('i',{style:`width:${(tasks.length-bs.index)/tasks.length*100}%`})),small(`HP ${(tasks.length-bs.index)*20} / ${tasks.length*20}`));const form=h('section',{class:'boss-task'});
  if(bs.completed||!task){form.append(h('span',{class:'tag'},'CHAPTER CLEAR'),h('h2',{style:'margin-top:18px'},'見落としの封印が、すべて解けた。'),p('確認できた力が、町に新しい道を開きました。'),btn('町へ戻る',()=>nav('world'),'primary'),btn('そうびを見る',()=>nav('inventory')));}
- else{form.append(small(`確認 ${bs.index+1} / ${tasks.length}`),h('h2',{style:'margin-top:14px'},task.title??task.instruction),p(task.instruction??''),detailsBlock(task.details??task.snapshot));if(task.actions?.length){const action=task.actions[bs.actionIndex??0];form.append(h('h3',{},action.instruction??action.label),renderAction(action,value=>act({type:'BOSS',id,taskId:task.id,actionId:action.id,value:value??action.value}),'boss'));}else{const inputs={};const f=h('form');for(const field of task.fields??[]){const key=field.key??field.id;const g=h('div',{class:'form-group'},h('label',{for:`boss-${key}`},field.label));let input;if(field.type==='select'){input=h('select',{id:`boss-${key}`});input.append(h('option',{value:''},'選んでください'));for(const o of field.choices??[])input.append(h('option',{value:o.value??o},o.label??o));input.value=ui.inputs[`${task.id}:${key}`]??field.initialValue??'';input.addEventListener('change',e=>ui.inputs[`${task.id}:${key}`]=e.target.value);}else input=h('input',{id:`boss-${key}`,type:'text',inputmode:field.type==='number'?'decimal':'text',value:ui.inputs[`${task.id}:${key}`]??field.initialValue??'',onInput:e=>ui.inputs[`${task.id}:${key}`]=e.target.value});inputs[key]=input;g.append(input);f.append(g);}f.append(h('button',{type:'submit',class:'primary'},task.submitLabel??'この内容で確認する'));f.addEventListener('submit',e=>{e.preventDefault();act({type:'BOSS',id,taskId:task.id,values:Object.fromEntries(Object.entries(inputs).map(([k,x])=>[k,x.value]))});});form.append(f);}form.append(h('div',{id:'action-error',class:'error',hidden:!ui.error},ui.error),h('div',{class:'row',style:'margin-top:20px'},btn('町の人に聞く',()=>{showDialog('確認のヒント',[p(task.hint??'練習カードの条件と、入力した内容を一つずつ見比べよう。'),detailsBlock(task.details)],[]);},'quiet'),btn('いったん町へ',()=>nav('world'),'quiet')));}
+ else{form.append(small(`確認 ${bs.index+1} / ${tasks.length}`),h('h2',{style:'margin-top:14px'},task.title??task.instruction),p(task.instruction??''),detailsBlock(task.details??task.snapshot));if(task.actions?.length){const action=task.actions[bs.actionIndex??0];form.append(h('h3',{},action.instruction??action.label),renderAction(action,value=>act({type:'BOSS',id,taskId:task.id,actionId:action.id,value:value??action.value}),'boss'));}else{const inputs={};const f=h('form');for(const field of task.fields??[]){const key=field.key??field.id;const g=h('div',{class:'form-group'},h('label',{for:`boss-${key}`},field.label));let input;if(field.type==='select'){input=h('select',{id:`boss-${key}`});input.append(h('option',{value:''},'選んでください'));for(const o of field.choices??[])input.append(h('option',{value:o.value??o},o.label??o));input.value=ui.inputs[`${task.id}:${key}`]??field.initialValue??'';input.addEventListener('change',e=>ui.inputs[`${task.id}:${key}`]=e.target.value);}else input=h('input',{id:`boss-${key}`,type:'text',inputmode:field.type==='number'?'decimal':'text',value:ui.inputs[`${task.id}:${key}`]??field.initialValue??'',onInput:e=>ui.inputs[`${task.id}:${key}`]=e.target.value});inputs[key]=input;g.append(input);f.append(g);}f.append(h('button',{type:'submit',class:'primary'},task.submitLabel??'この内容で確認する'));f.addEventListener('submit',e=>{e.preventDefault();act({type:'BOSS',id,taskId:task.id,values:Object.fromEntries(task.fields.map(field=>{const key=field.key??field.id,value=inputs[key].value;return [key,id==='CH-4'&&field.type==='number'?yenInput(value):value];}))});});form.append(f);}form.append(h('div',{id:'action-error',class:'error',hidden:!ui.error},ui.error),h('div',{class:'row',style:'margin-top:20px'},btn('町の人に聞く',()=>{showDialog('確認のヒント',[p(task.hint??'練習カードの条件と、入力した内容を一つずつ見比べよう。'),detailsBlock(task.details)],[]);},'quiet'),btn('いったん町へ',()=>nav('world'),'quiet')));}
  main.append(h('div',{class:'boss-layout'},stage,form));}
 function startReview(q){ui.extensionPreviewVenue=null;if(q.reviewVariant?.tasks?.length){if(state.reviewStates[q.id]?.completed&&!act({type:'RESTART_REVIEW',id:q.id},{render:false}))return;ui.reviewId=q.id;nav('review');}else if(q.reviewVariant?.fields?.length){ui.reviewId=q.id;nav('review');}else{ui.bossId=q.chapterId;nav('boss');}}
 function renderReview(main){

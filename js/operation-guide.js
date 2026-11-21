@@ -53,9 +53,11 @@ export function mountOperationGuide({document:doc,phone,step,showInstruction=fal
   }
   // Forms need room for the field label, the optional practice value and the
   // actual submit button. Reserve a line for the hint beside the real target.
-  const inline = target.closest?.('.action-group') && (confirming || edit || tag === 'SELECT');
+  const group = target.closest?.('.action-group');
+  const receiptAction = (tag === 'BUTTON' || tag === 'LABEL') && group?.querySelector?.('.market-slip');
+  const inline = group && (confirming || receiptAction || edit || tag === 'SELECT');
   if (inline) {
-   placeInFlow(target, confirming ? 'above' : 'below', 'field');
+   placeInFlow(target, confirming || receiptAction ? 'above' : 'below', 'field');
    marker.style.setProperty('--guide-arrow-left', '50%');
    return;
   }

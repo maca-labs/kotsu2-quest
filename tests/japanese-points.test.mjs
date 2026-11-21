@@ -98,6 +98,7 @@ test('rewritten navigation instructions preserve home and switcher effects throu
 class Element {
   constructor(tag) { this.tagName = tag.toUpperCase(); this.children = []; this.attributes = {}; this.listeners = {}; this.value = ''; this.ownText = ''; }
   setAttribute(key, value) { this.attributes[key] = value; if (['value', 'type', 'id'].includes(key)) this[key] = value; }
+  removeAttribute(key){delete this.attributes[key];}
   addEventListener(name, fn) { (this.listeners[name] ??= []).push(fn); }
   dispatchEvent(event) { for (const fn of this.listeners[event.type] ?? []) fn({type: event.type, target: this, preventDefault() {}}); return true; }
   append(...nodes) { this.children.push(...nodes); }
@@ -116,7 +117,7 @@ test('the card price candidate fills the named field; its separate submit comple
   }
   const step = activeStep(state), before = structuredClone(state), source = fs.readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
   const environment = {
-    ...actionInput, ...fxGuidance, displayPracticeValue, humanFieldLabel,
+    ...actionInput, ...fxGuidance, validateAction, showRecoveryReaction(){}, displayPracticeValue, humanFieldLabel,
     Node: Element, Event: class { constructor(type) { this.type = type; } },
     document: {createElement: tag => new Element(tag), createTextNode: text => { const node = new Element('#text'); node.textContent = text; return node; }, createDocumentFragment: () => new Element('#fragment')},
     ui: {inputs: {}, reviewId: null}, get state() { return state; }, phoneFieldLabels: {}, valueDisplay: value => String(value), saveQuiet() {}, operationGuide: {scrollToTarget() {}}, showError(message) { throw Error(message); },
@@ -132,7 +133,15 @@ test('the card price candidate fills the named field; its separate submit comple
   assert.equal(activeStep(state).id, step.id);
   assert.equal(totalXp(state), totalXp(before));
   assert.deepEqual(state.financialScenarios, before.financialScenarios);
-  nodes.find(node => node.tagName === 'FORM').dispatchEvent({type: 'submit'});
+  const input=nodes.find(node=>node.tagName==='INPUT'),form=nodes.find(node=>node.tagName==='FORM');
+  const warning=nodes.find(node=>node.className==='practice-field-error');
+  input.value='２，００';input.dispatchEvent({type:'input'});form.dispatchEvent({type:'submit'});
+  assert.equal(warning.hidden,false);assert.equal(input.attributes['aria-invalid'],'true');
+  assert.equal(activeStep(state).id,step.id);assert.equal(totalXp(state),totalXp(before));
+  input.value='２，０００';input.dispatchEvent({type:'input'});
+  assert.equal(warning.hidden,true);assert.equal(input.attributes['aria-invalid'],undefined);
+  form.dispatchEvent({type:'submit'});
+  assert.equal(state.financialScenarios['cards-trade'].phoneState.formDrafts['TC-01'].purchasePrice,'2000');
   assert.equal(activeStep(state).id, 'TC-01-015');
   assert.equal(totalXp(state), totalXp(before) + 2);
   assert.equal(state.financialScenarios['cards-trade'].accounts.cashBalance, 10000);

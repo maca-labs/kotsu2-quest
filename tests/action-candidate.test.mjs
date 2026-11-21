@@ -62,7 +62,7 @@ test('the real confirm action shows its saved order and planned price beside its
 });
 
 test('a rejected lot stays editable and Japanese-width digits confirm only on submit',()=>{
- const c=setup('FX-01-010'),nodes=all(c.element),field=nodes.find(n=>n.tagName==='INPUT'),form=nodes.find(n=>n.tagName==='FORM'),error=nodes.find(n=>n.className==='lot-field-error'),xp=totalXp(c.state);
+ const c=setup('FX-01-010'),nodes=all(c.element),field=nodes.find(n=>n.tagName==='INPUT'),form=nodes.find(n=>n.tagName==='FORM'),error=nodes.find(n=>n.className==='practice-field-error'),xp=totalXp(c.state);
  field.value='0.2';field.dispatchEvent({type:'input'});form.dispatchEvent({type:'submit'});
  assert.equal(field.attributes['aria-invalid'],'true');assert.equal(error.hidden,false);assert.match(error.textContent,/0\.1/);assert.equal(activeStep(c.state).id,c.step.id);assert.equal(totalXp(c.state),xp);
  field.value='０．１';field.dispatchEvent({type:'input'});assert.equal(error.hidden,true);assert.equal(field.attributes['aria-invalid'],undefined);assert.equal(activeStep(c.state).id,c.step.id);

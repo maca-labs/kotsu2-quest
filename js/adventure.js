@@ -200,7 +200,13 @@ export function questBrief(quest) {
 // financial event that happened between that milestone and the next check.
 // This changes only words: no stage, shield, world effect or reward is earned.
 function currentFinancialReaction(state,quest,count,length,view){
- if(!view||!count||count>=length)return null;
+ if(!count||count>=length)return null;
+ if(quest.id==='TC-02'){
+  const market=state.financialScenarios?.['cards-trade'];
+  if(count>=29 && market?.data.settled)return 'カードが届いて、代金も入ったよ。入金明細と、仕入れや梱包に払ったお金を見比べよう。';
+  if(count>=23 && count<28 && market?.data.listingStatus==='sold')return '買ってくれる人が決まったよ。代金はまだ市場にあるんだ。カードが折れたり、ぬれたりしないように包もう。';
+ }
+ if(!view)return null;
  const phase=state.financialScenarios?.[quest.scenarioId]?.data?.status;
  if(quest.id==='LV-01'&&count>=20&&view.position?.open===false&&view.leverageHistory?.length)
   return '全決済は終わったよ。履歴の方向・倍率・戻った額と、いまの残量ゼロを確かめよう。最後の照合まで、落ち着いて見届けよう。';

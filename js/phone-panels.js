@@ -9,6 +9,33 @@ export const phoneFieldLabels={asset:'送る資産',receiveAsset:'受け取る�
 
 export function selectQuestMail(state,quest,step={}){const ids={'PR-01':'intro-mail','PO-01':'registration-mail','BK-01':'bank-verification','PO-03':'order-mail','PO-04':'order-mail','PO-05':'approval-mail','PO-06':'gift-mail'},id=step.mailId??ids[quest?.id],mail=id&&state.phoneState?.mailById?.[id];return mail?[id,mail]:null;}
 
+function marketPhoto(doc,back){
+ const canvas=doc.createElement('canvas');
+ canvas.width=144;canvas.height=82;
+ canvas.style.cssText='display:block;image-rendering:pixelated;width:100%;max-width:236px;height:auto;margin:6px auto;border-radius:5px';
+ canvas.setAttribute('role','img');
+ canvas.setAttribute('aria-label',back?'星札3枚の裏面。右端のカードの右下に、小さな白いすり傷がある。':'星札3枚の表面。星の絵が並ぶ星版2026のセット。');
+ const ctx=canvas.getContext('2d');
+ if(!ctx)return canvas;
+ const rect=(x,y,w,h,color)=>{ctx.fillStyle=color;ctx.fillRect(x,y,w,h);};
+ rect(0,0,144,82,'#e5e2d7');
+ for(let i=0;i<3;i++){
+  const x=9+43*i,y=7+(i===1?3:0);
+  rect(x+2,y+3,38,63,'#b5b3a7');
+  rect(x,y,38,63,'#493e5c');rect(x+2,y+2,34,59,'#d3b982');
+  if(back){
+   rect(x+4,y+4,30,55,'#36455c');rect(x+7,y+7,24,49,'#506784');
+   rect(x+11,y+25,16,10,'#d4b578');rect(x+15,y+21,8,18,'#d4b578');rect(x+17,y+26,4,8,'#506784');
+   if(i===2){rect(x+26,y+52,3,2,'#fff9e4');rect(x+29,y+50,3,2,'#fff9e4');rect(x+32,y+49,2,1,'#fff9e4');}
+  }else{
+   rect(x+5,y+6,28,32,['#4d8d8a','#a56b50','#717ca3'][i]);
+   rect(x+11,y+20,16,4,'#fff0bc');rect(x+17,y+13,4,17,'#fff0bc');
+   for(let j=0;j<3;j++)rect(x+7,y+43+5*j,22-3*j,2,'#79694d');
+  }
+ }
+ return canvas;
+}
+
 /** Native local-only app surfaces. onAction is called only after an explicit user operation. */
 export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavigate}) {
  if(!step||!doc)return null;
@@ -28,10 +55,9 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
  let scenario;try{scenario=state.financialScenarios?.[scenarioForStep(step,{routeId:route},state)];}catch{}
  const accounts=scenario?.accounts||{};
  const ledger=(keys)=>{const n=el('div','','background:white;border-radius:8px;padding:4px 10px');for(const r of scenarioSummary(scenario).filter(r=>!keys||keys.includes(r.key)).slice(0,7))n.append(row(r.label,fmt(r.value)));return n;};
- const pixel=(kind,width=144,height=96)=>{const c=el('canvas','','display:block;image-rendering:pixelated;width:100%;max-width:240px;margin:auto;border-radius:6px;background:#edf2e8');c.width=width;c.height=height;c.setAttribute('role','img');c.setAttribute('aria-label',kind==='person'?'画面内の架空人物':kind==='id'?'教材専用の本人確認カード':kind==='cards'?'オリジナルの星札3枚':'練習用の日用品セット');const x=c.getContext('2d');if(!x)return c;
+ const pixel=(kind,width=144,height=96)=>{const c=el('canvas','','display:block;image-rendering:pixelated;width:100%;max-width:240px;margin:auto;border-radius:6px;background:#edf2e8');c.width=width;c.height=height;c.setAttribute('role','img');c.setAttribute('aria-label',kind==='person'?'画面内の架空人物':kind==='id'?'教材専用の本人確認カード':'練習用の日用品セット');const x=c.getContext('2d');if(!x)return c;
   const r=(a,b,w,h,color)=>{x.fillStyle=color;x.fillRect(a,b,w,h);};
   if(kind==='person'||kind==='id'){r(0,0,width,height,'#e1ede7');if(kind==='id'){r(5,7,width-10,height-14,'#fff9e6');r(9,11,width-18,11,'#739b8d');}const ox=kind==='id'?20:width/2-16,oy=kind==='id'?31:13;r(ox+7,oy,19,8,'#3f3a40');r(ox+3,oy+8,28,22,'#f1c7a2');r(ox+3,oy+7,5,11,'#3f3a40');r(ox+26,oy+7,5,11,'#3f3a40');r(ox+9,oy+15,3,3,'#3f3a40');r(ox+22,oy+15,3,3,'#3f3a40');r(ox+13,oy+24,8,2,'#a87363');r(ox-1,oy+31,36,29,'#668ea3');r(ox+12,oy+30,9,21,'#f3edd9');if(kind==='id'){for(let j=0;j<4;j++)r(65,35+j*10,58-j*6,3,'#bcc9bb');r(100,74,27,5,'#91b394');}}
-  else if(kind==='cards'){r(0,0,width,height,'#e9e8de');for(let j=0;j<3;j++){const a=11+j*39,b=12+(j%2)*5;r(a,b,37,64,'#625583');r(a+3,b+3,31,58,'#d9c897');r(a+6,b+7,25,31,['#8aa9a1','#b7876d','#8195b3'][j]);r(a+13,b+14,11,4,'#fff4bd');r(a+16,b+10,4,15,'#fff4bd');for(let k=0;k<3;k++)r(a+7,b+43+k*5,23-k*4,2,'#776748');}r(120,72,5,2,'#e5d4a3');}
   else{r(0,0,width,height,'#e5efe7');r(13,35,28,48,'#87b3a8');r(17,25,20,13,'#54786c');r(18,53,18,14,'#f6efce');r(50,49,42,34,'#e4d5ad');r(55,41,32,10,'#f7f4e8');r(61,55,21,6,'#9eae9e');r(104,58,27,25,'#dfb39c');r(109,52,18,9,'#9d7163');}
   return c;};
  const navigate=id=>onNavigate?.(id);
@@ -87,11 +113,62 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
    if(quest?.id==='HY-SPOT'){const order=box('注文の状態',scenario?.data?.orderStatus||(/指値/.test(step.instruction||'')?'指値は価格条件がそろうまで保留です。':'成行は今回の教材価格で注文します。'));body.append(order);}
    body.append(ledger());if(quest?.id==='HY-PERP')body.append(box('注文の内訳','証拠金・倍率・建玉金額・数量を、別の値として確認します。SLの発動と約定も分けます。'));
   }
- }else if(step.appId==='market'||quest?.id?.startsWith('TC-')){
-  const product=box(comparisonPanels.cards.productName);product.append(pixel('cards'),row('版',comparisonPanels.cards.edition),row('状態',comparisonPanels.cards.condition),text('裏面右下の小さな傷も、説明へ正直に残します。',true));body.append(product);
-  if(quest?.id==='TC-01')body.append(box('売れた記録（同じ版・近い状態）','2,900円 / 3,000円 / 3,100円'),box('仕入の明細','商品2,000円・入荷送料200円。売れ残りや値下がりも考えます。'));
-  else body.append(box('出品と発送','希望価格3,000円 / 販売手数料10% / 梱包50円 / 発送200円'),box('荷物の準備','袋：水濡れを防ぐ / 台紙：折れを防ぐ。発送済みでも、入金の確認が必要です。'));
-  body.append(ledger());
+ }else if(quest?.id==='TC-01'||quest?.id==='TC-02'){
+  const item=comparisonPanels.cards;
+  const number=Number(step.id.slice(-3));
+  const buying=quest.id==='TC-01';
+  const draft=scenario?.phoneState?.formDrafts?.[quest.id]??{};
+  const inspectFront=buying?'TC-01-009':'TC-02-003',inspectBack=buying?'TC-01-010':'TC-02-004';
+  const inspections=state.phoneState?.cardInspections??[];
+  if(buying&&number<=8){
+   if(number<=3)body.append(box('商品を探す','市場で調べる名前は「星の旅人セット」です。'));
+   else{
+    const result=box(draft.query??'星の旅人セット');
+    if(draft.salesFilter==='sold')result.append(row('価格の種類','売れた商品'));
+    if(draft.edition)result.append(row('版と枚数',draft.edition+'・3枚'));
+    if(draft.condition==='minor-scratches')result.append(row('状態',item.condition));
+    if(number===8)result.append(row('同じ条件で売れた値段',item.soldComparables.map(v=>fmt(v)+'円').join(' ／ ')));
+    body.append(result);
+   }
+  }else if((buying&&number<=12)||(!buying&&number>=3&&number<=6)){
+   const product=box(item.productName);
+   if(inspections.includes(inspectFront)){
+    const back=inspections.includes(inspectBack);
+    product.append(marketPhoto(doc,back),text(back?'裏面：右下に小さなすり傷があります。':'表面：同じ版のカードが3枚そろっています。'));
+   }else product.append(text(buying?'候補Aの写真を開いて、版と枚数を確かめよう。':'届いた3枚を手に取って、写真と見比べよう。'));
+   if(step.id===inspectFront||step.id===inspectBack){
+    const openPhoto=actionButton(step.label);
+    openPhoto.style.marginBlockStart='4em';
+    product.append(openPhoto);handlesAction=true;
+   }
+   body.append(product);
+  }else if(buying){
+   body.append(box('仕入れ先から届くときの費用',`カード代 ${fmt(item.purchasePrice)}円 ＋ 届けてもらう送料 ${fmt(item.inboundShipping)}円`));
+  }else if(number===1||number===2){
+   body.append(box(number===1?'注文した品物・到着待ち':'星札マーケットからの到着通知',number===1?item.productName:'注文した3枚が届きました。包みを開けて中身を確かめよう。'));
+  }else if(number<=22){
+   const listing=box(number===21||number===22?'出品する内容':'出品の下書き');
+   if(number===7||number===8){
+    const back=number===8;
+    listing.append(marketPhoto(doc,back),text(back?'選べる裏面写真：右下の傷が見えます。':'選べる表面写真：3枚の版と絵が見えます。'));
+   }
+   const attached=[draft.frontPhoto==='card-front'?'表面':'',draft.backPhoto==='card-back'?'裏面':''].filter(Boolean);
+   listing.append(row('添付した写真',attached.join('・')||'まだありません'));
+   if(draft.productName)listing.append(row('商品名',draft.productName));
+   if(draft.edition)listing.append(row('版',draft.edition));
+   if(draft.condition==='minor-scratches')listing.append(row('状態',item.condition));
+   if(draft.description)listing.append(text(draft.description));
+   if(draft.salePrice)listing.append(row('売りたい値段',fmt(Number(draft.salePrice))+'円'));
+   if(draft.delivery==='tracked-200')listing.append(row('配送方法','追跡あり・'+fmt(item.outboundShipping)+'円'));
+   body.append(listing);
+  }else if(number===23)body.append(box('出品中',item.productName+'を出品しました。買ってくれる人を待っています。'));
+  else if(number===24)body.append(box('星札マーケットからの購入通知','このセットを買った人がいます。これから梱包して届けます。'));
+  else if(number<=28){
+   const parcel=box('発送の準備');
+   parcel.append(row('折れを防ぐ台紙',draft.bendProtection?'つけました':'これから'),row('水を防ぐ袋',draft.waterProtection?'入れました':'これから'));
+   body.append(parcel);
+  }else if(number===29)body.append(box('発送した荷物',item.productName+'を送りました。買った人が受け取るのを待っています。'));
+  else if(number===30)body.append(box('星札マーケットからの受取通知','買った人がカードを受け取りました。売上の明細を開けます。'));
  }else if(step.appId==='fx'){
   const selection=getFxSelectionSummary(state,step);if(selection){const current=box(selection.title);for(const item of selection.rows)current.append(row(item.label,item.value));body.append(current);for(const explanation of selection.cards)body.append(box(explanation.title,explanation.text));}else{const position=scenario?.data?.position,fill=scenario?.data?.fills?.at(-1),pairName=pair=>({USDJPY:'USD/JPY 米ドル/円',EURJPY:'EUR/JPY ユーロ/円'}[pair]??pair);body.append(box('いまの建玉',position?`${pairName(position.pair)} · ${position.side==='buy'?'買い':'売り'} · ${fmt(position.baseQuantity)}通貨 · 開始${fmt(position.entryPrice)}円`:'未決済の建玉は0件です。'));if(fill)body.append(box('直前に成立した記録',`${fill.kind==='new'?'新規':'決済'}${fill.side==='buy'?'買い':'売り'} · ${fmt(fill.baseQuantity)}通貨 · ${fmt(fill.price??fill.entryPrice)}円`));}body.append(box('数量の単位','この教材では1 lot = 1,000通貨。買い・売り、新規・決済は別の操作です。'),ledger());
  }else if(step.appId==='browser'||step.appId==='points'){

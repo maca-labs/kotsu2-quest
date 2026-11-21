@@ -1,50 +1,51 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#142d32"><meta name="description" content="町の人を助けながら、スマホとお金の手続きを一歩ずつ練習する、日本語のドット絵RPG。"><title>こつこつクエスト — 小さな一歩の冒険譚</title><link rel="icon" href="./assets/emblem.svg" type="image/svg+xml"><link rel="stylesheet" href="./styles.css?v=20261121-port-touch">
-  <link rel="stylesheet" href="./styles/phone-extension.css?v=20261121-port-touch">
-  <link rel="stylesheet" href="./styles/world-extension.css?v=20261121-port-touch">
-  <link rel="stylesheet" href="./styles/rpg-world.css?v=20261121-port-touch">
-  <link rel="stylesheet" href="./styles/rpg-ui.css?v=20261121-port-touch">
-  <link rel="stylesheet" href="./styles/exploration.css?v=20261121-port-touch"><link rel="stylesheet" href="./styles/place-presentation.css?v=20261121-port-touch">
-  <link rel="stylesheet" href="./styles/atlas.css?v=20261121-port-touch">
-  <link rel="stylesheet" href="./styles/handset.css?v=20261121-port-touch">
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#142d32"><meta name="description" content="町の人を助けながら、スマホとお金の手続きを一歩ずつ練習する、日本語のドット絵RPG。"><title>こつこつクエスト — 小さな一歩の冒険譚</title><link rel="icon" href="./assets/emblem.svg" type="image/svg+xml"><link rel="stylesheet" href="./styles.css?v=20261122-star-market">
+  <link rel="stylesheet" href="./styles/phone-extension.css?v=20261122-star-market">
+  <link rel="stylesheet" href="./styles/world-extension.css?v=20261122-star-market">
+  <link rel="stylesheet" href="./styles/rpg-world.css?v=20261122-star-market">
+  <link rel="stylesheet" href="./styles/rpg-ui.css?v=20261122-star-market">
+  <link rel="stylesheet" href="./styles/exploration.css?v=20261122-star-market"><link rel="stylesheet" href="./styles/place-presentation.css?v=20261122-star-market">
+  <link rel="stylesheet" href="./styles/atlas.css?v=20261122-star-market">
+  <link rel="stylesheet" href="./styles/handset.css?v=20261122-star-market">
 </head>
 <body><a class="skip" href="#main">本文へ進む</a><div id="app"></div><div id="toast" role="status" aria-live="polite"></div><dialog id="modal" aria-labelledby="modal-title"></dialog><script type="importmap">{
   "imports": {
-    "./js/action-input.js": "./js/action-input.js?v=20261121-port-touch",
-    "./js/adventure.js": "./js/adventure.js?v=20261121-port-touch",
-    "./js/app.js": "./js/app.js?v=20261121-port-touch",
-    "./js/battle-art.js": "./js/battle-art.js?v=20261121-port-touch",
-    "./js/battle-effects.js": "./js/battle-effects.js?v=20261121-port-touch",
-    "./js/character-art.js": "./js/character-art.js?v=20261121-port-touch",
-    "./js/content-crypto.js": "./js/content-crypto.js?v=20261121-port-touch",
-    "./js/content-extension.js": "./js/content-extension.js?v=20261121-port-touch",
-    "./js/content-funding.js": "./js/content-funding.js?v=20261121-port-touch",
-    "./js/content-points.js": "./js/content-points.js?v=20261121-port-touch",
-    "./js/content.js": "./js/content.js?v=20261121-port-touch",
-    "./js/engine.js": "./js/engine.js?v=20261121-port-touch",
-    "./js/finance-extension.js": "./js/finance-extension.js?v=20261121-port-touch",
-    "./js/finance-funding.js": "./js/finance-funding.js?v=20261121-port-touch",
-    "./js/finance.js": "./js/finance.js?v=20261121-port-touch",
-    "./js/fx-guidance.js": "./js/fx-guidance.js?v=20261121-port-touch",
-    "./js/help.js": "./js/help.js?v=20261121-port-touch",
-    "./js/lesson-guide.js": "./js/lesson-guide.js?v=20261121-port-touch",
-    "./js/operation-guide.js": "./js/operation-guide.js?v=20261121-port-touch",
-    "./js/phone-extension.js": "./js/phone-extension.js?v=20261121-port-touch",
-    "./js/phone-funding.js": "./js/phone-funding.js?v=20261121-port-touch",
-    "./js/phone-guide.js": "./js/phone-guide.js?v=20261121-port-touch",
-    "./js/phone-navigation.js": "./js/phone-navigation.js?v=20261121-port-touch",
-    "./js/phone-panels.js": "./js/phone-panels.js?v=20261121-port-touch",
-    "./js/place-presentation.js": "./js/place-presentation.js?v=20261121-port-touch",
-    "./js/rooms.js": "./js/rooms.js?v=20261121-port-touch",
-    "./js/rpg-ui.js": "./js/rpg-ui.js?v=20261121-port-touch",
-    "./js/rpg-world.js": "./js/rpg-world.js?v=20261121-port-touch",
-    "./js/rpg.js": "./js/rpg.js?v=20261121-port-touch",
-    "./js/storage.js": "./js/storage.js?v=20261121-port-touch",
-    "./js/story-guide.js": "./js/story-guide.js?v=20261121-port-touch",
-    "./js/town-guidance.js": "./js/town-guidance.js?v=20261121-port-touch",
-    "./js/towns.js": "./js/towns.js?v=20261121-port-touch",
-    "./js/ui-adventure.js": "./js/ui-adventure.js?v=20261121-port-touch",
-    "./js/world-controls.js": "./js/world-controls.js?v=20261121-port-touch",
-    "./js/world.js": "./js/world.js?v=20261121-port-touch"
+    "./js/action-input.js": "./js/action-input.js?v=20261122-star-market",
+    "./js/adventure.js": "./js/adventure.js?v=20261122-star-market",
+    "./js/app.js": "./js/app.js?v=20261122-star-market",
+    "./js/battle-art.js": "./js/battle-art.js?v=20261122-star-market",
+    "./js/battle-effects.js": "./js/battle-effects.js?v=20261122-star-market",
+    "./js/character-art.js": "./js/character-art.js?v=20261122-star-market",
+    "./js/content-crypto.js": "./js/content-crypto.js?v=20261122-star-market",
+    "./js/content-extension.js": "./js/content-extension.js?v=20261122-star-market",
+    "./js/content-funding.js": "./js/content-funding.js?v=20261122-star-market",
+    "./js/content-points.js": "./js/content-points.js?v=20261122-star-market",
+    "./js/content.js": "./js/content.js?v=20261122-star-market",
+    "./js/engine.js": "./js/engine.js?v=20261122-star-market",
+    "./js/finance-extension.js": "./js/finance-extension.js?v=20261122-star-market",
+    "./js/finance-funding.js": "./js/finance-funding.js?v=20261122-star-market",
+    "./js/finance.js": "./js/finance.js?v=20261122-star-market",
+    "./js/fx-guidance.js": "./js/fx-guidance.js?v=20261122-star-market",
+    "./js/help.js": "./js/help.js?v=20261122-star-market",
+    "./js/market-receipt.js": "./js/market-receipt.js?v=20261122-star-market",
+    "./js/lesson-guide.js": "./js/lesson-guide.js?v=20261122-star-market",
+    "./js/operation-guide.js": "./js/operation-guide.js?v=20261122-star-market",
+    "./js/phone-extension.js": "./js/phone-extension.js?v=20261122-star-market",
+    "./js/phone-funding.js": "./js/phone-funding.js?v=20261122-star-market",
+    "./js/phone-guide.js": "./js/phone-guide.js?v=20261122-star-market",
+    "./js/phone-navigation.js": "./js/phone-navigation.js?v=20261122-star-market",
+    "./js/phone-panels.js": "./js/phone-panels.js?v=20261122-star-market",
+    "./js/place-presentation.js": "./js/place-presentation.js?v=20261122-star-market",
+    "./js/rooms.js": "./js/rooms.js?v=20261122-star-market",
+    "./js/rpg-ui.js": "./js/rpg-ui.js?v=20261122-star-market",
+    "./js/rpg-world.js": "./js/rpg-world.js?v=20261122-star-market",
+    "./js/rpg.js": "./js/rpg.js?v=20261122-star-market",
+    "./js/storage.js": "./js/storage.js?v=20261122-star-market",
+    "./js/story-guide.js": "./js/story-guide.js?v=20261122-star-market",
+    "./js/town-guidance.js": "./js/town-guidance.js?v=20261122-star-market",
+    "./js/towns.js": "./js/towns.js?v=20261122-star-market",
+    "./js/ui-adventure.js": "./js/ui-adventure.js?v=20261122-star-market",
+    "./js/world-controls.js": "./js/world-controls.js?v=20261122-star-market",
+    "./js/world.js": "./js/world.js?v=20261122-star-market"
   }
-}</script><script type="module" src="./js/app.js?v=20261121-port-touch"></script></body></html>
+}</script><script type="module" src="./js/app.js?v=20261122-star-market"></script></body></html>
