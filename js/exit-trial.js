@@ -11,7 +11,7 @@ const routeName = {journey:'運用を見送る道', spot:'現物', hlp:'HLP', st
 
 function preparationNote({accounts, data, simulationTime}, route) {
   if (route === 'journey') return '運用を見送ったので、売却も解除もいらないよ。';
-  if (data.prepared) return '運用していた分が、出金に使える残高に戻ったよ。';
+  if (data.prepared) return route === 'spot' ? 'HYPEを全部売ったよ。持っているHYPEは' + accounts.hype + '枚。売った代金がUSDCに入ったよ。' : '運用していた分が、出金に使える残高に戻ったよ。';
   switch (route) {
     case 'spot': return `保有中の${accounts.hype} HYPEは、売るとUSDCに変わるよ。`;
     case 'hlp': {

@@ -7,6 +7,7 @@ import {renderRpgBattle,renderRpgShop,renderRpgEquipment,mountEncounterIntro,tra
 import {getExtensionView} from './finance-extension.js';
 import {renderExtensionPanel} from './phone-extension.js';
 import {getExitTrialSlip} from './exit-trial.js';
+import {getSpotSlip} from './spot-slip.js';
 import {getExitSlip} from './exit-slip.js';
 import {getJourneySlip} from './journey-slip.js';
 import {getFundingSlip,renderFundingPanel} from './phone-funding.js';
@@ -119,7 +120,7 @@ function talkRoomClient(){
  const brief=questBrief(q), done=roomRecord()?.completed;
  const reportedKey=room.recordKey??(q.id==='HY-EXIT'?stateKey(q,state.selectedRoute,state):q.id);
  const reaction=done?getAdventure({...state,activeQuestKey:reportedKey},q,null)?.latestReaction?.text:null;
- const words=done&&q.id==='HY-EXIT'?'おかえり！　財布に届いた分まで確かめてくれたんだね。持ってきてくれた受取明細を、一緒に見よう。':reaction??brief.summary;
+ const words=done&&q.id==='HY-EXIT'?'おかえり！　財布に届いた分まで確かめてくれたんだね。持ってきてくれた受取明細を、一緒に見よう。':done&&q.id==='HY-SPOT'?'おかえり！　売ったHYPEは何枚で、いくら戻ってきたかな？　売買の記録を一緒に見よう。':reaction??brief.summary;
  const actions=[];
  if(!done){
   actions.push(btn('依頼の話を聞く',()=>acceptDialog(q),'primary'));
@@ -197,7 +198,7 @@ function renderHome(main){
 }
 function unlockDialog(){const input=h('input',{placeholder:'教材の解禁コード',autocomplete:'off',autocapitalize:'characters','aria-label':'解禁コード'});const error=h('div',{id:'action-error',class:'error',hidden:true});showDialog('教材の扉を開く',[p('配布されたコードを入れよう。冒険の記録はそのまま残ります。'),input,error,small('コードは教材を開くための合言葉です。アカウントは不要です。')],[btn('扉を開く',()=>{if(act({type:'UNLOCK',code:input.value})){modal.close();toast('教材の扉が開いた！');if(questState(state,'PR-01')?.completed){const code=String(input.value).normalize('NFKC').trim().toUpperCase();const part=Object.keys(modeUnlockConfig).find(k=>modeUnlockConfig[k]===code);act({type:'CHAPTER',id:part==='crypto'?'CH-5':'CH-1'},{view:'world'});}}},'primary'),btn('閉じる',()=>modal.close())]);input.focus();}
 function renderQuests(main){main.append(heading('依頼帳','今の用事も、次の冒険も。途中からいつでも再開できます。',`${quests.filter(q=>!q.extra).length}の依頼 · 標準${quests.filter(q=>!q.extra).reduce((n,q)=>n+q.stepIds.length,0)}工程＋追加24工程`),chapterStrip());if(state.currentChapter==='CH-6')main.append(routePanel());const list=h('div',{class:'quest-list',style:'margin-top:24px'});quests.filter(q=>q.chapterId===state.currentChapter).forEach((q,i)=>{const qs=questState(state,q.id),available=questAvailable(state,q);list.append(h('article',{class:'quest-row'},h('div',{class:'quest-index'},q.extra?'＋':String(i+1).padStart(2,'0')),h('div',{},h('h3',{},q.title),p(`${q.stepIds.length}工程 · ${q.extra?'追加の練習':q.id} ${qs?`· ${qs.index}/${q.stepIds.length}`:''}`),h('span',{class:`status${qs?.completed?' done':''}`},qs?.completed?'達成済み':qs?'受注中':available?'受注できます':'前の用事を待っています')),btn(qs?.completed?'条件を変えて確認':qs?'つづきから':'依頼を受ける',()=>{if(qs?.completed){startReview(q);return;}offerQuest(q);},'',{disabled:!available})));});main.append(list);const id=state.currentChapter;if(bossAvailable(state,id))main.append(card([h('h3',{},state.bossStates[id]?.completed?'章の試練 · 達成済み':'町を守る、最後の確認'),p('条件の違う5つの操作を確かめると、章印と装備を受け取れます。'),btn('章ボスを見る',()=>{ui.bossId=id;nav('boss');},'gold')], 'quest-summary'));}
-function routePanel(){return card([h('h3',{},'第6章 · 学びたい道を選ぼう'),p('1ラボと出口、または運用を見送って出口へ。ほかのラボは、あとから自由に学べます。'),h('div',{class:'route-grid'},Object.entries(routeNames).map(([id,name])=>h('div',{class:'route-card'},h('h3',{},name),p({journey:'入金を学んだ人はその99を使用。第6章から始める人は別の練習用99で出口を学ぶ。入口は未受講のまま。',spot:'買う・保有する・売る。注文の保留と取消も。',hlp:'戦略の損益と、直近の預入から4日の拘束。',stake:'数量と評価額、1日のロックと7日の待機。',perp:'任意の発展練習。証拠金・損失対応・資金調達料。'}[id]),btn(state.selectedRoute===id?'この道を選択中':'この道を選ぶ',()=>act({type:'ROUTE',route:id}),state.selectedRoute===id?'primary':'',{disabled:state.selectedRoute===id}))))]);}
+function routePanel(){return card([h('h3',{},'第6章 · 学びたい道を選ぼう'),p('1ラボと出口、または運用を見送って出口へ。ほかのラボは、あとから自由に学べます。'),h('div',{class:'route-grid'},Object.entries(routeNames).map(([id,name])=>h('div',{class:'route-card'},h('h3',{},name),p({journey:'入金を学んだ人はその99を使用。第6章から始める人は別の練習用99で出口を学ぶ。入口は未受講のまま。',spot:'このラボ専用の1,000 USDCでコインを買う。持っている枚数と、売るといくら戻るかを見よう。',hlp:'戦略の損益と、直近の預入から4日の拘束。',stake:'数量と評価額、1日のロックと7日の待機。',perp:'任意の発展練習。証拠金・損失対応・資金調達料。'}[id]),btn(state.selectedRoute===id?'この道を選択中':'この道を選ぶ',()=>act({type:'ROUTE',route:id}),state.selectedRoute===id?'primary':'',{disabled:state.selectedRoute===id}))))]);}
 
 function openTaskMail(id){phoneSwitch('mail');if(state.phoneState.mailById[id]){ui.mailId=id;render();}}
 function phoneSwitch(appId){state.phoneState.recentApps=[...new Set([state.phoneState.activeApp,...state.phoneState.recentApps])].filter(x=>x!=='home').slice(0,8);state.phoneState.activeApp=appId;ui.divert=appId;ui.mailId=null;saveQuiet();render();orientPhone();}
@@ -224,10 +225,11 @@ function returnToTown(step){if(step?.id==='PR-01-012'){ui.room=null;if(act({type
 function runStep(step,value){
  ui.extensionPreviewVenue=null;const q=questById[step.questId],before=getAdventure(state,q,step);
  if(act({type:'STEP',id:step.id,value:value??step.value})){ui.divert=null;const after=getAdventure(state,q,activeStep(state));
+  const inlineSpotReaction=q.id==='HY-SPOT' && matchMedia('(max-width:760px)').matches;
   if(['TC-02','CR-03','HY-EXIT'].includes(q.id) && after.latestReaction.currentStatus && after.latestReaction.text!==before.latestReaction.text){
    clearTimeout(ui.toastTimer);const oldToast=document.querySelector('#toast');oldToast.classList.remove('show');oldToast.textContent='';
   }
-  if(after?.latestReaction.id!==before?.latestReaction.id){toast((after.enemy.hp<before.enemy.hp?'守りがほどけた！ ':'手がかり発見！ ')+after.latestReaction.speaker+'「'+after.latestReaction.text+'」');document.querySelector('.adventure-scene')?.classList.add('milestone-flash');}const next=activeStep(state);const encounter=automaticEncounter();if(next&&encounter&&state.rpg?.location?.mapId?.startsWith('cave:')){beginEncounter(encounter);return;}orientPhone(step.type==='focus'&&next?.type==='input'?'action':'guide',step.type==='focus'&&next?.type==='input');}
+  if(after?.latestReaction.id!==before?.latestReaction.id){if(!inlineSpotReaction)toast((after.enemy.hp<before.enemy.hp?'守りがほどけた！ ':'手がかり発見！ ')+after.latestReaction.speaker+'「'+after.latestReaction.text+'」');document.querySelector('.adventure-scene')?.classList.add('milestone-flash');}const next=activeStep(state);const encounter=automaticEncounter();if(next&&encounter&&state.rpg?.location?.mapId?.startsWith('cave:')){beginEncounter(encounter);return;}orientPhone(step.type==='focus'&&next?.type==='input'?'action':'guide',step.type==='focus'&&next?.type==='input');}
  else showRecoveryReaction(step,ui.error);
 }
 function showRecoveryReaction(step,message){
@@ -239,6 +241,7 @@ function valueDisplay(v){if(v===undefined||v===null)return '';if(typeof v==='num
 function detailsBlock(details){if(!details)return document.createDocumentFragment();const items=typeof details==='string'?[details]:Array.isArray(details)?details:Object.entries(details).map(([k,v])=>`${k}：${valueDisplay(v)}`);return h('div',{class:'details'},items.map(x=>p(valueDisplay(x))));}
 function practiceData(step){if(step.hidePracticeValue)return null;const parts=[];if(step.type==='input'&&step.value!==undefined&&!['any','*','all'].includes(step.value))parts.push('使う値：'+displayPracticeValue(step));if(!parts.length)return null;return h('div',{class:'practice-card'},h('strong',{},'依頼人の練習カード'),...parts.map(x=>p(x)));}
 function questSlip(questId,stepId=null,recordKey=state.activeQuestKey){
+ if(questId==='HY-SPOT')return transferSlip(getSpotSlip(state,stepId));
  if(questId.startsWith('TC-'))return marketSlip(questId,stepId);
  const slip=questId==='HY-EXIT'?getExitSlip(state,recordKey,stepId):questId.startsWith('FI-')?getFundingSlip(state,questId,stepId):getJourneySlip(state,questId,stepId);
  return transferSlip(slip);
@@ -274,13 +277,13 @@ function renderAction(step,callback,namespace='step',receipt=null){
  const shownDetails=Array.isArray(step.details)&&step.result?step.details.map(text=>text===step.result?'操作後の変化：'+text:text):step.details,details=detailsBlock(shownDetails);
  const marketLesson=namespace==='step' && (step.questId==='TC-01'||step.questId==='TC-02');
  const cryptoTrial=namespace==='boss' && /^CH[56]-/.test(step.id);
- const transferLesson=namespace==='step' && /^(?:FI-|CR-0[1-4]$|HY-EXIT$)/.test(step.questId??'');
+ const transferLesson=namespace==='step' && /^(?:FI-|CR-0[1-4]$|HY-(?:EXIT|SPOT)$)/.test(step.questId??'');
  if(cryptoTrial && receipt){
   if(details?.textContent)group.append(details);
   group.append(receipt);
  }else if(transferLesson && receipt){
   if(['CR-02','CR-04'].includes(step.questId))group.append(details);
-  else if(step.questId!=='HY-EXIT'&&details?.textContent)group.append(h('details',{class:'transfer-material'},h('summary',{},'この工程の練習資料'),details));
+  else if(!['HY-EXIT','HY-SPOT'].includes(step.questId)&&details?.textContent)group.append(h('details',{class:'transfer-material'},h('summary',{},'この工程の練習資料'),details));
   group.append(receipt);
  }else if(marketLesson){if(receipt)group.append(receipt);}
  else if(namespace==='step'&&(step.questId==='FX-01'||confirmation)){if(step.result)group.append(p('操作後の変化：'+step.result,'muted'));group.append(h('details',{class:'fx-offer-material'},h('summary',{},confirmation?'この練習の開始時の資料':'後で使うUSD/JPY案件の資料'),detailsBlock(Array.isArray(step.details)?step.details.filter(text=>text!==step.result):step.details)));}else if(details)group.append(details);
@@ -309,7 +312,8 @@ function renderAction(step,callback,namespace='step',receipt=null){
  form.addEventListener('submit',e=>{
   e.preventDefault();
   const value=submissionValue({step,typedValue:input.value,namespace,mainClipboard:state.phoneState.clipboard,reviewClipboard:state.reviewStates[ui.reviewId]?.snapshot?.clipboard});
-  const help=lotSubmit?'練習カードの数量は「'+step.value+'」だよ。この数字を上の欄に入れよう。'
+  const spotHint=step.questId==='HY-SPOT'?{quantity:'買う枚数',limitPrice:'1枚につける値段',limitQuantity:'注文する枚数'}[step.field]:null;
+  const help=spotHint?spotHint+'の欄だよ。「'+step.value+'」を入れよう。':lotSubmit?'練習カードの数量は「'+step.value+'」だよ。この数字を上の欄に入れよう。'
     :'この欄には「'+displayPracticeValue(step)+'」を入れよう。';
   if(!checkPracticeField(step,value,input,fieldError,help))return;
   callback(value);
@@ -348,7 +352,8 @@ function renderPhone(main){if(entryEncounter()){ui.view='world';renderWorldView(
  const phone=h('section',{class:'phone '+appId,'aria-label':'ゲーム内スマホ',style:'--app:'+(appColors[appId]??'#347360')},h('div',{class:'phone-status'},'9:41'),h('header',{class:'phone-app-head'},h('strong',{},(['home','mail','switcher'].includes(appId)?({home:'練習スマホ',mail:'ゲーム内メール',switcher:'最近使ったアプリ'}[appId]):q.id==='HY-EXIT'?phoneAppName(appId,q.id)??names[appId]:ui.divert?names[appId]:step?.appTitle??names[appId])??'練習スマホ'),small('ゲーム内の練習')));
  if(q.id==='FX-03'&&appId==='points')phone.append(h('div',{class:'addressbar'},'▣ コツコツモール / FX練習案件'));else if((appId==='browser'||appId==='points')&&!q.id.startsWith('FI-')&&!q.extension)phone.append(h('div',{class:'addressbar'},'▣ practice.example.invalid'),h('div',{class:'phone-tabs'},btn('コツコツモール',()=>{ui.tab='points';ui.divert='browser-tab';render();}),btn('まいにちストア',()=>{ui.tab='shop';ui.divert='browser-tab';render();})));
  const body=h('div',{class:'phone-body',id:'phone-body'});
- if(qs.completed)body.append(h('div',{class:'complete-panel'},h('span',{class:'tag'},'依頼達成！'),h('h2',{},brief.client+'の困りごとが解決した'),p(a.latestReaction.text),questSlip(q.id),p('町の景色が変わりました。依頼人に知らせよう。'),btn('近道で町の人へ報告する',()=>{enterRoom('client',q.id,state.activeQuestKey);talkRoomClient();},'primary wide'),q.id==='DX-02'&&!questState(state,'FI-01')?.completed?btn('円の入金から、ハイリキへの旅を続ける',()=>offerQuest(questById['FI-01']),'gold wide'):null,btn('洞窟から歩いて帰る',()=>{ui.room=null;ui.view='world';render();window.scrollTo(0,0);},'wide'),btn('次の依頼を探す',()=>nav('quests'),'wide')));
+ const reportWalkLabel=state.rpg?.location?.mapId?.startsWith('town:')?'町を歩いて依頼人の家へ':state.rpg?.location?.mapId?.startsWith('cave:')?'洞窟から歩いて帰る':'ここから歩いて町へ帰る';
+ if(qs.completed)body.append(h('div',{class:'complete-panel'},h('span',{class:'tag'},'依頼達成！'),h('h2',{},brief.client+'の困りごとが解決した'),p(a.latestReaction.text),questSlip(q.id),p('町の景色が変わりました。依頼人に知らせよう。'),btn('近道で町の人へ報告する',()=>{enterRoom('client',q.id,state.activeQuestKey);talkRoomClient();},'primary wide'),q.id==='DX-02'&&!questState(state,'FI-01')?.completed?btn('円の入金から、ハイリキへの旅を続ける',()=>offerQuest(questById['FI-01']),'gold wide'):null,btn(reportWalkLabel,()=>{ui.room=null;ui.view='world';render();window.scrollTo(0,0);},'wide'),btn('次の依頼を探す',()=>nav('quests'),'wide')));
  else if(ui.divert)renderDiverted(body,appId,step);
  else{
   const guide=h('div',{class:'current-operation'},small('いま、すること'),h('h2',{},getFxOperationInstruction(step)));body.append(guide,h('h3',{},step.id==='PR-01-012'?'町へ戻るボタン':step.screenTitle??names[appId]??q.title));const copyGuide=renderPhoneGuide({document,state,quest:q,step});if(copyGuide)body.append(copyGuide);const copyState=getPhoneGuideView(state,q,step);if(!q.extension&&copyState?.copyStepCompleted&&copyState.copyState==='not-copied'&&/貼り付け/.test(step.label??''))body.append(btn('今回のメールを見直してコピーする',()=>openTaskMail(q.id==='PR-01'?'intro-mail':'registration-mail'),'wide'));

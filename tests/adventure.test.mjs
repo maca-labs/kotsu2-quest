@@ -5,10 +5,25 @@ import {getAdventure,getChapterChanges,questBrief,recoveryReaction,getTavernAdvi
 import {initialExtensionScenarios,applyExtensionStep,getExtensionView} from '../js/finance-extension.js';
 
 const byId=Object.fromEntries(quests.map(q=>[q.id,q]));
+import {initialScenarios,applyFinancialStep} from '../js/finance.js';
 function progress(q,n,route='journey'){
  const key=q.id==='HY-EXIT'?`${q.id}:${route}`:q.id;
  return {selectedRoute:route,activeQuestKey:key,questStates:{[key]:{questId:q.id,routeId:route,completedSteps:q.stepIds.slice(0,n),index:n,completed:n===q.stepIds.length}},worldState:{seals:[]},phoneState:{},rewardEvents:[],masteryEvidence:{}};
 }
+
+test('Sora reacts to the completed purchase, price change, sale and unfilled order',()=>{
+ const quest=byId['HY-SPOT'];
+ const state=progress(quest,0,'spot');
+ state.financialScenarios=initialScenarios();
+ const checkpoints=new Map([[12,/コインが届いた/],[15,/値下がりしても/],[22,/2枚とも売れた/],[25,/別のお金/],[34,/まだ買えていない/],[38,/注文を取り消した/],[40,/2枚とも売れた/]]);
+ for(const [index,id] of quest.stepIds.entries()){
+  const step=steps.find(item=>item.id===id);
+  applyFinancialStep(state,step,step.value??true,{routeId:'spot'});
+  state.questStates[quest.id].completedSteps.push(id);
+  state.questStates[quest.id].index=index+1;
+  if(checkpoints.has(index+1))assert.match(getAdventure(state,quest).latestReaction.text,checkpoints.get(index+1),id);
+ }
+});
 
 test('every standard, extra and funding quest has a distinct incident and bounded reaction gaps',()=>{
  const enemyNames=new Set();

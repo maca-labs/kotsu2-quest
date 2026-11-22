@@ -6,6 +6,14 @@ import {createState,dispatch,validateAction,activeStep,totalXp} from '../js/engi
 import {questById} from '../js/content.js';
 import {displayPracticeValue,humanFieldLabel} from '../js/help.js';
 import {submissionValue} from '../js/action-input.js';
+test('spot number fields accept the same full-width figures shown on Japanese keyboards',()=>{
+ for(const [field,raw,expected] of [['quantity','２','2'],['limitPrice','９５','95'],['limitQuantity','１','1']]){
+  const step={questId:'HY-SPOT',type:'input',field,value:Number(expected)};
+  assert.equal(submissionValue({step,typedValue:raw}),expected);
+  assert.equal(submissionValue({step,typedValue:raw+'．０'}),expected+'.0');
+  assert.notEqual(submissionValue({step,typedValue:'２００'}),expected);
+ }
+});
 import {getFxOperationInstruction,getFxConceptCards,getFxSubmitLabel,getFxOrderConfirmation} from '../js/fx-guidance.js';
 
 class Element{

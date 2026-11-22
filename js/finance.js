@@ -223,10 +223,16 @@ on('journey', 'CR-02-S008', 'connect:demo-wallet', s => { s.data.connected = tru
 on('journey', 'CR-02-S013', 'enable:demo-trading', s => { needEvent(s, 'connect:demo-wallet'); s.data.enabled = true; });
 on('journey', 'CR-03-S025', 'send:deposit-001', s => { needEvent(s, 'enable:demo-trading'); cashChange(s, { walletUSDC: -100, walletETH: -.0001, incomingUSDC: 99, depositFee: 1 }); s.data.depositStatus = 'processing'; }, (s, d) => { matching(d, { asset: 'USDC', network: 'Arbitrum', address: 'DEMO-VAULT-A', quantity: 100 }); requireThat(s.accounts.walletETH >= .0001, 'ガス用の練習ETHが足りません。'); });
 on('journey', 'CR-03-S026', 'receive:deposit-001', s => { needEvent(s, 'send:deposit-001'); cashChange(s, { availableUSDC: 99, incomingUSDC: -99 }); s.data.depositStatus = 'received'; s.simulationTime += HOUR; });
-on('spot', 'HY-SPOT-S012', 'buy:spot-001', s => { cashChange(s, { availableUSDC: -200, hype: 2 }); }, (s, d) => matching(d, { quantity: 2 }));
+function matchSpotAmount(value, expected, label) {
+  requireThat(parseAmount(value) === expected, label + 'を練習カードと比べて直そう。');
+}
+on('spot', 'HY-SPOT-S012', 'buy:spot-001', s => { cashChange(s, { availableUSDC: -200, hype: 2 }); }, (s, d) => matchSpotAmount(d.quantity, 2, '買う枚数'));
 on('spot', 'HY-SPOT-S015', 'tick:spot-90', s => { needEvent(s, 'buy:spot-001'); s.data.price = 90; s.simulationTime += HOUR; });
-on('spot', 'HY-SPOT-S022', 'sell:spot-001', s => { needEvent(s, 'tick:spot-90'); cashChange(s, { hype: -2, availableUSDC: 180, realizedPnl: -20 }); }, (s, d) => matching(d, { sellQuantity: 2 }));
-on('spot-limit', 'HY-SPOT-S034', 'order:limit-001', s => { cashChange(s, { availableUSDC: -95, reservedUSDC: 95 }); s.data.orderStatus = 'pending'; }, (s, d) => matching(d, { limitPrice: 95, limitQuantity: 1 }));
+on('spot', 'HY-SPOT-S022', 'sell:spot-001', s => { needEvent(s, 'tick:spot-90'); cashChange(s, { hype: -2, availableUSDC: 180, realizedPnl: -20 }); }, (s, d) => matchSpotAmount(d.sellQuantity, 2, '売る枚数'));
+on('spot-limit', 'HY-SPOT-S034', 'order:limit-001', s => { cashChange(s, { availableUSDC: -95, reservedUSDC: 95 }); s.data.orderStatus = 'pending'; }, (s, d) => {
+  matchSpotAmount(d.limitPrice, 95, '買い指値');
+  matchSpotAmount(d.limitQuantity, 1, '買う枚数');
+});
 on('spot-limit', 'HY-SPOT-S038', 'cancel:limit-001', s => { needEvent(s, 'order:limit-001'); cashChange(s, { availableUSDC: 95, reservedUSDC: -95 }); s.data.orderStatus = 'cancelled'; });
 on('hlp', 'HY-HLP-S010', 'deposit:hlp-001', s => { cashChange(s, { availableUSDC: -300, hlpUnits: 3, hlpValue: 300 }); s.data.lastDepositAt = s.simulationTime; s.data.withdrawableAt = s.simulationTime + 4 * DAY; }, (s, d) => matching(d, { quantity: 300 }));
 on('hlp', 'HY-HLP-S013', 'tick:hlp-97', s => { needEvent(s, 'deposit:hlp-001'); s.simulationTime += 2 * DAY; s.data.unitPrice = 97; s.accounts.hlpValue = 291; });
