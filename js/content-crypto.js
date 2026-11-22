@@ -913,7 +913,7 @@ const ch5Tasks = [
 const bossAmounts={spot:105,hlp:100,stake:80,perp:50,journey:100};
 const bossPreparation = {
  spot:[aTap('ボス用の現物保有1 HYPEを開く',['教材価格105・手数料0。他残高0。']),aTap('保有明細から売るを押す'),aFocus('売却数量の欄を押す','sellQuantity'),aInput('数量1を入力する','sellQuantity',1),aTap('売却代金の受取予定105 Mock USDCを確認画面で見る'),aConfirm('1 HYPEの売却を確定','boss:CH6-B1:spot:sell')],
- hlp:[aTap('ボス用のHLP保有を開く',['預入100・評価100・他残高0。ロックの残りはゲーム内2日。']),aTap('出金可能日時を開く'),aWait('残りのゲーム内2日を進める','boss:CH6-B1:hlp:wait'),aTap('引き出すを押す'),aSelect('評価額100の全額を選ぶ','withdrawQuantity','all',[['全額100','all'],['半分50','half']]),aTap('引出し確認画面を開く'),aConfirm('HLP100の引出しを確定','boss:CH6-B1:hlp:withdraw')],
+ hlp:[aTap('ボス用のHLP保有を開く',['預入100・評価100・他残高0。ロックの残りはゲーム内2日。']),aTap('出金可能日時を開く'),aWait('残りのゲーム内2日を進める','boss:CH6-B1:hlp:wait'),aTap('引き出し画面を開く'),aSelect('評価額100の全額を選ぶ','withdrawQuantity','all',[['全額100','all'],['半分50','half']]),aTap('引出し確認画面を開く'),aConfirm('HLP100の引出しを確定','boss:CH6-B1:hlp:withdraw')],
  stake:[aTap('ボス用の委任中1 HYPEを開く',['委任から1日が過ぎ、委任ロックは終了した専用例。他残高0。売却教材価格80。']),aTap('委任を解除を押す'),aSelect('全数量1 HYPEを選ぶ','undelegateQuantity',1,[['全数量1 HYPE',1],['0.5 HYPE',0.5]]),aConfirm('委任解除を確定','boss:CH6-B1:stake:undelegate'),aTap('ステーキング残高1 HYPEを開く'),aTap('現物残高へ移すを押す'),aConfirm('ステーキングから現物へ戻す申請を確定','boss:CH6-B1:stake:request'),aWait('ゲーム内の待機7日を進める','boss:CH6-B1:stake:wait'),aTap('現物に届いた1 HYPEを開く'),aTap('価格80・数量1の売却確認を開く'),aConfirm('売却80を確定','boss:CH6-B1:stake:sell')],
  perp:[aTap('ボス用の分離証拠金の建玉を開く',['証拠金50 / 1倍 / 数量0.5 / 開始100 / 判定用価格100 / 手数料0 / 他残高0。']),aTap('決済を押す'),aSelect('全数量0.5を選ぶ','closeQuantity',0.5,[['全数量0.5',0.5],['数量0.25',0.25]]),aTap('損益0と、証拠金から戻る予定の50 Mock USDCを確認する'),aConfirm('建玉の全決済を確定','boss:CH6-B1:perp:close')],
  journey:[aTap('ボス用の未運用100を開く',['保有・委任・建玉・ロックはすべて0。未運用の100だけが使えます。']),aCheck('運用していないので解除操作は不要と確認')]
@@ -1006,10 +1006,10 @@ const reviewVariants = {
    aTap('価格100に固定した今回の保有明細を開く'),aFocus('預入分の評価額欄を押す','valuation'),aInput('300を入力して照合','valuation',300),aCheck('価格が動く例も、利息ではなく戦略の評価変化と確認')
   ],'hlp',2),
   reviewTask('RV-HLP-4','2日後に50を追加して待つ期限を更新する',['最初の預入から2日進み、その日に50を追加します。新しい出金可能日はゲーム内6日目。'],[
-   aWait('ゲーム内2日進める','review:hlp:two-days'),aFocus('追加入金欄を押す','extraQuantity'),aInput('50を入力','extraQuantity',50),aTap('追加後の預入予定350 Mock USDCと、手元に残る予定650 Mock USDCを確認する'),aConfirm('50の追加入金を確定','review:hlp:add'),aTap('直近預入2日目+4日=6日目の明細を開く'),aWait('直近の預入から4日進める','review:hlp:unlock')
+   aWait('ゲーム内2日進める','review:hlp:two-days'),aFocus('追加入金欄を押す','extraQuantity'),aInput('50を入力','extraQuantity',50),aTap('追加後の預入予定350 Mock USDCと、手元に残る予定650 Mock USDCを確認する'),aConfirm('50 USDCの追加を確定する','review:hlp:add'),aTap('引出日が6日目に変わった理由を見る'),aWait('ゲーム内の時間を6日目まで進める','review:hlp:unlock')
   ],'hlp',3),
   reviewTask('RV-HLP-5','引出し後の合計1000を照合する',['価格100に固定。預入350を引き出して、手元650と合わせます。'],[
-   aTap('引き出すを押す'),aSelect('全額350を選ぶ','withdrawQuantity','all',[['全額350','all'],['初回分300のみ','initial-only']]),aTap('HLPから引き出した後の受取予定350 Mock USDCを確認する'),aConfirm('引出しを確定','review:hlp:withdraw'),aFocus('引出し後の残高を照合する欄を押す','available'),aInput('合計1000を入力して照合','available',1000),aCheck('模擬口数と手元を二重に数えていないと確認')
+   aTap('引き出し画面を開く'),aSelect('全額350を選ぶ','withdrawQuantity','all',[['全額350','all'],['初回分300のみ','initial-only']]),aTap('HLPから引き出した後の受取予定350 Mock USDCを確認する'),aConfirm('引出しを確定','review:hlp:withdraw'),aFocus('引出し後の残高を照合する欄を押す','available'),aInput('合計1000を入力して照合','available',1000),aCheck('模擬口数と手元を二重に数えていないと確認')
   ],'hlp',4)
  ]),
  'HY-STAKE':review('review-stake','10のうち5だけを委任する',{spot:10,staking:0,delegated:0,waiting:0,simulationDay:0,unlockDay:0,arrivalDay:0,price:100},[
