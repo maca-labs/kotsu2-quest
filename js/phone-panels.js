@@ -1,8 +1,9 @@
 import {getPhoneGuideView} from './phone-guide.js';
 import {scenarioForStep,scenarioSummary} from './finance.js';
 import {practiceProfile,comparisonPanels} from './content-points.js';
-import {getStepOpenAppId,getPhoneHomeApps,getPhoneSurfaceAppId} from './phone-navigation.js';
+import {getStepOpenAppId,getPhoneHomeApps,getPhoneSurfaceAppId,phoneAppName} from './phone-navigation.js';
 import {getFxSelectionSummary} from './fx-guidance.js';
+import {journeyTransfer} from './journey-slip.js';
 
 const appNames={memo:'旅人のメモ',mail:'ゲーム内メール',browser:'まいにちストア',points:'コツコツモール',bank:'ほしあかり銀行',wallet:'練習ウォレット',hyper:'そらの運用ラボ',fx:'ほしぞらFX',market:'星札マーケット',gift:'練習ギフト',exchange:'ポイント交換所'};
 export const phoneFieldLabels={asset:'送る資産',receiveAsset:'受け取る資産',network:'送るネットワーク',receiveNetwork:'受け取るネットワーク',address:'練習用の宛先',quantity:'数量',sellQuantity:'売却する数量',withdrawQuantity:'引き出す数量',moveDestination:'移動先',delegateQuantity:'委任する数量',undelegateQuantity:'委任を解除する数量',returnQuantity:'現物へ戻す数量',validator:'預け先の候補',collateral:'配分する証拠金',leverage:'倍率',side:'買い・売り',symbol:'銘柄',orderType:'注文方法',stopPrice:'SLの発動価格',closeQuantity:'決済する数量',limitPrice:'指値の価格',limitQuantity:'指値の数量',returnHorizon:'戻したい時期',route:'学ぶ経路',wallet:'練習用ウォレット',available:'使える残高',received:'受け取った数量',expected:'受取予定の数量',valuation:'評価額',profit:'確定した利益',loss:'損失額',funding:'資金調達料',notional:'建玉金額',totalHype:'HYPEの合計数量',receivedSpot:'現物へ届いた数量',extraQuantity:'追加で預ける数量'};
@@ -41,9 +42,14 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
  if(!step||!doc)return null;
  const el=(tag,text='',style='')=>{const n=doc.createElement(tag);if(text)n.textContent=String(text);if(style)n.style.cssText=style;return n;};
  const root=el('section','','border:1px solid #c8d9d1;border-radius:12px;background:#f9fcfa;margin:0 0 18px;overflow:hidden;color:#233d35;font-family:system-ui,sans-serif');
- root.className='native-phone-panel';root.setAttribute('aria-label',`${appNames[getPhoneSurfaceAppId(step)]||'練習アプリ'}の画面`);
+ const journeyQuest=quest?.id?.startsWith('CR-');
+ const surface=getPhoneSurfaceAppId(step);
+ let appName=appNames[surface]||'練習スマホ';
+ if(journeyQuest)appName=step.displayAppId==='switcher'?'最近使ったアプリ':phoneAppName(surface,quest.id)??appName;
+ if(/スマホホーム/.test(step.screenTitle??''))appName='練習スマホ';
+ root.className='native-phone-panel';root.setAttribute('aria-label',`${appName}の画面`);
  const head=el('div','','padding:12px 14px;background:#dbeae2;border-bottom:1px solid #c4d7cd;display:flex;gap:8px;align-items:center;justify-content:space-between');
- head.append(el('strong',/スマホホーム/.test(step.screenTitle??'')?'練習スマホ':appNames[getPhoneSurfaceAppId(step)]||'練習スマホ'),el('span','DEMO','font-size:11px;letter-spacing:.13em;border:1px solid #91af9e;padding:3px 5px;border-radius:4px'));root.append(head);
+ head.append(el('strong',appName),el('span','DEMO','font-size:11px;letter-spacing:.13em;border:1px solid #91af9e;padding:3px 5px;border-radius:4px'));root.append(head);
  const body=el('div','','padding:14px;display:grid;gap:11px');root.append(body);
  const text=(s,small=false)=>el('p',s,`margin:0;line-height:1.7;font-size:${small?13:16}px;overflow-wrap:anywhere`);
  const box=(title,copy)=>{const n=el('div','','padding:12px;background:white;border:1px solid #d8e2dc;border-radius:8px');if(title)n.append(el('strong',title,'display:block;font-size:15px;margin-bottom:5px'));if(copy)n.append(text(copy));return n;};
@@ -70,14 +76,68 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
   return {element:root,handlesAction:true};
  }
 
- if(/ホームへ|最近使ったアプリ|アプリの一覧/.test(step.instruction||'')){
+ if(!journeyQuest&&/ホームへ|最近使ったアプリ|アプリの一覧/.test(step.instruction||'')){
   body.append(text('練習アプリを選ぶ'));const grid=el('div','','display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px');
   for(const[id,name]of Object.entries(appNames).slice(0,9))grid.append(button(name,()=>navigate(id)));body.append(grid);
  }
  if(/スマホホーム/.test(step.screenTitle??'')){const grid=el('div','','display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px');const wanted=getStepOpenAppId(step);for(const [id,name]of getPhoneHomeApps(quest,step)){const target=id===wanted;const icon=button(name,()=>target?onAction?.(step.value):onNavigate?.(id),target);icon.setAttribute('data-phone-app',id);grid.append(icon);}body.append(grid);return {element:root,handlesAction:true};}
- if(step.appId==='mail'){
-  let selected=selectQuestMail(state,quest,step);
-  const fake=quest?.id==='CR-02';if(fake)selected=['crypto-fake',{from:'おたすけ緊急係（架空）',subject:'復旧のご案内',body:'復元情報を教えてください。',warning:true}];
+ if(quest?.id==='CR-01'){
+  const number=Number(step.id.slice(-3));
+  if(number<=5){
+   const map=box('銀行から自分の財布まで');map.append(row('銀行の明細','円'),row('交換所で買う教材コイン','MCHI'),row('いま財布で操作するコイン','Mock USDC・Mock ETH'));body.append(map);
+  }else if(number<=9){
+   const map=box('自分の財布と、コインを送る道');map.append(row('財布の識別子',journeyTransfer.wallet),row('いまコインがある道',journeyTransfer.network));body.append(map);
+  }else if(number<=13){
+   body.append(box('ハイリキの中の地図','HyperCoreは、入金した資産で取引や運用をする場所。HyperEVMはアプリを動かす別の場所です。'));
+  }else if(number<=16){
+   body.append(box('自分の財布の残高明細',journeyTransfer.wallet+' ／ '+journeyTransfer.network),ledger(['walletUSDC','walletETH']));
+  }else{
+   body.append(box('送る前の確認メモ','どの財布から、どのコインを、どの道で、どの宛先に送るか。ガスを払うコインの単位も見よう。'));
+  }
+ }else if(quest?.id==='CR-02'){
+  const number=Number(step.id.slice(-3));
+  const mailBody=number===19||(step.appId==='mail'&&step.screenTitle==='本文');
+  if((number>=16&&number<=19)||mailBody){
+   const message=box(number===16?'新着メール':'復旧のご案内');
+   if(number===16)message.append(text('「サポート」から知らせが1件届いています。'));
+   else message.append(row('差出人の表示名','サポート'),number>=18?row('差出人の詳細','おたすけ緊急係（架空）'):text('差出人名を開くと、名乗っている相手を詳しく見られます。'));
+   if(mailBody)message.append(text('本文「復元情報を教えてください」'),text('本文を離れる操作は、メッセージの外にあります。',true));
+   body.append(message);
+  }else if(number===20){
+   body.append(box('ゲーム内メール・受信トレイ','偽の案内を閉じました。練習スマホのホームから、自分で取引練習アプリを開けます。'));
+  }else if(number>=22){
+   body.append(box('ゲーム内ヘルプ','練習ウォレットの復元情報は、誰かに渡すと財布を操作されるおそれがあります。連絡が来たら、本文を閉じてアプリのヘルプを開けます。'));
+  }else if(number===9){
+   body.append(box('練習ウォレット・接続済み','接続の確認が終わりました。「アプリ切替」から、接続を求めたアプリに戻れます。'));
+  }else if(number===10){
+   body.append(box('最近使ったアプリ','開いていた取引練習アプリに戻ると、次に取引を有効にできます。'));
+  }else{
+   const permission=box('接続を求めるアプリ');permission.append(row('サービス名','そらの取引練習'),row('自分の練習ウォレット',journeyTransfer.wallet));
+   body.append(permission,box('許可する内容',number<=8?'接続すると、この識別子をアプリに表示できます。':'取引を有効にすると、アプリで注文を練習できます。'));
+  }
+ }else if(quest?.id==='CR-03'){
+  const number=Number(step.id.slice(-3));
+  const draft=scenario?.phoneState?.formDrafts?.['CR-03']??{};
+  if(number<=7){
+   const receive=box('ハイリキ（HyperCore）の受取カード');
+   receive.append(row('受け取る資産','Mock '+journeyTransfer.asset),row('受け取る道',journeyTransfer.network),row('入金用の宛先',journeyTransfer.recipient));
+   if(number>=6)receive.append(row('今回の最低額',fmt(journeyTransfer.minimum)+' Mock USDC'));
+   body.append(receive);
+  }else if(number===8){
+   body.append(box('コピーした入金用の宛先',draft.clipboard??'まだコピーしていません。'));
+  }else if(number<=25){
+   const send=box('自分の練習ウォレットから送る');
+   send.append(row('送信元',journeyTransfer.wallet),row('送る資産',draft.asset?'Mock '+draft.asset:'未選択'),row('送る道',draft.network??'未選択'),row('宛先',draft.address??'未入力'));
+   if(number>=17)send.append(row('送信数量',draft.quantity===undefined?'未入力':fmt(Number(draft.quantity))+' Mock USDC'));
+   body.append(send);
+  }else if(number>=31){
+   body.append(box('送信元の残高明細',journeyTransfer.wallet),ledger(['walletUSDC','walletETH']));
+  }else{
+   const receipt=box(scenario?.data?.depositStatus==='received'?'ハイリキの到着記録':'ハイリキへの入金を処理中');
+   receipt.append(row('今回の入金先',journeyTransfer.recipient),row('処理中',fmt(accounts.incomingUSDC)+' Mock USDC'),row('使える残高',fmt(accounts.availableUSDC)+' Mock USDC'));body.append(receipt);
+  }
+ }else if(step.appId==='mail'){
+  const selected=selectQuestMail(state,quest,step);
   body.append(el('div','受信トレイ','font-size:12px;font-weight:700;letter-spacing:.08em'));
   if(selected){const[id,m]=selected;if(m.read===false||/受信一覧|受信トレイ/.test(step.screenTitle??'')){body.append(button((m.read?'':'● ')+(quest?.id==='PR-01'?'郵便屋の練習メール：':'')+(m.subject||m.title||'練習メール'),()=>onAction?.(step.value),true));return {element:root,handlesAction:true};}const message=box(m.subject||m.title||'旅人さんへのお知らせ');message.append(text(`差出人：${quest?.id==='PR-01'?'郵便屋ミナ（練習）':m.from||'ゲーム内の案内係'}`,true),text(m.body||m.text||'このお知らせは練習用です。'));
    if(m.code)message.append(box(quest?.id==='PR-01'?'メールの合言葉':'メールの確認コード',String(m.code)));
@@ -100,12 +160,15 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
   else body.append(box('申込者の練習プロフィール',`${practiceProfile.name}（成人）\n${practiceProfile.address}`),box('申込状況',scenario?.data?.status||'受付 → 本人確認 → 審査 → 完了通知'));
  }else if(step.appId==='wallet'||step.appId==='hyper'){
   body.append(text('非公式の学習用シミュレーション。表示資金はすべて架空。',true));
-  if(quest?.id==='CR-01'){const map=el('div','','display:grid;grid-template-columns:1fr;gap:5px');for(const label of ['銀行の円','暗号資産を扱うサービス','ウォレットで操作する残高','HyperCore内の残高','選んだ運用と、帰りの船'])map.append(box(label));body.append(map);}
-  else if(quest?.id==='CR-03'||quest?.id==='HY-EXIT'){
-   const destination=quest.id==='HY-EXIT'?'DEMO-WALLET-A':'DEMO-VAULT-A',receiver=box('今回の受取カード');receiver.append(row('資産','Mock USDC'),row('ネットワーク','Arbitrum'),row('練習用の宛先',destination));if(quest.id==='CR-03')receiver.append(row('最低額（教材値）','10 Mock USDC'),row('必要ガス（教材値）','0.0001 Mock ETH'));receiver.append(row('教材手数料','1 Mock USDC・送信額から控除'));body.append(receiver,ledger());
-  }else if(quest?.id==='CR-02'){body.append(box('接続先：そらの取引練習','練習用識別子 DEMO-WALLET-A'),box('接続と資産の移動','接続の許可、取引の有効化、入金は別の確認です。'),ledger(['walletUSDC','walletETH','availableUSDC']));}
-  else if(quest?.id==='CR-04'){
-   for(const[title,copy]of [['現物','資産そのものを保有。値下がりがあります。'],['HLP','戦略の損益を共有。直近預入から4日のロック。'],['HYPEステーキング','数量と評価額は別。委任1日と出金7日は別。'],['無期限先物（任意）','証拠金・資金調達料・清算を学びます。'],['今回は運用しない','未運用の資金で、出金と受取だけ練習できます。']])body.append(box(title,copy));
+  if(quest?.id==='HY-EXIT'){
+   const receiver=box('今回の受取カード');receiver.append(row('資産','Mock USDC'),row('ネットワーク','Arbitrum'),row('練習用の宛先','DEMO-WALLET-A'),row('教材手数料','1 Mock USDC・送信額から控除'));body.append(receiver,ledger());
+  }else if(quest?.id==='CR-04'){
+   const number=Number(step.id.slice(-3));
+   if(number>=2&&number<=3)body.append(box('現物','買ったコインの値段が下がると、同じ枚数でも売って受け取れる額は減ります。'));
+   else if(number>=5&&number<=6)body.append(box('HLP','戦略の利益も損失も分け合います。この教材では、最後に預けた日から4日後に引き出せます。'));
+   else if(number>=8&&number<=10)body.append(box('HYPEステーキング','枚数が増えても、値下がりすれば全体の評価額は減ります。委任を解除できるまで1日、現物へ戻すときにさらに7日かかります。'));
+   else if(number>=12&&number<=13)body.append(box('無期限先物（任意）','担保にしたお金で値動きへの取引をします。保有中に費用がかかることや、損失が大きくなると取引が自動で終わることがあります。'));
+   else body.append(box('運用方法を比べる','現物・HLP・ステーキング・先物のほか、今回は運用せず出金を練習する道があります。'));
   }else if(quest?.id==='HY-STAKE'){
    body.append(box('HYPEの現在地','現物 → ステーキング → 委任 → ステーキング → 待機 → 現物'),ledger(['spotHYPE','stakingHYPE','delegatedHYPE','waitingHYPE','availableUSDC']),box('預け先の候補（すべて架空）','灯台ノード / 森の歯車 / 星波ノード。候補の稼働状態と教材手数料を見比べます。'));
   }else if(quest?.id==='HY-HLP'){body.append(box('HLP — 戦略の損益を共有','固定利息ではありません。預入の評価額と、今使える手元残高を分けます。'),ledger(['availableUSDC','hlpUnits','hlpValue']),box('出金ロック',`教材時間${Math.floor((scenario?.simulationTime||0)/86400000)}日目。最後の預入から4日を数えます。`));}

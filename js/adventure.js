@@ -77,7 +77,7 @@ export const adventureCatalog = {
   'FI-03': story('船便係セナ', '道替えのミズヘビ', 'network', 'セナは、ハイリキに送る資産とネットワークをそろえられず困っているんだ。', '教材コインを教材USDCに交換し、Arbitrumへ移そう。処理費用に使う教材ETHも用意しよう。', [stage(6, '使うコインへ交換', '種類を替える操作を確定した。道を替える操作とは別だね。'), stage(8, '交換後の受取', '1,030の教材USDCを確認できた。次は送り道を合わせよう。', 'seal', 'swap-sign'), stage(16, '別の道へ到着', '道替えの費用20を引き、Arbitrumに1,010が届いた！', 'seal', 'network-bridge'), stage(23, '道を使うための小さな燃料', 'USDC1,000とガス用ETH0.001を別々に用意できた。', 'seal', 'gas-lamp'), stage(26, '群島へ渡す準備帳', '種類・道・ガス・現在地がそろった。次の島へ同じ残高のまま進めるよ。', 'seal', 'island-gateway')]),
   'CR-01': story('灯台守ルカ', '居場所まぜのフクロウ', 'map', 'ルカは、銀行・取引所・練習財布のどこに資金があるか分からず困っているんだ。', '銀行・取引所・練習財布・サービス内の残高を分け、資金の置き場所を地図で確かめよう。', [stage(6, '町と島の手がかり', '銀行とサービスは別の置き場所だね。地図の道が見えてきたよ。', 'clue'), stage(12, '荷物の現在地', 'ウォレットとサービスの中身も別々に見られたね。', 'clue'), stage(18, '灯台の資産地図', '送る前に見る地図を残せた。島の案内板に灯りをともすよ。', 'seal', 'asset-map')]),
   'CR-02': story('灯台守ルカ', 'にせ案内のカラス', 'letter', 'ルカは、秘密の情報を求める手紙が届き、安全な接続先を確かめたいんだ。', '練習財布の接続と資金の送金を分け、秘密を求める案内を閉じて離れよう。', [stage(7, '入口で許可すること', '接続の許可は、資産を送る許可ではないと分かったね。', 'clue'), stage(13, '練習できる入口', '練習の有効化まで進めた。お金を動かした印とは別だよ。'), stage(19, '秘密を渡さない扉', '要求を閉じて離れられた！ 秘密の入力はしなくていいんだ。', 'seal', 'safe-post'), stage(25, '確かめた接続状態', '接続済み、送金はまだ。入口の状態を分けて残せたよ。', 'seal', 'wallet-gate')]),
-  'CR-03': story('灯台守ルカ', '道まちがいのクラゲ', 'network', 'ルカは、送金画面の資産・ネットワーク・宛先が、受取カードと合わず困っているんだ。', '送金画面を受取カードと同じ内容にそろえ、ハイリキに届いた数量を明細で確かめよう。', [stage(6, '受取島の荷札', '受取先の条件が見つかった。送る側の札と合わせよう。', 'clue'), stage(12, '種類と道の一致', '受け取れる資産と同じ道を選べた！'), stage(18, '送る数量の準備', '100を入力できた。別の燃料代と受取予定も確かめよう。'), stage(25, '島へ出発した荷物', '三つを照合して送信を受け付けた。到着の知らせと、今回の明細まで見届けよう。', 'seal', 'island-route'), stage(32, '島に届いた99', '今回の明細で99を受け取った。灯台へ続く道がつながった！', 'seal', 'island-dock')]),
+  'CR-03': story('灯台守ルカ', '道まちがいのクラゲ', 'network', 'ルカは、送金画面の資産・ネットワーク・宛先が、受取カードと合わず困っているんだ。', '送金画面を受取カードと同じ内容にそろえ、ハイリキに届いた数量を明細で確かめよう。', [stage(6, '受取島の荷札', '受取先の条件が見つかった。送る側の札と合わせよう。', 'clue'), stage(12, 'コインの種類が一致', '送るコインは受取カードと同じUSDCだ。次は通り道を選ぼう。'), stage(18, '送る数量の準備', '100を入力できた。別の燃料代と受取予定も確かめよう。'), stage(25, '島へ出発した荷物', '三つを照合して送信を受け付けた。到着の知らせと、今回の明細まで見届けよう。', 'seal', 'island-route'), stage(32, '島に届いた99', '今回の明細で99を受け取った。灯台へ続く道がつながった！', 'seal', 'island-dock')]),
   'CR-04': story('学者ソラ', '急ぎ道のマイマイ', 'map', 'ソラは、運用方法ごとの待ち時間と値下がりの危険を比べ、自分の学ぶ道を決めたいんだ。', '使いたい時期と値下がりを比べ、自分の学ぶ道を選ぼう。', [stage(6, '待つ時間の手がかり', '固定の利息ではないことと、出せない時間を見つけたね。', 'clue'), stage(12, '数量と値段の手がかり', '量が増えても、値段次第で評価は下がるんだね。', 'clue'), stage(18, '自分で選ぶ天空の道', '選んだ道の用意をするよ。運用しない道にも、帰りの船がある。', 'seal', 'route-board')]),
   'HY-SPOT': story('学者ソラ', '値札かくしの小竜', 'cards', 'ソラは、コインを持つ間の評価額と、売却して戻る金額の違いが分からないんだ。', '買った資産を見届け、売却と注文取消を区別しよう。', [stage(8, '買う量を決める', '数量2の用意ができた。支払額を確かめてから買おう。'), stage(16, '持っている間の値下がり', '保有の評価が180になった。まだ売った結果ではないね。', 'clue'), stage(24, '売って確かめた残高', '売却後の980を照合できた。値下がりも正しく記録したよ。', 'seal', 'spot-stall'), stage(32, '待つ注文の札', '別の練習で、指値の価格と数量を用意できた。'), stage(38, '買えなかった注文の取消', '保留中の注文を取り消した。売却とは違う操作で解放できたね。', 'seal', 'order-shelf'), stage(41, '主ラボへ戻る道', '元の980へ戻れた。別の小練習を足さずに帰り支度できるよ。', 'seal', 'spot-return')]),
   'HY-HLP': story('学者ソラ', '待ち刻みの石ゴロ', 'clock', 'ソラは、HLPに預けた資金をいつ引き出せるか分からず困っているんだ。', '手元の資金とHLPに預けた分を分け、最後に預けた時からの待ち時間を確かめよう。', [stage(7, '蔵へ預ける準備', '300を預ける用意ができた。手元に残す700も見よう。'), stage(15, '蔵の評価が変わった', '評価は291だね。増えると決まった利息ではないんだ。', 'clue'), stage(21, '引き出せる時刻', '待つ日数を確かめて、引出しの全額を選べた！'), stage(27, '蔵と手元の合計', '700と291を合わせて991。帰りに使える残高を確かめられたよ。', 'seal', 'vault-open')]),
@@ -206,6 +206,7 @@ function currentFinancialReaction(state,quest,count,length,view){
   if(count>=29 && market?.data.settled)return 'カードが届いて、代金も入ったよ。入金明細と、仕入れや梱包に払ったお金を見比べよう。';
   if(count>=23 && count<28 && market?.data.listingStatus==='sold')return '買ってくれる人が決まったよ。代金はまだ市場にあるんだ。カードが折れたり、ぬれたりしないように包もう。';
  }
+ if(quest.id==='CR-03' && count>=26 && state.financialScenarios?.journey?.data.depositStatus==='received')return 'ハイリキに99 USDCが届いたよ。入金の明細と、送った財布に残った分を見比べよう。';
  if(!view)return null;
  const phase=state.financialScenarios?.[quest.scenarioId]?.data?.status;
  if(quest.id==='LV-01'&&count>=20&&view.position?.open===false&&view.leverageHistory?.length)
@@ -290,7 +291,7 @@ const advisors=[
  {id:'sui',name:'帳場のスイ',role:'申込と本人確認の相談役',topicId:'kyc',line:'一息つこう。むずかしい書類も、名前と住所を一つずつ比べればいいんだ。',before:'これから申し込むなら、練習カードの人物と同じ情報を使おう。受付と利用開始は別だよ。',ids:['BK-01-031','BK-02-010','BK-02-016','BK-02-023','TR-01-014','TR-01-020','TR-01-026']},
  {id:'nagi',name:'船長ナギ',role:'数量と取引の終わりの相談役',topicId:'fx-lot',line:'港の酒場へようこそ。茶でも飲みながら、数字の隣の単位を見よう。急ぐ航海じゃないよ。',before:'これから取引を学ぶなら、先に条件と単位を見よう。新規と決済は別の操作なんだ。',ids:['FX-01-011','FX-01-018','FX-02-002','FX-02-020','FX-02-S-018','FX-03-012']},
  {id:'kohaku',name:'道具屋コハク',role:'商品の状態と費用の相談役',topicId:'card-costs',line:'表のきれいさだけじゃ分からないこともあるよ。裏面と、送料の小さな欄も見てみよう。',before:'初めて売買するなら、同じ版と状態の成約を比べよう。出品しただけの値段とは違うよ。',ids:['TC-01-007','TC-01-019','TC-01-021','TC-02-005','TC-02-016','TC-02-031','TC-02-032']},
- {id:'luka',name:'灯台守ルカ',role:'送り道と受取の相談役',topicId:'crypto-transfer',line:'遠い島へ送る時も、資産・ネットワーク・宛先を確かめよう。この三つが荷札だよ。受取カードと、灯りの下で見比べよう。',before:'初めて送るなら、先に受取カードを見よう。資産・ネットワーク・自分の練習財布の宛先を、送る画面と合わせるんだ。',ids:['CR-01-S017','CR-02-S025','CR-03-S006','CR-03-S023','CR-03-S032','HY-EXIT-S024']},
+ {id:'luka',name:'灯台守ルカ',role:'送り道と受取の相談役',topicId:'crypto-transfer',line:'遠い島へ送る時も、資産・ネットワーク・宛先を確かめよう。この三つが荷札だよ。受取カードと、灯りの下で見比べよう。',before:'初めて送るなら、受け取る人のカードを開いて、コインの種類・通り道・宛先を、送る画面と見比べるんだ。',ids:['CR-01-S017','CR-02-S025','CR-03-S006','CR-03-S023','CR-03-S032','HY-EXIT-S024']},
  {id:'sora',name:'学者ソラ',role:'選ぶ道と待ち時間の相談役',topicId:'operation-choice',line:'選ばない道があってもいいんだ。いつ使いたいかを考えて、自分の道を選ぼう。',before:'運用を学ぶ前に、値下がりと戻すまでの待ち時間を見よう。今回は運用しない道もあるよ。',ids:['CR-04-S017','CR-04-S018','HY-HLP-S012','HY-HLP-S027','HY-STAKE-S040','HY-PERP-S048']},
  {id:'senna',name:'船便係セナ',role:'円からの支度と荷物の現在地の相談役',topicId:'yen-funding',line:'ようこそ。円を入金し、コインを買って練習財布へ移す。一つずつたどる旅だよ。いま資金はどこかな？',before:'円でコインを買い、練習財布へ出し、種類とネットワークを替え、ガス用ETHを用意する。別々の用事として見よう。',ids:['FI-01-S008','FI-01-S015','FI-01-S023','FI-02-S009','FI-02-S021','FI-03-S008','FI-03-S016','FI-03-S023','FI-03-S026']},
  {id:'elder',name:'長老オリベ',role:'冒険の記録庫',topicId:'phone',line:'おかえり、旅人。できた道も、途中で休んだ道も、ここに残しておこう。何を確かめたのか、つまずきやすい所と一緒に読み返せるぞ。',before:'まだ白いページだ。依頼で一つ操作を終えたら、その一歩から記録に残るぞ。',ids:[]},
@@ -338,7 +339,7 @@ export function getTavernAdvice(state={},quest,step) {
     const currentTopic=relevant&&quest?getHelpTopics(step,quest)[0]?.id:null;
     return {id:advisor.id,name:advisor.name,role:advisor.role,line:recent?`${recent.latestReaction.text} ${currentAdvice(quest,step)}`:advisor.line,topicId:currentTopic||advisor.topicId,
       recallStepIds,recallTitle:hasRecall?'前に残した控えを見よう':'初めてなら、ここから知ろう',
-      recallText:hasRecall?evidence.map(item=>item.text).join('\n'):advisor.before,
+      recallText:hasRecall?evidence.map(item=>item.text).join('\n'):advisor.id==='luka'&&quest?.id==='CR-03'?currentAdvice(quest,step):advisor.before,
       evidence,hasRecall,unseen:!hasRecall,currentGoal:step?.instruction||quest?.title||'いまの用事をゆっくり確かめよう。',
       hintCost:0,canResume:true,readOnly:true};
   });
@@ -346,6 +347,8 @@ export function getTavernAdvice(state={},quest,step) {
 
 function currentAdvice(quest,step){
  const copy=`${step?.instruction||''} ${step?.field||''}`;
+ if(quest.id==='CR-03')return '送るのは自分の練習財布。受け取るのはハイリキだよ。ハイリキの受取カードを見て、財布の送金欄をそろえよう。';
+ if(quest.id==='FI-02'||quest.id==='HY-EXIT')return '今回は自分の練習財布で受け取るよ。財布の受取カードを開いて、送る側のコイン・通り道・宛先と見比べよう。';
  if(quest.id==='DX-01')return /認証|コード/.test(copy)?'届いたメールの件名を見よう。コピーしたら、入力中の窓口へ戻れるよ。':'銀行口座とは別の申込だよ。カードを見ながら一つずつ。受付の後も本人確認が残るよ。';
  if(quest.id==='DX-02')return /審査|通知|利用/.test(copy)?'審査中と利用可能の札を分けよう。知らせの後は履歴も見られるよ。':'本人の名前・住所・期限をそろえ、画面内の書類と人物を見比べよう。';
  if(quest.id==='DX-03')return '画面の上は販売所かな、板かな？ 同じ枚数の買値と売値を、前の控えで見比べよう。';

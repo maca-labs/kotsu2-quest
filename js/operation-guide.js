@@ -38,7 +38,7 @@ export function mountOperationGuide({document:doc,phone,step,showInstruction=fal
   const edit=['INPUT','TEXTAREA'].includes(tag)&&!target.readOnly&&!['checkbox','radio','button','submit','reset','range','file','hidden'].includes(type)&&step?.type!=='focus';
   const confirming=phone.querySelector('[data-guide-target]')!==target&&phone.querySelector('[data-guide-submit]')===target;
   const submitName=String(target.textContent??'').trim()||'次へ';
-  const prompt=showInstruction?(confirming?`「${submitName}」を押そう。`:step?.instruction??(edit?'ここへ入力':'ここをタップ')):edit?'ここへ入力':'ここをタップ';if(label.textContent!==prompt)label.textContent=prompt;
+  const prompt=target.getAttribute?.('aria-invalid')==='true'?(tag==='SELECT'?'この欄を開いて選び直そう。':'この欄の数字を直そう。'):showInstruction?(confirming?`「${submitName}」を押そう。`:step?.instruction??(edit?'ここへ入力':'ここをタップ')):edit?'ここへ入力':'ここをタップ';if(label.textContent!==prompt)label.textContent=prompt;
   if (target.hasAttribute?.('data-phone-app')) {
    const grid = target.parentElement;
    const tile = target.getBoundingClientRect();
@@ -54,7 +54,7 @@ export function mountOperationGuide({document:doc,phone,step,showInstruction=fal
   // Forms need room for the field label, the optional practice value and the
   // actual submit button. Reserve a line for the hint beside the real target.
   const group = target.closest?.('.action-group');
-  const receiptAction = (tag === 'BUTTON' || tag === 'LABEL') && group?.querySelector?.('.market-slip');
+  const receiptAction = (tag === 'BUTTON' || tag === 'LABEL') && (group?.querySelector?.('.market-slip') || group?.querySelector?.('.transfer-slip'));
   const inline = group && (confirming || receiptAction || edit || tag === 'SELECT');
   if (inline) {
    placeInFlow(target, confirming || receiptAction ? 'above' : 'below', 'field');

@@ -6,12 +6,13 @@ import {getTownWalkGuide,drawTownWalkGuide} from './town-guidance.js';
 import {renderRpgBattle,renderRpgShop,renderRpgEquipment,mountEncounterIntro,trackEncounterInputs} from './rpg-ui.js';
 import {getExtensionView} from './finance-extension.js';
 import {renderExtensionPanel} from './phone-extension.js';
-import {renderFundingPanel} from './phone-funding.js';
+import {getJourneySlip} from './journey-slip.js';
+import {getFundingSlip,renderFundingPanel} from './phone-funding.js';
 import {getStoryGuide} from './story-guide.js';
 import {createPlaceBanner,renderSpeakerIdentity} from './place-presentation.js';
 import {getLessonGuide} from './lesson-guide.js';
 import {mountOperationGuide} from './operation-guide.js';
-import {getStepOpenAppId,getPhoneResumeTarget,getPhoneSurfaceAppId,homeAppNames} from './phone-navigation.js';
+import {getStepOpenAppId,getPhoneResumeTarget,getPhoneSurfaceAppId,phoneAppName} from './phone-navigation.js';
 import {getFxOperationInstruction,getFxConceptCards,getFxSubmitLabel,getFxOrderConfirmation} from './fx-guidance.js';
 import {renderPhoneGuide,getPhoneGuideView} from './phone-guide.js';
 import {renderWorldControls} from './world-controls.js';
@@ -130,7 +131,7 @@ function talkRoomClient(){
   }
  }
  actions.push(btn('部屋に戻る',()=>{modal.close();render();}));
- showDialog(brief.client+'と話す',[renderSpeakerIdentity({document,name:brief.client,role:'依頼人 · この用事を頼んだ人',portrait:portrait(brief.client)}),p(words),done&&q.chapterId==='CH-4'?marketSlip(q.id):null,!done?p('今回の作戦：'+brief.goal):p('確かめてくれて、ありがとう。できたことは手帳に残っているよ。')],actions);
+ showDialog(brief.client+'と話す',[renderSpeakerIdentity({document,name:brief.client,role:'依頼人 · この用事を頼んだ人',portrait:portrait(brief.client)}),p(words),done?questSlip(q.id):null,!done?p('今回の作戦：'+brief.goal):p('確かめてくれて、ありがとう。できたことは手帳に残っているよ。')],actions);
 }
 function roomConversation(){if(ui.room?.id==='church'){showDialog('神官ミルと話す',[renderSpeakerIdentity({document,name:'神官ミル',role:'教会の神官',portrait:portrait('神官ミル')}),p(getRpgView(state).hp===getRpgView(state).maxHp?'おかえり。体力はすっかり戻っているね。':'旅で疲れたね。無料の宿で休むと、体力が全回復するよ。'),p('砂漠には、まだ勝てないほど強い魔物もいるの。にげるを選べば、必ず逃げられるよ。'),p('装備やコイン、受けていた用事は残っているから安心してね。次は街道を選ぶのも、強くなってから挑むのも、あなたの自由だよ。')],[menuAction('教会の外へ',leaveRoom,'primary'),btn('部屋に戻る',()=>modal.close())]);return;}if(ui.room?.id==='client')talkRoomClient();else showCurrentHelp(ui.room?.id==='elder'?'archive':'tavern');}
 function renderRoomView(main){const room=ui.room,title=room.id==='client'?(room.houseName??roomTitle(room.id,room.client,state.currentChapter)):roomTitle(room.id,room.client,state.currentChapter),person=room.id==='client'?room.client:room.id==='elder'?'長老':room.id==='church'?'神官ミル':'酒場の人';const objective=explorationObjective(person+'に話しかけよう',roomConversation,'ここで話す');objective.querySelector('button').setAttribute('aria-label',person+'に話す（ここで話す）');main.append(objective);const canvas=h('canvas',{width:400,height:288,class:'world-canvas room-canvas',role:'img','aria-label':title+'の室内。下の扉が町への出口です。',onClick:e=>{const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*400/r.width/16,y=(e.clientY-r.top)*288/r.height/16;if(y>=14&&x>=11&&x<=14){leaveRoom();return;}if(roomPeople(room.id,state.currentChapter).some(n=>Math.abs(n.x+.5-x)<1.3&&Math.abs(n.y-y)<1.7))roomConversation();}});renderRoom(canvas,visualState(),room);main.append(h('section',{class:'card world-card indoor-card exploration-stage'},h('div',{class:'world-view'},canvas),controlPanel(),p('人の近くで「話す」。下の扉から町へ。','world-position-status')));}
@@ -202,12 +203,24 @@ function orientPhone(target='guide',focus=false){if(!matchMedia('(max-width:760p
  if(!focus && receipt?.parentElement.querySelector('button[data-guide-target]')){
   receipt.scrollIntoView({block:'start',behavior:'instant'});return;
  }
+ const card=document.querySelector('#phone-body .action-group .transfer-slip');
+ if(card&&!focus){
+  const group=card.parentElement,control=group.querySelector('.operation-guide-target')??group.querySelector('[data-guide-target]');
+  const bottom=control?.getBoundingClientRect().bottom;
+  if(bottom && bottom-card.getBoundingClientRect().top<innerHeight-108){
+   card.scrollIntoView({block:'start',behavior:'instant'});return;
+  }
+  const status=card.querySelector('.transfer-status');
+  if(status && bottom && bottom-status.getBoundingClientRect().top < innerHeight-80){
+   status.scrollIntoView({block:'start',behavior:'instant'});return;
+  }
+ }
  const guided=operationGuide?.scrollToTarget();if(!guided){const node=document.querySelector(target==='action'?'#phone-body .action-group':'#phone-body .current-operation, #phone-body .complete-panel');node?.scrollIntoView({block:'start',behavior:'instant'});}if(focus){const input=document.querySelector('#phone-body .action-group input:not([readonly])');input?.focus({preventScroll:true});const r=input?.getBoundingClientRect();if(r&&(r.top<16||r.bottom>innerHeight-20))input.scrollIntoView({block:'center',behavior:'instant'});}}
 function returnToTown(step){if(step?.id==='PR-01-012'){ui.room=null;if(act({type:'STEP',id:step.id,value:step.value},{render:false})){travelArea('town:'+state.currentChapter);window.scrollTo(0,0);}}else nav('world');}
 function runStep(step,value){
  ui.extensionPreviewVenue=null;const q=questById[step.questId],before=getAdventure(state,q,step);
  if(act({type:'STEP',id:step.id,value:value??step.value})){ui.divert=null;const after=getAdventure(state,q,activeStep(state));
-  if(q.id==='TC-02' && after.latestReaction.currentStatus && after.latestReaction.text!==before.latestReaction.text){
+  if(['TC-02','CR-03'].includes(q.id) && after.latestReaction.currentStatus && after.latestReaction.text!==before.latestReaction.text){
    clearTimeout(ui.toastTimer);const oldToast=document.querySelector('#toast');oldToast.classList.remove('show');oldToast.textContent='';
   }
   if(after?.latestReaction.id!==before?.latestReaction.id){toast((after.enemy.hp<before.enemy.hp?'守りがほどけた！ ':'手がかり発見！ ')+after.latestReaction.speaker+'「'+after.latestReaction.text+'」');document.querySelector('.adventure-scene')?.classList.add('milestone-flash');}const next=activeStep(state);const encounter=automaticEncounter();if(next&&encounter&&state.rpg?.location?.mapId?.startsWith('cave:')){beginEncounter(encounter);return;}orientPhone(step.type==='focus'&&next?.type==='input'?'action':'guide',step.type==='focus'&&next?.type==='input');}
@@ -221,6 +234,13 @@ function showRecoveryReaction(step,message){
 function valueDisplay(v){if(v===undefined||v===null)return '';if(typeof v==='number')return v.toLocaleString('ja-JP',{maximumFractionDigits:6});if(typeof v==='object')return Object.entries(v).map(([k,x])=>`${k}：${valueDisplay(x)}`).join(' / ');return String(v);}
 function detailsBlock(details){if(!details)return document.createDocumentFragment();const items=typeof details==='string'?[details]:Array.isArray(details)?details:Object.entries(details).map(([k,v])=>`${k}：${valueDisplay(v)}`);return h('div',{class:'details'},items.map(x=>p(valueDisplay(x))));}
 function practiceData(step){if(step.hidePracticeValue)return null;const parts=[];if(step.type==='input'&&step.value!==undefined&&!['any','*','all'].includes(step.value))parts.push('使う値：'+displayPracticeValue(step));if(!parts.length)return null;return h('div',{class:'practice-card'},h('strong',{},'依頼人の練習カード'),...parts.map(x=>p(x)));}
+function questSlip(questId,stepId=null){
+ if(questId.startsWith('TC-'))return marketSlip(questId,stepId);
+ const slip=questId.startsWith('FI-')?getFundingSlip(state,questId,stepId):getJourneySlip(state,questId,stepId);
+ if(!slip)return null;
+ return h('section',{class:'transfer-slip','aria-label':slip.title},
+  h('h3',{},slip.title),p(slip.route,'transfer-route'),slip.reference?p(slip.reference):null,p(slip.status,'transfer-status'));
+}
 function marketSlip(questId,stepId=null){
  const receipt=getMarketReceipt(state,questId,stepId);
  if(!receipt)return null;
@@ -243,7 +263,12 @@ function renderAction(step,callback,namespace='step',receipt=null){
  const group=h('div',{class:'action-group',tabindex:'-1'},h('h3',{class:'action-instruction'},namespace==='step'?getFxOperationInstruction(step):step.instruction)),confirmation=namespace==='step'?getFxOrderConfirmation(state,step):null;
  const shownDetails=Array.isArray(step.details)&&step.result?step.details.map(text=>text===step.result?'操作後の変化：'+text:text):step.details,details=detailsBlock(shownDetails);
  const marketLesson=namespace==='step' && (step.questId==='TC-01'||step.questId==='TC-02');
- if(marketLesson){if(receipt)group.append(receipt);}
+ const transferLesson=namespace==='step' && /^(?:FI-|CR-0[1-4]$)/.test(step.questId??'');
+ if(transferLesson && receipt){
+  if(['CR-02','CR-04'].includes(step.questId))group.append(details);
+  else if(details?.textContent)group.append(h('details',{class:'transfer-material'},h('summary',{},'この工程の練習資料'),details));
+  group.append(receipt);
+ }else if(marketLesson){if(receipt)group.append(receipt);}
  else if(namespace==='step'&&(step.questId==='FX-01'||confirmation)){if(step.result)group.append(p('操作後の変化：'+step.result,'muted'));group.append(h('details',{class:'fx-offer-material'},h('summary',{},confirmation?'この練習の開始時の資料':'後で使うUSD/JPY案件の資料'),detailsBlock(Array.isArray(step.details)?step.details.filter(text=>text!==step.result):step.details)));}else if(details)group.append(details);
  if(namespace==='step')for(const explanation of getFxConceptCards(step))group.append(h('section',{class:'practice-card fx-concept'},h('strong',{},explanation.title),p(explanation.text)));
  if(confirmation)group.append(h('section',{class:'practice-card fx-confirmation'},h('h4',{},confirmation.title),...confirmation.rows.map(item=>p(item.label+'：'+item.value)),...confirmation.cards.map(item=>h('div',{},h('strong',{},item.title),p(item.text)))));
@@ -251,17 +276,17 @@ function renderAction(step,callback,namespace='step',receipt=null){
  const label=step.fieldLabel??phoneFieldLabels[step.field]??humanFieldLabel(step.field)??step.label??'入力欄';group.append(h('label',{class:'field-label',for:`focus-${step.id}`},label));const input=h('input',{id:`focus-${step.id}`,'aria-label':label,placeholder:'ここを押して入力をはじめる',readonly:true,'data-guide-target':'true','data-action':step.id,onFocus:()=>callback(step.value)});group.append(input);
  }else if(step.type==='input'){
  const paste=/貼り付け/.test(step.label??'');
- if(namespace==='step'&&!paste){const data=practiceData(step);if(data)group.append(data);}
+ if(namespace==='step'&&!paste&&!transferLesson){const data=practiceData(step);if(data)group.append(data);}
  const key=`${namespace}:${step.id}`,label=step.fieldLabel??phoneFieldLabels[step.field]??humanFieldLabel(step.field)??'練習値';
  const form=h('form',{},h('label',{class:'field-label',for:`field-${step.id}`},label));
  const numeric=typeof step.value==='number'||/金額|数量|lot|証拠金|価格|残高|通貨量|桁|番号/.test(label)&&/^\d+(\.\d+)?$/.test(String(step.value));
  const lotSubmit=namespace==='step'?getFxSubmitLabel(step):undefined;
- const fieldError=(lotSubmit||marketLesson)?h('p',{class:'practice-field-error',id:'error-'+step.id,role:'alert',hidden:true}):null;
+ const fieldError=(lotSubmit||marketLesson||transferLesson)?h('p',{class:'practice-field-error',id:'error-'+step.id,role:'alert',hidden:true}):null;
  const input=h('input',{id:`field-${step.id}`,readonly:paste,'aria-describedby':fieldError?.id,placeholder:paste?'メールでコピーした内容がここへ入ります':'',type:step.inputType==='password'?'password':'text','data-guide-target':paste?undefined:'true',inputmode:step.inputMode??(numeric?'decimal':'text'),autocomplete:'off',value:paste?'':ui.inputs[key]??state.phoneState.formDrafts?.[key]??'','data-action':step.id,onInput:e=>{
   clearPracticeError(e.target,fieldError);
   ui.inputs[key]=e.target.value;state.phoneState.formDrafts[key]=e.target.value;saveQuiet();
  }});
- if(marketLesson&&fieldError)form.append(fieldError);
+ if((marketLesson||transferLesson)&&fieldError)form.append(fieldError);
  form.append(input);
  if(lotSubmit&&fieldError)form.append(fieldError);
  const expected=step.value;
@@ -277,18 +302,21 @@ function renderAction(step,callback,namespace='step',receipt=null){
  });
  group.append(form);
  }else if(step.type==='select'){
- if(namespace==='step'){const data=practiceData(step);if(data)group.append(data);}const label=step.fieldLabel??phoneFieldLabels[step.field]??humanFieldLabel(step.field)??'選択する内容';group.append(h('label',{class:'field-label',for:`select-${step.id}`},label));const choiceError=marketLesson?h('p',{class:'practice-field-error',id:'error-'+step.id,role:'alert',hidden:true}):null;
+ if(namespace==='step'){const data=practiceData(step);if(data)group.append(data);}const label=step.fieldLabel??phoneFieldLabels[step.field]??humanFieldLabel(step.field)??'選択する内容';group.append(h('label',{class:'field-label',for:`select-${step.id}`},label));const choiceError=(marketLesson||transferLesson)?h('p',{class:'practice-field-error',id:'error-'+step.id,role:'alert',hidden:true}):null;
  if(choiceError)group.append(choiceError);
- let choices=step.choices??[];if(!choices.length)choices=[{label:valueDisplay(step.value),value:step.value}];const select=h('select',{'data-guide-target':'true','aria-describedby':choiceError?.id,id:`select-${step.id}`,'data-action':step.id,onChange:e=>{clearPracticeError(e.target,choiceError);ui.inputs[step.id]=e.target.value;state.phoneState.formDrafts[`selection:${step.id}`]=e.target.value;saveQuiet();}});select.append(h('option',{value:''},'選んでください'));choices.forEach(x=>{const v=typeof x==='object'?x.value:x,label=typeof x==='object'?x.label:x;select.append(h('option',{value:v},label));});select.value=ui.inputs[step.id]??state.phoneState.formDrafts[`selection:${step.id}`]??'';group.append(select,btn(step.label??'この内容を選ぶ',()=>{if(choiceError){
+ let choices=step.choices??[];if(!choices.length)choices=[{label:valueDisplay(step.value),value:step.value}];const select=h('select',{'data-guide-target':'true','aria-describedby':choiceError?.id,id:`select-${step.id}`,'data-action':step.id,onChange:e=>{clearPracticeError(e.target,choiceError);ui.inputs[step.id]=e.target.value;state.phoneState.formDrafts[`selection:${step.id}`]=e.target.value;saveQuiet();}});select.append(h('option',{value:''},'選んでください'));choices.forEach(x=>{const v=typeof x==='object'?x.value:x,label=typeof x==='object'?x.label:x;select.append(h('option',{value:v},label));});select.value=ui.inputs[step.id]??state.phoneState.formDrafts[`selection:${step.id}`]??'';group.append(select,btn(transferLesson?'選んだ内容で進む':step.label??'この内容を選ぶ',()=>{if(choiceError){
   const correct=choices.find(option=>String(option.value??option)===String(step.value));
-  const help=select.value?'この練習では「'+(correct?.label??correct)+'」を選ぼう。':'欄を押して、候補を一つ選ぼう。';
+  const help=!select.value?'欄を押して、候補を一つ選ぼう。':transferLesson && correct?'この欄を開き直そう。'+(/network|address|asset|recipient/i.test(step.field)&&step.questId!=='CR-01'?'受取カードと同じ「':'今回の練習では「')+(correct.label??correct)+'」を選ぼう。':'この練習では「'+(correct?.label??correct)+'」を選ぼう。';
   if(!checkPracticeField(step,select.value,select,choiceError,help))return;
  }else if(!select.value){showError('候補を一つ選ぼう。');return;}
  callback(select.value);},'primary wide',{'data-guide-submit':'true',style:'margin-top:15px'}));
  }else if(step.type==='check'){
  group.append(h('label',{class:'check-row','data-guide-target':'true','data-action':step.id},h('input',{type:'checkbox',onChange:e=>{if(e.target.checked)callback(true);}}),h('span',{},step.label??'内容を確認しました')));
  }else{
- group.append(btn(step.label??step.instruction,()=>callback(step.value),'primary wide',{'data-action':step.id,'data-guide-target':'true'}));
+ group.append(btn(step.label??step.instruction,()=>{
+  if(namespace==='step'&&step.id==='CR-03-S016')callback(state.financialScenarios.journey.phoneState.formDrafts['CR-03']?.clipboard??'');
+  else callback(step.value);
+ },'primary wide',{'data-action':step.id,'data-guide-target':'true'}));
  }
  return group;}
 function phoneNavigationForStep(step){return step?.navigationAction??(['P049','BK-01-010'].includes(step?.id)?'switcher':null);}
@@ -302,7 +330,7 @@ function renderPhone(main){if(entryEncounter()){ui.view='world';renderWorldView(
  const phone=h('section',{class:'phone '+appId,'aria-label':'ゲーム内スマホ',style:'--app:'+(appColors[appId]??'#347360')},h('div',{class:'phone-status'},'9:41'),h('header',{class:'phone-app-head'},h('strong',{},(['home','mail','switcher'].includes(appId)?({home:'練習スマホ',mail:'ゲーム内メール',switcher:'最近使ったアプリ'}[appId]):ui.divert?names[appId]:step?.appTitle??names[appId])??'練習スマホ'),small('ゲーム内の練習')));
  if(q.id==='FX-03'&&appId==='points')phone.append(h('div',{class:'addressbar'},'▣ コツコツモール / FX練習案件'));else if((appId==='browser'||appId==='points')&&!q.id.startsWith('FI-')&&!q.extension)phone.append(h('div',{class:'addressbar'},'▣ practice.example.invalid'),h('div',{class:'phone-tabs'},btn('コツコツモール',()=>{ui.tab='points';ui.divert='browser-tab';render();}),btn('まいにちストア',()=>{ui.tab='shop';ui.divert='browser-tab';render();})));
  const body=h('div',{class:'phone-body',id:'phone-body'});
- if(qs.completed)body.append(h('div',{class:'complete-panel'},h('span',{class:'tag'},'依頼達成！'),h('h2',{},brief.client+'の困りごとが解決した'),p(a.latestReaction.text),marketSlip(q.id),p('町の景色が変わりました。依頼人に知らせよう。'),btn('近道で町の人へ報告する',()=>{enterRoom('client',q.id,state.activeQuestKey);talkRoomClient();},'primary wide'),q.id==='DX-02'&&!questState(state,'FI-01')?.completed?btn('円の入金から、ハイリキへの旅を続ける',()=>offerQuest(questById['FI-01']),'gold wide'):null,btn('洞窟から歩いて帰る',()=>{ui.room=null;ui.view='world';render();window.scrollTo(0,0);},'wide'),btn('次の依頼を探す',()=>nav('quests'),'wide')));
+ if(qs.completed)body.append(h('div',{class:'complete-panel'},h('span',{class:'tag'},'依頼達成！'),h('h2',{},brief.client+'の困りごとが解決した'),p(a.latestReaction.text),questSlip(q.id),p('町の景色が変わりました。依頼人に知らせよう。'),btn('近道で町の人へ報告する',()=>{enterRoom('client',q.id,state.activeQuestKey);talkRoomClient();},'primary wide'),q.id==='DX-02'&&!questState(state,'FI-01')?.completed?btn('円の入金から、ハイリキへの旅を続ける',()=>offerQuest(questById['FI-01']),'gold wide'):null,btn('洞窟から歩いて帰る',()=>{ui.room=null;ui.view='world';render();window.scrollTo(0,0);},'wide'),btn('次の依頼を探す',()=>nav('quests'),'wide')));
  else if(ui.divert)renderDiverted(body,appId,step);
  else{
   const guide=h('div',{class:'current-operation'},small('いま、すること'),h('h2',{},getFxOperationInstruction(step)));body.append(guide,h('h3',{},step.id==='PR-01-012'?'町へ戻るボタン':step.screenTitle??names[appId]??q.title));const copyGuide=renderPhoneGuide({document,state,quest:q,step});if(copyGuide)body.append(copyGuide);const copyState=getPhoneGuideView(state,q,step);if(!q.extension&&copyState?.copyStepCompleted&&copyState.copyState==='not-copied'&&/貼り付け/.test(step.label??''))body.append(btn('今回のメールを見直してコピーする',()=>openTaskMail(q.id==='PR-01'?'intro-mail':'registration-mail'),'wide'));
@@ -310,7 +338,7 @@ function renderPhone(main){if(entryEncounter()){ui.view='world';renderWorldView(
   if(step.panel&&typeof step.panel==='object')body.append(q.id.startsWith('FI-')?h('details',{class:'funding-plan'},h('summary',{},'依頼の資料・この区間の予定'),detailsBlock(step.panel)):detailsBlock(step.panel));if(q.id.startsWith('FI-'))body.append(h('details',{class:'funding-current'},h('summary',{},'すべての置き場所と残高'),scenarioBalances(q)));
   const panel=q.extension?renderExtensionPanel({document,state,step,quest:q,onAction:v=>runStep(step,v),onAppNavigate:id=>id==='mail'?openTaskMail('domestic-registration'):phoneSwitch(id),previewVenue:ui.extensionPreviewVenue,onNavigate:v=>{ui.extensionPreviewVenue=v;render();}}):q.id.startsWith('FI-')?renderFundingPanel({document,state,step,quest:q,onAction:v=>runStep(step,v)}):renderPhonePanel({document,state,step,quest:q,onAction:v=>runStep(step,v),onNavigate:id=>phoneSwitch(id)});if(panel?.element)body.append(panel.element);
   guide.append(btn('矢印の場所へ',()=>operationGuide?.scrollToTarget(),'operation-jump'));if(step.type==='wait')body.append(p('ゲーム内の時間を進めます。現実の時間で待つ必要はありません。'));
-  if(!panel?.handlesAction&&!navAction&&step.id!=='PR-01-012'){body.append(renderAction(step,v=>runStep(step,v),'step',marketSlip(q.id,step.id)));}if(step.id==='PR-01-012')body.append(p('合言葉を保存できたことを、郵便屋ミナに伝えよう。下のボタンで町へ戻れます。'),btn('町へ戻って郵便屋へ知らせる',()=>returnToTown(step),'primary wide',{'data-guide-target':'true'}));body.append(h('div',{class:'operation-help'},btn('ことば・やり方を聞く',()=>help('what')),btn('村人に聞く',()=>help('tavern')),btn('この作業の説明を聞く',()=>narrationDialog(q))));
+  if(!panel?.handlesAction&&!navAction&&step.id!=='PR-01-012'){body.append(renderAction(step,v=>runStep(step,v),'step',questSlip(q.id,step.id)));}if(step.id==='PR-01-012')body.append(p('合言葉を保存できたことを、郵便屋ミナに伝えよう。下のボタンで町へ戻れます。'),btn('町へ戻って郵便屋へ知らせる',()=>returnToTown(step),'primary wide',{'data-guide-target':'true'}));body.append(h('div',{class:'operation-help'},btn('ことば・やり方を聞く',()=>help('what')),btn('村人に聞く',()=>help('tavern')),btn('この作業の説明を聞く',()=>narrationDialog(q))));
   if(q.id.startsWith('PO-'))body.append(btn('案件・費用を見比べる',comparisonDialog,'quiet wide'));
  }
  body.append(h('div',{id:'action-error',class:'error',hidden:!ui.error},ui.error));phone.append(body,h('nav',{class:'phone-nav','aria-label':'練習スマホのナビゲーション'},btn('‹ 戻る',()=>phoneNav('back'),'',{'data-guide-target':navAction==='back'?'true':undefined}),btn('⌂ ホーム',()=>phoneNav('home'),'',{'data-guide-target':navAction==='home'?'true':undefined}),btn('▢ アプリ切替',()=>phoneNav('switcher'),'',{'data-guide-target':navAction==='switcher'?'true':undefined})));
@@ -321,7 +349,7 @@ function renderPhone(main){if(entryEncounter()){ui.view='world';renderWorldView(
 }
 function chooseDivertedApp(id,step){if(getStepOpenAppId(step)===id){runStep(step,step.value);return;}if(getPhoneResumeTarget(step)===id||step?.appId===id){ui.divert=null;render();orientPhone();return;}phoneSwitch(id);}
 function phoneGuideStep(step,phone){const instruction=ui.divert?phone.querySelector('.current-operation h2')?.textContent??step.instruction:getFxOperationInstruction(step);return instruction===step.instruction?step:{...step,instruction};}
-function renderDiverted(body,appId,step){const wanted=getPhoneResumeTarget(step),navigation=phoneNavigationForStep(step),targetName=homeAppNames[wanted]??names[wanted]??'練習中のアプリ';if(!['home','switcher'].includes(appId))body.append(btn('練習中の画面へ戻る',()=>{ui.divert=null;render();orientPhone();},'primary wide',{'data-guide-target':navigation?undefined:'true'}));body.append(h('div',{class:'current-operation'},small('いまの練習へ戻ろう'),h('h2',{},navigation?`下の「${{home:'ホーム',switcher:'アプリ切替',back:'戻る'}[navigation]}」を押そう。`:!['home','switcher'].includes(appId)?'「練習中の画面へ戻る」を押そう。':`「${targetName}」${getStepOpenAppId(step)?'のアイコンを押そう。':'へ戻ろう。'}`),p('入力と進み具合は残っています。'),btn('矢印の場所へ',()=>operationGuide?.scrollToTarget(),'operation-jump')));if(appId==='home'||appId==='switcher'){body.append(h('h2',{},appId==='home'?'練習スマホ':'最近使ったアプリ'),small('入力中の内容は、元のアプリに残っています。'),h('div',{class:'app-grid'},Object.keys(appSymbols).map(id=>btn([h('span',{style:`--appcolor:${appColors[id]}`},appSymbols[id]),homeAppNames[id]??names[id]],()=>chooseDivertedApp(id,step),'app-icon',{'data-phone-app':id,'data-guide-target':!navigation&&wanted===id?'true':undefined}))));}
+function renderDiverted(body,appId,step){const wanted=getPhoneResumeTarget(step),navigation=phoneNavigationForStep(step),targetName=phoneAppName(wanted,step?.questId)??names[wanted]??'練習中のアプリ';if(!['home','switcher'].includes(appId))body.append(btn('練習中の画面へ戻る',()=>{ui.divert=null;render();orientPhone();},'primary wide',{'data-guide-target':navigation?undefined:'true'}));body.append(h('div',{class:'current-operation'},small('いまの練習へ戻ろう'),h('h2',{},navigation?`下の「${{home:'ホーム',switcher:'アプリ切替',back:'戻る'}[navigation]}」を押そう。`:!['home','switcher'].includes(appId)?'「練習中の画面へ戻る」を押そう。':`「${targetName}」${getStepOpenAppId(step)?'のアイコンを押そう。':'へ戻ろう。'}`),p('入力と進み具合は残っています。'),btn('矢印の場所へ',()=>operationGuide?.scrollToTarget(),'operation-jump')));if(appId==='home'||appId==='switcher'){body.append(h('h2',{},appId==='home'?'練習スマホ':'最近使ったアプリ'),small('入力中の内容は、元のアプリに残っています。'),h('div',{class:'app-grid'},Object.keys(appSymbols).map(id=>btn([h('span',{style:`--appcolor:${appColors[id]}`},appSymbols[id]),phoneAppName(id,step?.questId)??names[id]],()=>chooseDivertedApp(id,step),'app-icon',{'data-phone-app':id,'data-guide-target':!navigation&&wanted===id?'true':undefined}))));}
  else if(appId==='mail'){body.append(h('h2',{},'受信メール'));if(ui.mailId){const mail=state.phoneState.mailById[ui.mailId];body.append(h('h3',{},mail.subject??mail.title??'練習メール'),p(mail.body??mail.text??'このメールはゲーム内の練習用です。'),mail.code?btn('ゲーム内でコピー',()=>{state.phoneState.clipboard=String(mail.code);saveQuiet();toast('練習コードをコピーしました。');}):null,btn('受信一覧へ',()=>{ui.mailId=null;render();}));}else Object.entries(state.phoneState.mailById).forEach(([id,m])=>body.append(btn([h('strong',{},`${m.read?'':'● '}${m.subject??m.title??'練習メール'}`),small(m.from??'ゲーム内のお知らせ')],()=>{state.phoneState.mailById[id].read=true;ui.mailId=id;saveQuiet();render();},'mail-row')));}
  else if(appId==='memo'){body.append(h('h2',{},'旅人のメモ'),p('今日の用事：メールを開き、合言葉をメモへ。'),h('div',{class:'practice-card'},`ゲーム内コピー：${getPhoneGuideView(state,questById[step?.questId],step)?.copyText||'この用事では、まだコピーしていません'}`));}
  else if(appId==='browser-tab'){body.append(h('h2',{},ui.tab==='shop'?'まいにちストア':'コツコツモール'),p(ui.tab==='shop'?'日用品セット · 商品代金2,000円、送料0円。':'案件A：300P、追加費用0円。B：500P、追加費用600円。C：600P、追加費用1,000円。'),btn('練習していた画面へ',()=>{ui.divert=null;render();},'primary wide'));}

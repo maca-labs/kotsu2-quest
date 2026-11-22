@@ -38,6 +38,7 @@ function portRoomAfter(id) {
   const ui = {room: {id: 'client', houseName: report.houseName, questId: id, client: report.client,
     recordKey: report.recordKey, position: {x: 4, y: 6}}};
   const env = {
+    questSlip: () => null,
     ui, get state() {return state;}, document: {}, act, questById, questBrief, questState, getAdventure,
     storyGuide: () => getStoryGuide(state),
     h: (tag, attrs, ...children) => ({tag, attrs, children}), p: text => text,

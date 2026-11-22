@@ -254,3 +254,21 @@
 
 .market-slip details { margin-top: 8px; }
 .market-slip summary { padding: 8px 0; cursor: pointer; font-weight: 700; }
+
+.transfer-slip {
+  scroll-margin-top: 64px;
+  margin: 8px 0;
+  padding: 8px 11px;
+  color: #193c42;
+  background: #f2faf6;
+  border: 1px solid #97b4a8;
+  border-inline-start: 4px solid #38796e;
+  border-radius: 6px;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+.transfer-slip h3 { margin: 0 0 3px; font-size: 1rem; }
+.transfer-slip p { margin: 2px 0; font-size: .94rem; line-height: 1.5; }
+.transfer-route, .transfer-status { font-weight: 700; }
+.transfer-slip .transfer-status { scroll-margin-top: 68px; padding-top: 4px; border-top: 1px dashed #abc3b8; }
+.transfer-material summary { padding-block: 6px; }

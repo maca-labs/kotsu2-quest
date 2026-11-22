@@ -542,8 +542,10 @@ const definitions = {
   guidedObjectiveMap:{crypto_exit:{0:'HY-EXIT-S003',1:'HY-EXIT-S012',2:'HY-EXIT-S017',3:'HY-EXIT-S018',4:'HY-EXIT-S024'}}}
 };
 
+const openHomeApp=appId=>({screenTitle:'スマホホーム',openAppId:appId});
 const overrides = {
  'CR-01':{
+  1:openHomeApp('memo'),
   3:choose('yenLocation','銀行',[['銀行','銀行'],['HyperCore内','HyperCore内']]),
   5:choose('assetType','暗号資産',['暗号資産','銀行の円']),
   7:choose('walletRole','資産を操作する入口',['資産を操作する入口','銀行口座そのもの']),
@@ -554,25 +556,26 @@ const overrides = {
   16:{details:['ガス代用：0.001 Mock ETH。USDCとは別単位です。']},
   17:confirm('送る前の確認メモを保存'),18:confirm('資産の地図を確認した記録を保存')},
  'CR-02':{
+  1:openHomeApp('hyper'),21:openHomeApp('hyper'),
   4:choose('wallet','DEMO-WALLET-A',[['練習ウォレット：DEMO-WALLET-A','DEMO-WALLET-A'],['メールログインの説明を見る','mail-explanation']]),
   5:{appId:'wallet',tabId:'notifications',details:['要求元：そらの取引練習。ウォレットの識別子を見てよいかという練習通知です。']},
   6:{appId:'wallet',details:['要求元：そらの取引練習（ゲーム内）。実サイトへの接続ではありません。']},
   7:{appId:'wallet',details:['許可すること：DEMOの識別子を練習アプリへ表示する。資産の移動や秘密の復元情報の提出は含みません。']},
   8:confirm('練習の接続を許可',{appId:'wallet',result:'DEMO-WALLET-Aを接続しました。まだ送金していません。'}),
-  9:{appId:'memo',tabId:'recent'},10:choose('recentApp','hyper',[['そらの取引練習','hyper'],['練習ウォレット','wallet']]),
+  9:{appId:'wallet',tabId:'recent',navigationAction:'switcher'},10:{...choose('recentApp','hyper',[['そらの取引練習','hyper'],['練習ウォレット','wallet']]),displayAppId:'switcher'},
   12:{details:['練習アプリ内の注文機能を有効にします。接続の許可や資産移動とは別の操作です。']},
   13:confirm('練習の有効化を確認'),
   14:{details:['接続：済み / 取引の練習：有効 / 今回の資産移動：未実行。']},
   16:{appId:'mail',tabId:'inbox'},17:{appId:'mail',details:['差出人名：おたすけ緊急係（架空）。名前が安心そうでも、要求の中身を確かめます。']},
   18:{appId:'mail',details:['偽案内：「復元情報を教えてください」。秘密情報を入力する欄はありません。案内本文の外側から閉じられます。']},
   19:{appId:'mail',label:'この案内を閉じる',result:'案内を閉じました。秘密の情報は入力していません。'},
-  20:{appId:'memo',tabId:'home'},23:{details:['復元情報・秘密鍵・APIキーは入力しません。困ったら案内を閉じ、ゲーム内ヘルプや公式資料へ戻ります。']},
+  20:{appId:'mail',tabId:'home',navigationAction:'home'},23:{details:['復元情報・秘密鍵・APIキーは入力しません。困ったら案内を閉じ、ゲーム内ヘルプや公式資料へ戻ります。']},
   24:confirm('安全メモを保存'),25:check('接続済み・今回の送金未実行を確認')},
  'CR-03':{
   2:focus('receiveAsset'),3:choose('receiveAsset','USDC',assetChoices),4:focus('receiveNetwork'),5:choose('receiveNetwork','Arbitrum',networkChoices),
   6:{details:['受取先：HyperCore / USDC / Arbitrum / DEMO-VAULT-A。最低10 Mock USDC、入金コスト1、必要ガス0.0001 Mock ETH（すべて練習値）。']},
-  7:{label:'DEMO-VAULT-Aをゲーム内でコピー',field:'clipboard',value:'DEMO-VAULT-A'},8:{appId:'memo',tabId:'home'},
-  9:{appId:'wallet'},10:{appId:'wallet'},11:{...focus('asset'),appId:'wallet'},12:{...choose('asset','USDC',assetChoices),appId:'wallet'},
+  7:{label:'DEMO-VAULT-Aをゲーム内でコピー',field:'clipboard',value:'DEMO-VAULT-A'},8:{appId:'hyper',tabId:'home',navigationAction:'home'},
+  9:{...openHomeApp('wallet'),appId:'wallet'},10:{appId:'wallet'},11:{...focus('asset'),appId:'wallet'},12:{...choose('asset','USDC',assetChoices),appId:'wallet'},
   13:{...focus('network'),appId:'wallet'},14:{...choose('network','Arbitrum',networkChoices),appId:'wallet'},
   15:{...focus('address'),appId:'wallet'},16:{type:'tap',field:'address',value:'DEMO-VAULT-A',label:'コピーした宛先を貼り付け',appId:'wallet',details:['コピーした宛先：DEMO-VAULT-A。別のDEMO宛先とは一致しません。']},
   17:{...focus('quantity'),appId:'wallet'},18:{...input('quantity',100),appId:'wallet'},19:{appId:'wallet',details:['送信前のガス残高は0.001 Mock ETH、今回使う予定は0.0001 Mock ETHです。送信後には0.0009 Mock ETHが残る予定です。']},
@@ -826,7 +829,7 @@ export const quests = Object.entries(definitions).map(([id,def])=>({
 }));
 
 export const chapters = [
- {id:'CH-5',title:'鍵の群島',subtitle:'荷物と道と、秘密の鍵',npcId:'npc-keys',npcName:'鍵守りのセナ',
+ {id:'CH-5',title:'鍵の群島',subtitle:'荷物と道と、秘密の鍵',npcId:'npc-keys',npcName:'船便係セナ',
   dialogue:['島の荷物は、どの道を通るのかで行き先が変わるんだ。','わたしの練習スマホで、資産の場所と、送る前の確認を手伝ってくれる？','復元の秘密は、だれにも渡さなくていいよ。'],area:'群島',color:'#4eaac2',
   equipment:{id:'return-lantern',name:'帰還のランタン',slot:'tool',description:'資産の置き場所と出口のメモを照らす。確認工程は一つずつ行う。'},questIds:['CR-01','CR-02','CR-03','CR-04']},
  {id:'CH-6',title:'流動の天空城',subtitle:'選ぶ勇気、戻る知恵',npcId:'npc-sky',npcName:'港の村長リオ',
@@ -835,7 +838,7 @@ export const chapters = [
 ];
 const npc = (id,name,role,dialogue,afterDialogue)=>({id,name,role,topicId:`${id}:first-help`,dialogue,afterDialogue});
 chapters[0].npcs = [
- npc('sena','鍵守りのセナ','requester','荷物を送る前に、資産の種類と道をそろえたいんだ。\nわたしの練習スマホを手伝ってくれる？','送り先と到着を確かめられたね。\n帰還のランタンを旅のおともにして。'),
+ npc('sena','船便係セナ','requester','荷物を送る前に、資産の種類と道をそろえたいんだ。\nわたしの練習スマホを手伝ってくれる？','送り先と到着を確かめられたね。\n帰還のランタンを旅のおともにして。'),
  npc('pol','荷物係ポル','hint','資産は荷物、ネットワークは送る道。\n接続しただけでは、荷物はまだ動かないよ。','復元の秘密を求められたら、案内を閉じて戻ればいい。\n困ったら何度でも聞いてね。'),
  npc('io','地図師イオ','reflection','ウォレットで操作する残高と、サービス内の残高は別の場所。\nいま荷物がどこにあるか、地図に残そう。','道がそろい、島の灯台が明るくなった。\n次の城でも、帰りの道を確かめよう。')
 ];

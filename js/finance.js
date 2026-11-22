@@ -311,6 +311,11 @@ export function applyFinancialStep(state, step, value, context = {}) {
   const s = state.financialScenarios[scenarioId];
   if (!s) return false;
   s.phoneState ||= { formDrafts: {}, flags: {} }; s.phoneState.formDrafts ||= {}; s.phoneState.flags ||= {};
+  if (step.id === 'CR-03-S007') requireThat(value === step.value, 'ハイリキの受取カードの宛先をコピーしよう。');
+  if (step.id === 'CR-03-S016') {
+    const copied = s.phoneState.formDrafts['CR-03']?.clipboard;
+    requireThat(copied === step.value && value === copied, 'ハイリキの受取カードからコピーした宛先を貼り付けよう。');
+  }
   if (step.field && step.type !== 'focus' && value !== undefined) {
     s.phoneState.formDrafts[questId] ||= {};
     s.phoneState.formDrafts[questId][step.field] = value;

@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import {steps,questById} from '../js/content.js';
 import {createState} from '../js/engine.js';
-import {getStepOpenAppId,getPhoneResumeTarget,getPhoneHomeApps,getPhoneSurfaceAppId} from '../js/phone-navigation.js';
+import {getStepOpenAppId,getPhoneResumeTarget,getPhoneHomeApps,getPhoneSurfaceAppId,phoneAppName} from '../js/phone-navigation.js';
 import {renderPhonePanel} from '../js/phone-panels.js';
 import {getFxOperationInstruction} from '../js/fx-guidance.js';
 
@@ -28,7 +28,7 @@ test('phone navigation uses stable action metadata and IDs after Japanese copy c
 });
 
 test('each authored home opening has exactly one real app target and advances only on that icon',()=>{
- const expected={'PR-01-001':'memo','PR-01-004':'mail',P001:'browser',P012:'mail','BK-01-001':'bank','TR-01-001':'bank','FX-01-001':'fx','FX-03-001':'points','TC-01-001':'market'};
+ const expected={'PR-01-001':'memo','PR-01-004':'mail',P001:'browser',P012:'mail','BK-01-001':'bank','TR-01-001':'bank','FX-01-001':'fx','FX-03-001':'points','TC-01-001':'market','CR-01-S001':'memo','CR-02-S001':'hyper','CR-02-S021':'hyper','CR-03-S009':'wallet'};
  assert.equal(steps.filter(s=>/スマホホーム/.test(s.screenTitle??'')).length,Object.keys(expected).length);
  for(const[id,app]of Object.entries(expected)){
   const step=steps.find(s=>s.id===id),state=createState(),before=JSON.stringify(state),actions=[],visits=[];
@@ -55,7 +55,7 @@ test('a detour arrow describes the visible return control without replacing the 
 test('other-app detours name their real return button and expose only one target without advancing the lesson',()=>{
  const make=(tag,props={},...children)=>{const el=new Element(tag);for(const[k,v]of Object.entries(props))if(v!==undefined)el.setAttribute(k,v);const add=value=>{if(Array.isArray(value)){value.forEach(add);return;}if(value===null||value===undefined)return;if(typeof value==='string'){const text=new Element('text');text.textContent=value;el.append(text);}else el.append(value);};children.forEach(add);el.textContent=el.children.map(n=>n.textContent).join('');return el;};
  const step=steps.find(s=>s.id==='FX-03-001'),state=createState(),before=JSON.stringify(state),calls=[];
- const env={state,ui:{},h:make,p:t=>make('p',{},t),small:t=>make('small',{},t),btn:(label,fn,cls,attrs={})=>{const el=make('button',attrs,label);el.events.click=fn;return el;},getPhoneResumeTarget,getStepOpenAppId,phoneNavigationForStep:s=>s.navigationAction??null,homeAppNames:{points:'ポイント'},names:{fx:'FX',mail:'メール',memo:'メモ'},questById,getPhoneGuideView:()=>null,render:()=>calls.push('render'),orientPhone:()=>calls.push('orient'),saveQuiet:()=>calls.push('save'),appSymbols:{points:'P',fx:'FX'},appColors:{},operationGuide:null};
+ const env={state,ui:{},h:make,p:t=>make('p',{},t),small:t=>make('small',{},t),btn:(label,fn,cls,attrs={})=>{const el=make('button',attrs,label);el.events.click=fn;return el;},getPhoneResumeTarget,getStepOpenAppId,phoneNavigationForStep:s=>s.navigationAction??null,phoneAppName,names:{fx:'FX',mail:'メール',memo:'メモ'},questById,getPhoneGuideView:()=>null,render:()=>calls.push('render'),orientPhone:()=>calls.push('orient'),saveQuiet:()=>calls.push('save'),appSymbols:{points:'P',fx:'FX'},appColors:{},operationGuide:null};
  vm.createContext(env);vm.runInContext(source.slice(source.indexOf('function renderDiverted('),source.indexOf('function scenarioBalances(')),env);
  for(const appId of ['fx','mail','memo','browser-tab']){
   env.ui.divert=appId;const body=make('section');env.renderDiverted(body,appId,step);const all=nodes(body),targets=all.filter(n=>n.attributes['data-guide-target']);

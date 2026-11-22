@@ -4,4 +4,8 @@ export const homeAppNames=Object.freeze({memo:'メモ',mail:'メール',browser:
 export function getStepOpenAppId(step){return step?.openAppId??legacyOpenApps[step?.id]??(/スマホホーム/.test(step?.screenTitle??'')?step.appId:null);}
 export function getPhoneSurfaceAppId(step){return step?.questId==='FX-03'?'points':step?.appId??'home';}
 export function getPhoneResumeTarget(step){return getStepOpenAppId(step)??step?.displayAppId??getPhoneSurfaceAppId(step);}
-export function getPhoneHomeApps(quest,step){const chapter=Number(quest?.chapterId?.slice(3))||0,wanted=getStepOpenAppId(step);return Object.entries(homeAppNames).filter(([id])=>id===wanted||(!(['bank','fx','market'].includes(id)&&chapter<({bank:2,fx:3,market:4}[id]))&&!(['wallet','hyper'].includes(id)&&quest?.partId!=='crypto')&&!(id==='gift'&&chapter<1)&&!(id==='points'&&chapter<1)));}
+export function phoneAppName(id,questId){
+ if(/^CR-/.test(questId??''))return ({memo:'資産の地図（メモ）',hyper:'そらの取引練習',wallet:'練習ウォレット'})[id]??homeAppNames[id];
+ return homeAppNames[id];
+}
+export function getPhoneHomeApps(quest,step){const chapter=Number(quest?.chapterId?.slice(3))||0,wanted=getStepOpenAppId(step);return Object.entries(homeAppNames).filter(([id])=>id===wanted||(!(['bank','fx','market'].includes(id)&&chapter<({bank:2,fx:3,market:4}[id]))&&!(['wallet','hyper'].includes(id)&&quest?.partId!=='crypto')&&!(id==='gift'&&chapter<1)&&!(id==='points'&&chapter<1))).map(([id])=>[id,phoneAppName(id,quest?.id)]);}

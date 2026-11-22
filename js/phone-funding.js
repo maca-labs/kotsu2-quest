@@ -8,12 +8,102 @@ const names={MichiNet:'みち道（MichiNet）',Arbitrum:'Arbitrum',MCHI:'ミチ
 const shown=value=>names[value]??value;
 const sender='朝日 ミナト（架空の成人）';
 
+function fundingStage(step) {
+ const n=Number(step.id.slice(-3)),questId=step.questId??step.id.slice(0,5);
+ if(questId==='FI-01')return n<=15?'deposit':'purchase';
+ if(questId==='FI-02')return 'withdraw';
+ if(n<=8)return 'swap';
+ if(n<=16)return 'bridge';
+ return n<=23?'gas':'handoff';
+}
+
+const yen=value=>format(value)+'円';
+const mchi=value=>'MCHI '+format(value)+'枚';
+const usdc=value=>format(value)+' Mock USDC';
+const eth=value=>format(value)+' Mock ETH';
+
+function transferProgress(status,pending,before='まだ送っていません。') {
+ if(status==='processing')return pending+'を預かり中。';
+ if(status==='received')return '到着済み。';
+ return before;
+}
+
+function journeyBalance(accounts) {
+ let text=`旅の財布Aに${usdc(accounts.walletUSDC)}と${eth(accounts.walletETH)}。`;
+ if(accounts.incomingUSDC>0)text+=`HyperCoreへ${usdc(accounts.incomingUSDC)}を届けている途中です。`;
+ if(accounts.availableUSDC>0)text+=`HyperCoreで使えるのは${usdc(accounts.availableUSDC)}。`;
+ if(accounts.withdrawalPending>0)text+=`財布Aへ${usdc(accounts.withdrawalPending)}が戻る途中です。`;
+ return text;
+}
+
+/** A receipt beside the current control, or the last receipt of a reported quest. */
+export function getFundingSlip(state,questId,stepId=null) {
+ const scenario=state?.financialScenarios?.['funding-japan'];
+ const step=stepId===null?fundingSteps.findLast(item=>item.questId===questId)
+  :fundingSteps.find(item=>item.questId===questId&&item.id===stepId);
+ if(!scenario||!step)return null;
+ const {accounts:a,data}=scenario,q=data.quotes;
+ switch(fundingStage(step)){
+  case 'deposit':return {
+   title:'円の受取カード',
+   route:'あかり練習銀行 → こみち交換所（架空）。あかつき取引所の申込とは別の練習です。',
+   reference:`入金先 ${valueAt('FI-01-S006')}。振込人は${sender}。送るのは${yen(valueAt('FI-01-S008'))}。`,
+   status:transferProgress(data.depositStatus,yen(a.depositPendingJPY))+`いま銀行に${yen(a.bankJPY)}、交換所に${yen(a.domesticJPY)}。`
+  };
+  case 'purchase':return {
+   title:'教材コインの購入控え',
+   route:'こみち交換所の円 → 同じ交換所のミチコイン。あかつき取引所とは別の架空の窓口です。',
+   reference:`見積もりは1枚${yen(q.purchase.unitJPY)}。${mchi(q.purchase.quantity)}で${yen(q.purchase.totalJPY)}。`,
+   status:(data.purchaseStatus==='filled'?'購入済み。':'まだ購入していません。')+`いま銀行に${yen(a.bankJPY)}。交換所に${yen(a.domesticJPY)}と${mchi(a.domesticMCHI)}。`
+  };
+  case 'withdraw':return {
+   title:'財布Aの受取カード',
+   route:'こみち交換所 → 自分の財布A',
+   reference:`${shown(q.withdraw.network)}の ${q.withdraw.address}。送る${mchi(q.withdraw.gross)}のうち費用は${format(q.withdraw.fee)}枚。到着予定は${format(q.withdraw.net)}枚。`,
+   status:transferProgress(data.withdrawStatus,mchi(a.withdrawPendingMCHI))+`いま交換所に${mchi(a.domesticMCHI)}、財布Aに${mchi(a.walletMCHI)}。`
+  };
+  case 'swap':return {
+   title:'コインの交換控え',
+   route:`財布AのMCHI → 同じ財布AのMock USDC。道は${shown(q.swap.network)}のままです。`,
+   reference:`宛先 ${q.withdraw.address}。${mchi(q.swap.input)}を渡し、${usdc(q.swap.output)}を受け取る予定です。`,
+   status:transferProgress(data.swapStatus,usdc(a.swapPendingUSDC),'交換する前です。')+`いま財布Aに${mchi(a.walletMCHI)}と${usdc(a.michiUSDC)}。`
+  };
+  case 'bridge':return {
+   title:'道替えの受取カード',
+   route:`財布Aの${shown(q.bridge.sourceNetwork)} → 同じ財布Aの${q.bridge.network}。コインはMock USDCのままです。`,
+   reference:`宛先 ${q.bridge.address}。${usdc(q.bridge.gross)}から費用${format(q.bridge.fee)}を引き、到着予定は${usdc(q.bridge.net)}。`,
+   status:transferProgress(data.bridgeStatus,usdc(a.bridgePendingUSDC))+`いま、みち道に${usdc(a.michiUSDC)}、${q.bridge.network}に${usdc(a.arbitrumUSDC)}。`
+  };
+  case 'gas':return {
+   title:'ガス用コインの交換控え',
+   route:`財布AのMock USDC → 同じ財布AのMock ETH。道は${q.gas.network}です。`,
+   reference:`宛先 ${q.bridge.address}。${usdc(q.gas.costUSDC)}で、道を使う費用として${eth(q.gas.outputETH)}を用意します。`,
+   status:transferProgress(data.gasStatus,eth(a.gasPendingETH),'ガス用コインを用意する前です。')+`いま財布Aに${usdc(a.arbitrumUSDC)}と${eth(a.walletETH)}。`
+  };
+  case 'handoff':{
+   const journey=state.financialScenarios.journey;
+   const prepared=fundingHandoffReference.expectedInitialBalances;
+   let status=`準備の財布Aに${usdc(a.arbitrumUSDC)}と${eth(a.walletETH)}。`;
+   if(data.handoff){
+    status='引継ぎ済み。'+(journey?.accounts?journeyBalance(journey.accounts):'準備の記録は閉じました。残高は次の旅の財布Aで確かめよう。');
+   }else if(journey?.accounts&&(journey.accounts.walletUSDC!==prepared.walletUSDC||journey.accounts.walletETH!==prepared.walletETH)){
+    status+='以前の旅の記録も残っています。'+journeyBalance(journey.accounts);
+   }
+   return {
+    title:'旅へ引き継ぐ控え',
+    route:'準備の財布A → 次の旅でも同じ財布A',
+    reference:`${q.bridge.network}の ${q.bridge.address}。用意した${usdc(prepared.walletUSDC)}と${eth(prepared.walletETH)}は、一度だけ数えます。`,
+    status
+   };
+  }
+ }
+}
+
 /** Read the actual draft and settled/pending ledger. No balances are calculated here. */
 export function getFundingView(state,step){
  if(!step?.id?.startsWith('FI-'))return null;
  const scenario=state.financialScenarios?.['funding-japan'];if(!scenario)return null;
- const n=Number(step.id.slice(-3)),questId=step.questId??step.id.slice(0,5);
- const stage=questId==='FI-01'?(n<=15?'deposit':'purchase'):questId==='FI-02'?'withdraw':n<=8?'swap':n<=16?'bridge':n<=23?'gas':'handoff';
+ const stage=fundingStage(step);
  const draft=scenario.phoneState?.formDrafts?.funding??{},q=scenario.data.quotes;
  const input=(key,label)=>({key,label,value:Object.hasOwn(draft,key)&&String(draft[key]).trim()!==''?shown(draft[key]):'未入力',unentered:!Object.hasOwn(draft,key)||String(draft[key]).trim()===''});
  const row=(label,value)=>({label,value});
@@ -30,15 +120,15 @@ export function getFundingView(state,step){
  const status=stage==='handoff'?(scenario.data.handoff?'transferred':'not_started'):scenario.data[`${stage}Status`];
  const hasInput=inputs.some(field=>!field.unentered),quoteReady=Object.entries(spec.expected).every(([key,value])=>same(draft[key],value));
  const statusText=status==='transferred'?'移管済み — 追加配布はありません':status==='processing'?'送信済み・処理中 — まだ受取先では使えません':status==='received'?'到着済み — 台帳の受取先に記録されました':status==='filled'?'購入済み — コインは交換所内にあります':stage==='handoff'?'まだ移管していません':hasInput?'入力中 — まだ確定していません':'まだ入力していません';
- return {stage,title:spec.title,status,statusText,inputs,conditions:spec.conditions,quoteReady,copy:spec.copy,rows:fundingScenarioSummary(scenario).filter(item=>spec.keys.includes(item.key))};
+ return {stage,title:spec.title,status,statusText,inputs,conditions:spec.conditions,quoteReady,copy:stage==='deposit'&&status==='received'?'こみち交換所に届いた円を、今回の入金明細と見比べよう。':stage==='deposit'&&status==='processing'?'銀行から送りました。入金先で使えるのは到着してからです。':spec.copy,rows:fundingScenarioSummary(scenario).filter(item=>spec.keys.includes(item.key))};
 }
 
 /** Generic controls remain responsible for every existing individual operation. */
 export function renderFundingPanel({document:doc,state,step}){
  const view=getFundingView(state,step);if(!doc||!view)return null;
  const node=(tag,text='',className='')=>{const n=doc.createElement(tag);if(text)n.textContent=String(text);if(className)n.className=className;return n;};
- const root=node('section','','extension-phone-panel funding-phone-panel');root.setAttribute('aria-label',`${view.title}の確認画面`);
- const header=node('header','','extension-app-head');header.append(node('strong',view.title),node('span','架空の教材','extension-demo'));root.append(header);
+ const root=node('details','','extension-phone-panel funding-phone-panel funding-current');root.setAttribute('aria-label',`${view.title}の確認画面`);
+ root.append(node('summary','入力した内容と詳しい明細','extension-app-head'));
  const body=node('div','','extension-app-body');root.append(body);
  const status=node('p',view.statusText,'extension-status');status.setAttribute('role','status');body.append(status);
  const box=(title,rows,copy)=>{const section=node('section','','extension-box');section.append(node('h4',title));if(copy)section.append(node('p',copy));const list=node('dl','','extension-ledger');for(const item of rows){list.append(node('dt',item.label),node('dd',format(item.value),item.unentered?'funding-unentered':''));}section.append(list);return section;};
