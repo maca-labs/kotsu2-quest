@@ -225,11 +225,11 @@ function returnToTown(step){if(step?.id==='PR-01-012'){ui.room=null;if(act({type
 function runStep(step,value){
  ui.extensionPreviewVenue=null;const q=questById[step.questId],before=getAdventure(state,q,step);
  if(act({type:'STEP',id:step.id,value:value??step.value})){ui.divert=null;const after=getAdventure(state,q,activeStep(state));
-  const inlineSpotReaction=q.id==='HY-SPOT' && matchMedia('(max-width:760px)').matches;
+  const inlineTradeReaction=['HY-SPOT','HY-EXIT'].includes(q.id) && matchMedia('(max-width:760px)').matches;
   if(['TC-02','CR-03','HY-EXIT'].includes(q.id) && after.latestReaction.currentStatus && after.latestReaction.text!==before.latestReaction.text){
    clearTimeout(ui.toastTimer);const oldToast=document.querySelector('#toast');oldToast.classList.remove('show');oldToast.textContent='';
   }
-  if(after?.latestReaction.id!==before?.latestReaction.id){if(!inlineSpotReaction)toast((after.enemy.hp<before.enemy.hp?'守りがほどけた！ ':'手がかり発見！ ')+after.latestReaction.speaker+'「'+after.latestReaction.text+'」');document.querySelector('.adventure-scene')?.classList.add('milestone-flash');}const next=activeStep(state);const encounter=automaticEncounter();if(next&&encounter&&state.rpg?.location?.mapId?.startsWith('cave:')){beginEncounter(encounter);return;}orientPhone(step.type==='focus'&&next?.type==='input'?'action':'guide',step.type==='focus'&&next?.type==='input');}
+  if(after?.latestReaction.id!==before?.latestReaction.id){if(!inlineTradeReaction)toast((after.enemy.hp<before.enemy.hp?'守りがほどけた！ ':'手がかり発見！ ')+after.latestReaction.speaker+'「'+after.latestReaction.text+'」');document.querySelector('.adventure-scene')?.classList.add('milestone-flash');}const next=activeStep(state);const encounter=automaticEncounter();if(next&&encounter&&state.rpg?.location?.mapId?.startsWith('cave:')){beginEncounter(encounter);return;}orientPhone(step.type==='focus'&&next?.type==='input'?'action':'guide',step.type==='focus'&&next?.type==='input');}
  else showRecoveryReaction(step,ui.error);
 }
 function showRecoveryReaction(step,message){
