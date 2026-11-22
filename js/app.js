@@ -435,10 +435,14 @@ function renderBossView(main){const id=ui.bossId??state.currentChapter;if(!bossA
  main.append(h('div',{class:'boss-layout'},stage,form));}
 function labCompletion(q,record){
  const exit=q.id==='HY-EXIT', client=questBrief(q).client;
+ const account=state.financialScenarios[exit?record.routeId:q.scenarioId];
+ let report='売った代金がハイリキに入ったよ。売却の明細を持って、学者の家へ帰ろう。';
+ if(exit)report=record.routeId==='perp'?`自分の財布に${account.accounts.walletUSDC} Mock USDCが届いたよ。受取明細を持って、学者の家のルカへ。`:'自分の財布に届いたよ。受取明細を持って、学者の家で待つルカのところへ帰ろう。';
+ else if(q.id==='HY-PERP')report=`決済したときの手元は${account.data.perp.available} Mock USDC。明細を持って、学者の家のソラへ。`;
  const next=h('section',{class:'lab-next'},
   small(record.timeBonusAwarded?'依頼達成　40 XP ＋ 時間チャレンジ 10 XP':'依頼達成　40 XP'),
   h('h2',{},client+'に報告しよう'),
-  p(exit?'自分の財布に届いたよ。受取明細を持って、学者の家で待つルカのところへ帰ろう。':q.id==='HY-PERP'?'取引を終えて、本編のお金が手元に戻ったよ。決済の明細を持って、学者の家へ帰ろう。':'売った代金がハイリキに入ったよ。売却の明細を持って、学者の家へ帰ろう。'),
+  p(report),
   walkBackButton());
  return h('div',{class:'complete-panel lab-complete'},next,questSlip(q.id),
   btn('近道で'+client+'に報告する',()=>{enterRoom('client',q.id,state.activeQuestKey);talkRoomClient();},'wide'));
