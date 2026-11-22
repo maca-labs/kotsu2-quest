@@ -55,7 +55,8 @@ export function getStakeSlip(state, stepId = null) {
       return {title:'現物を売る前の見積もり', route, reference:'売る予定の内訳は ' + quote.equation + '。',
         status:holdings + '単価' + fmt(data.price) + '・手数料' + fmt(quote.fee) + 'で売ると、受取予定' + usdc(quote.received) + '。'};
     }
-    return {title:'現物に到着', route, reference:clock + waiting + '。',
+    const elapsedDays = fmt((data.arrivalAt - request.at) / DAY);
+    return {title:'現物に到着', route, reference:'ゲーム内' + day(request.at) + 'に申請してから' + elapsedDays + '日たち、' + day(data.arrivalAt) + 'に現物へ届きました。' + waiting + '。',
       status:'ゲーム内' + day(data.arrivalAt) + 'に到着。' + holdings};
   }
   if (accounts.stakingHYPE > 0 && data.delegationUnlockAt !== null) {

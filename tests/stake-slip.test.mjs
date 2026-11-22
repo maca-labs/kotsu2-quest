@@ -85,11 +85,14 @@ test('all 40 phone slips follow the confirmed location, return clocks and cash a
       assert.match(slip.reference, /委任中0枚、現物0枚、使える0 Mock USDC/);
     } else if (number <= 33) {
       assert.match(slip.status, /待機中10.1枚、現物0枚.*1日目.*8日目に到着予定（あと7日）/);
-      assert.match(slip.reference, /1日目に申請.*8日目まで7日.*ステーキング手元0枚.*使える0 Mock USDC/);
+      assert.match(slip.reference, /1日目に申請.*8日目まで7日待ちます.*ステーキング手元0枚.*使える0 Mock USDC/);
     } else if (number <= 39) {
       assert.match(slip.status, /現物10.1枚、使える0 Mock USDC/);
-      if (number <= 37) assert.match(slip.status, /8日目に到着/);
-      else {
+      if (number <= 37) {
+        assert.match(slip.status, /8日目に到着/);
+        assert.match(slip.reference, /1日目に申請してから7日たち、8日目に現物へ届きました。待機中0枚/);
+        assert.doesNotMatch(slip.reference, /待ちます|到着予定/);
+      } else {
         assert.match(slip.reference, /10.1枚 × 80 − 手数料0 ＝ 808 Mock USDC/);
         assert.match(slip.status, /単価80・手数料0で売ると、受取予定808/);
       }
