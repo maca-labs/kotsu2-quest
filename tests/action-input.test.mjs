@@ -53,3 +53,13 @@ test('perpetual collateral and stop prices keep a valid decimal amount across a 
  assert.equal(state.financialScenarios.perp.accounts.availableUSDC,990);
  assert.equal(state.financialScenarios['perp-sl'].accounts.availableUSDC,993);
 });
+
+test('the free-choice dojo accepts a Japanese decimal for its collateral and still checks the amount', async()=>{
+ const {steps}=await import('../js/content-extension.js');
+ const {validateAction}=await import('../js/engine.js');
+ const step=steps.find(item=>item.id==='LV-01-S004');
+ const amount=typedValue=>submissionValue({step,typedValue});
+ assert.equal(amount('１００．０'),'100.0');
+ assert.doesNotThrow(()=>validateAction(step,amount('１００．０')));
+ assert.throws(()=>validateAction(step,amount('１１')));
+});

@@ -228,3 +228,14 @@ test('an exit report identifies its completed route even after the selected rout
  assert.equal(state.selectedRoute,'hlp');assert.equal(state.questStates['HY-HLP'],undefined);
  assert.equal(JSON.stringify(state.financialScenarios),money);
 });
+
+test('the outdoor guide and a different client leave the dojo report for Sora, including after reload',()=>{
+ let state=play(started('CH-6'),'LV-01');
+ for(const reportFor of [null,'HY-PERP']){
+  state=act(state,{type:'NPC',chapterId:'CH-6',index:0,reportFor});
+  state=parseSave(JSON.stringify(state));
+  assert.equal(getStoryGuide(state).recordKey,'LV-01');
+ }
+ state=act(state,{type:'NPC',chapterId:'CH-6',index:0,reportFor:'LV-01'});
+ assert.notEqual(getStoryGuide(state).recordKey,'LV-01');
+});

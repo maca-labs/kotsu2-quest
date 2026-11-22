@@ -76,7 +76,11 @@ function reportedToClient(state,quest){
  const journal=state.journal??[],lastStep=quest.stepIds.at(-1);
  const finishedAt=journal.findLastIndex(entry=>entry.command?.type==='STEP'&&entry.command.id===lastStep);
  if(finishedAt<0)return false;
- return journal.slice(finishedAt+1).some(({command})=>command?.type==='NPC'&&command.index===0&&(command.chapterId??state.currentChapter)===quest.chapterId);
+ return journal.slice(finishedAt+1).some(({command})=>{
+  if(command?.type!=='NPC' || command.index!==0 || (command.chapterId??state.currentChapter)!==quest.chapterId)return false;
+  // Older saves recorded the speaker's town and index only.
+  return quest.id!=='LV-01' || command.reportFor===undefined || command.reportFor===quest.id;
+ });
 }
 
 function unreportedRequest(state,chapterId){

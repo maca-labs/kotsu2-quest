@@ -201,7 +201,7 @@ export function questBrief(quest) {
 // This changes only words: no stage, shield, world effect or reward is earned.
 function currentFinancialReaction(state,quest,count,length,view,record){
  if(quest.id==='HY-HLP' && count===length && state.reviewStates?.['HY-HLP']?.completed)return '本編のお金と追加の練習口座を両方確かめられたね。学者の家で結果を聞かせてほしいな。';
- if(!count||count>=length)return null;
+ if(!count || (count>=length && quest.id!=='LV-01'))return null;
  if(quest.id==='HY-HLP'){
   const lab=state.financialScenarios?.hlp;
   if(lab?.eventLog.some(event=>event.kind==='withdraw:hlp-001'))return 'HLPから手元に戻ってきたよ！　残しておいた分と合わせて、いくら使えるか見よう。';
@@ -259,8 +259,13 @@ function currentFinancialReaction(state,quest,count,length,view,record){
  if(quest.id==='HY-EXIT' && count>=20 && state.financialScenarios?.[record?.scenarioOverride??record?.routeId]?.data.exitStatus==='received')return '自分の財布に着いたよ。今回届いた分を受取明細で見て、財布の合計も確かめよう。';
  if(!view)return null;
  const phase=state.financialScenarios?.[quest.scenarioId]?.data?.status;
- if(quest.id==='LV-01'&&count>=20&&view.position?.open===false&&view.leverageHistory?.length)
-  return '全決済は終わったよ。履歴の方向・倍率・戻った額と、いまの残量ゼロを確かめよう。最後の照合まで、落ち着いて見届けよう。';
+ if(quest.id==='LV-01'){
+  const trade=view.metrics, closed=view.leverageHistory.at(-1);
+  if(closed)return `全決済は終わったよ。取引から戻ったのは${closed.returned}。使わずに残した分と合わせて、いま手元に${trade.available} Mock USDCあるね。履歴の方向・倍率と、残量ゼロも見てね。`;
+  if(trade.positionOpen && count>=15)return `今ここで終えたら、${trade.unrealizedPnl<0?'損失':'利益'}は${Math.abs(trade.unrealizedPnl)}。まだ閉じていないから、手元の${trade.available} Mock USDCは動いていないよ。`;
+  if(trade.positionOpen)return `注文できたね。取引に使った証拠金は${trade.collateral}、値動きを受ける取引額は${trade.notional}だよ。`;
+  if(count>=6 && trade.leverage)return `帆が開いた！　選んだ倍率は${trade.leverage}倍。注文する前に、使うお金と取引額を見比べよう。`;
+ }
  if(quest.id==='DX-05'){
   const buy=view.orders?.find(order=>order.id==='buy-2'),firstBuy=view.orders?.find(order=>order.id==='buy-1'),sell=view.orders?.find(order=>order.id==='sell-1');
   if(count>=32&&sell?.status==='filled')return '指値売りが成立し、予約が解けて円を受け取ったよ。約定履歴と、残る円・コインの枚数を最後に照合しよう。';

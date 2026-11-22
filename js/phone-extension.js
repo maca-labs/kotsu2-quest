@@ -1,5 +1,6 @@
 import {getExtensionView} from './finance-extension.js';
 import {getPhoneGuideView} from './phone-guide.js';
+import {getDojoSlip} from './dojo-slip.js';
 
 const format=value=>typeof value==='number'?value.toLocaleString('ja-JP',{maximumFractionDigits:6}):String(value??'');
 const orderStatus={pending:'未約定・まだ売買していません',cancelled:'取消済み',filled:'約定・売買が成立'};
@@ -21,7 +22,7 @@ export function renderExtensionPanel({document:doc,state,step,quest,onAction,onN
  const root=node('section','','extension-phone-panel');root.setAttribute('aria-label',`${view.title}の教材画面`);
  const reviewLabel=view.scenarioId==='leverage-choice'&&!view.changedConditions?'方向と倍率の復習':'別条件の確認';
  const top=node('header','','extension-app-head');top.append(node('strong',view.title),node('span',view.isReview?reviewLabel:'架空の教材','extension-demo'));root.append(top);
- const body=node('div','','extension-app-body');root.append(body);
+ let body=node('div','','extension-app-body');root.append(body);
  const p=(t)=>node('p',t);
  const box=(title,copy)=>{const n=node('section','','extension-box');n.append(node('h4',title));if(copy)n.append(p(copy));return n;};
  const button=(text,fn,primary=false)=>{const n=node('button',text,primary?'extension-button primary':'extension-button');n.type='button';if(primary)n.setAttribute('data-guide-target','true');n.addEventListener('click',fn);return n;};
@@ -29,6 +30,13 @@ export function renderExtensionPanel({document:doc,state,step,quest,onAction,onN
  const lines=items=>{const list=node('dl','','extension-ledger');for(const r of items??[]){list.append(node('dt',r.label),node('dd',format(r.value)));}return list;};
  const orderBook=()=>{if(!view.orderBook)return null;const book=box(view.orderBook.label,'待機枚数は、板に並んで待っている相手の注文数です。自分が入力する枚数とは別です。');for(const [kind,label]of [['asks','売り注文 — 買いたい人が見る側'],['bids','買い注文 — 売りたい人が見る側']]){const table=node('table','',`extension-order-book ${kind}`);table.append(node('caption',label));const head=node('thead'),headRow=node('tr');for(const title of ['1枚の値段（円）','待機枚数（枚）'])headRow.append(node('th',title));head.append(headRow);table.append(head);const body=node('tbody');for(const row of view.orderBook[kind]??[]){const tr=node('tr');tr.append(node('td',format(row.price)),node('td',format(row.quantity)));body.append(tr);}table.append(body);book.append(table);}return book;};
  let handlesAction=false;
+ const dojo=!view.isReview&&step.questId==='LV-01'?getDojoSlip(state,step.id):null;
+ if(dojo){
+  const card=box(dojo.title,dojo.route);
+  card.append(p(dojo.reference),p(dojo.status));body.append(card);
+  const ledger=node('details','','extension-notices');ledger.append(node('summary','稽古場の残高と取引の記録'));body.append(ledger);
+  body=ledger;
+ }
  const status=node('p',view.status,'extension-status');status.setAttribute('role','status');body.append(status);
  if(view.isReview){body.append(p('本編とは別の確認用コピーです。元のお金・XP・時計は変わりません。'));if(view.scenarioId==='leverage-choice'&&!view.changedConditions)body.append(p('同じ条件でも復習できます。方向・倍率・値動きのどれかを変えて結果まで確かめると、別条件の確認として記録します。'));}
 
@@ -105,12 +113,12 @@ export function renderExtensionPanel({document:doc,state,step,quest,onAction,onN
    if(v){const prices=box(view.venue==='dealer'?'販売所 — お店が示す二つの値段':'板取引所 — この教材の注文');prices.append(lines([{label:'買うときの1枚の値段（円）',value:v.ask},{label:'売るときの1枚の値段（円）',value:v.bid}]));if(view.venue==='board')prices.append(p('ここでは一つの注文を全枚数で成立させる教材です。実際の板では、希望枚数すべてが同じ値段で成立するとは限りません。'));body.append(prices);}
    if(view.venue==='board'){const book=orderBook();if(book)body.append(book);}
   }
-  if(view.quote?.length){const title=view.scenarioId==='lending-lab'?'今回の貸出条件':view.scenarioId==='leverage-choice'?'選んだ条件の内訳':'今回の注文の見積り';const q=box(title);q.append(lines(view.quote));body.append(q);}
+  if(!dojo&&view.quote?.length){const title=view.scenarioId==='lending-lab'?'今回の貸出条件':view.scenarioId==='leverage-choice'?'選んだ条件の内訳':'今回の注文の見積り';const q=box(title);q.append(lines(view.quote));body.append(q);}
   if(view.scenarioId==='lending-lab'){
    body.append(box('元本と利息','元本は、あなたが貸した数量です。利息は、契約の条件から計算する追加の数量です。貸出中や返還処理中の数量は、手元の使える残高と分けて表示します。'));
    if(step.phoneScreen==='lending-early'){const early=box('満期前の返還窓口','この教材の契約では、満期前に返還を申し込めません。元本は貸出中のままです。');const unavailable=button('満期前の返還はできません',()=>{});unavailable.disabled=true;early.append(unavailable);body.append(early);}
   }
-  if(view.metrics)body.append(box('損益の読み方','ロングは上がると利益、下がると損失。ショートはその逆です。倍率が大きいほど同じ値動きで損益も大きくなります。利益が出る方を当てる課題ではありません。'));
+  if(!dojo&&view.metrics)body.append(box('損益の読み方','ロングは上がると利益、下がると損失。ショートはその逆です。倍率が大きいほど同じ値動きで損益も大きくなります。利益が出る方を当てる課題ではありません。'));
   if(view.position){const position=box('現在の建玉 — まだ閉じていない取引',view.position.open?'この数量の取引を保有中です。':'いま保有している建玉はありません。残量はゼロです。');position.append(lines([{label:'現在の建玉数量（残量）',value:view.position.quantity},{label:'現在の建玉金額（Mock USDC）',value:view.position.notional},{label:'現在配分中の証拠金（Mock USDC）',value:view.position.collateral}]));body.append(position);}
   if(view.leverageHistory?.length){const history=box('決済した取引の履歴 — 過去の記録','下の数量は、すでに閉じた取引の記録です。現在の残量に足しません。');for(const item of view.leverageHistory){const record=node('section','','extension-history-record');record.append(lines([{label:'終えた取引の方向',value:item.side==='short'?'ショート（売り）':'ロング（買い）'},{label:'終えた取引の倍率',value:`${format(item.leverage)}倍`},{label:'始めた価格（Mock USDC）',value:item.entryPrice},{label:'決済した価格（Mock USDC）',value:item.exitPrice},{label:'決済した数量（過去）',value:item.quantity},{label:'配分した証拠金（過去）',value:item.collateral},{label:'確定した損益（Mock USDC）',value:item.netPnl},{label:'返却された資金（Mock USDC）',value:item.returned},{label:'終えた方法',value:item.reason==='liquidation'?'清算':'全決済'}]));history.append(record);}body.append(history);}
   if(view.rows?.length){const money=box('この練習だけの残高');money.append(lines(view.rows));body.append(money);}

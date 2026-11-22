@@ -9,7 +9,7 @@ export function submissionValue({step,typedValue,namespace='step',mainClipboard=
   return typedValue.replace(/[０-９．]/g,char=>String.fromCharCode(char.charCodeAt(0)-0xfee0));
  }
  const labReview=namespace==='review' && /^RV-(?:HLP|PERP)-/.test(step.id??'');
- if((labReview || (namespace==='step' && ['HY-SPOT','HY-HLP','HY-STAKE','HY-PERP'].includes(step.questId))) && step.type==='input' && typeof step.value==='number'){
+ if((labReview || (namespace==='step' && ['HY-SPOT','HY-HLP','HY-STAKE','HY-PERP','LV-01'].includes(step.questId))) && step.type==='input' && typeof step.value==='number'){
   return yenInput(typedValue).replaceAll('．','.');
  }
  const amountForm=namespace==='step' && /^(?:TC-|FI-|CR-03$)/.test(step.questId??'');
