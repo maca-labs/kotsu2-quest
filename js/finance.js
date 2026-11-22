@@ -234,7 +234,7 @@ on('spot-limit', 'HY-SPOT-S034', 'order:limit-001', s => { cashChange(s, { avail
   matchSpotAmount(d.limitQuantity, 1, '買う枚数');
 });
 on('spot-limit', 'HY-SPOT-S038', 'cancel:limit-001', s => { needEvent(s, 'order:limit-001'); cashChange(s, { availableUSDC: 95, reservedUSDC: -95 }); s.data.orderStatus = 'cancelled'; });
-on('hlp', 'HY-HLP-S010', 'deposit:hlp-001', s => { cashChange(s, { availableUSDC: -300, hlpUnits: 3, hlpValue: 300 }); s.data.lastDepositAt = s.simulationTime; s.data.withdrawableAt = s.simulationTime + 4 * DAY; }, (s, d) => matching(d, { quantity: 300 }));
+on('hlp', 'HY-HLP-S010', 'deposit:hlp-001', s => { cashChange(s, { availableUSDC: -300, hlpUnits: 3, hlpValue: 300 }); s.data.lastDepositAt = s.simulationTime; s.data.withdrawableAt = s.simulationTime + 4 * DAY; }, (s, d) => requireThat(parseAmount(d.quantity) === 300, '預ける額を練習カードと比べよう。'));
 on('hlp', 'HY-HLP-S013', 'tick:hlp-97', s => { needEvent(s, 'deposit:hlp-001'); s.simulationTime += 2 * DAY; s.data.unitPrice = 97; s.accounts.hlpValue = 291; });
 on('hlp', 'HY-HLP-S018', 'wait:hlp-unlock', s => { needEvent(s, 'tick:hlp-97'); s.simulationTime = s.data.withdrawableAt; });
 on('hlp', 'HY-HLP-S024', 'withdraw:hlp-001', s => { needEvent(s, 'wait:hlp-unlock'); requireThat(s.simulationTime >= s.data.withdrawableAt, '出金可能日時までゲーム内時間を進めよう。'); cashChange(s, { availableUSDC: 291, hlpUnits: -3, hlpValue: -291, realizedPnl: -9 }); });

@@ -1,6 +1,6 @@
 /* The teaching device has its own palette so figures, labels and controls
    remain readable inside the illustrated game. */
-.quest-play-layout .phone {
+.quest-play-layout .phone, .phone.hlp-review {
   --device-ink: #172f35;
   --device-muted: #4e6468;
   --device-line: #bdcfc9;
@@ -279,3 +279,9 @@
 @media (max-width: 760px) {
   .exit-trial-jump { display: block; width: 100%; min-height: 44px; margin-bottom: 8px; }
 }
+
+.hlp-review { width: min(100%, 440px); margin-inline: auto; }
+.hlp-complete .hlp-next { scroll-margin-top: 68px; text-align: left; }
+.hlp-complete .hlp-next h2 { margin: 5px 0; font-size: 1.12rem; }
+.hlp-complete .hlp-next p { margin: 5px 0 10px; line-height: 1.5; }
+.hlp-complete .hlp-next button { margin-bottom: 8px; }

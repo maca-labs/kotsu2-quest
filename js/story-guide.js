@@ -103,6 +103,10 @@ export function getStoryGuide(state,{chapterId,view='world'}={}){
   return {...base,questId:quest.id,recordKey:resumeKey,routeId:record.routeId,client:brief.client,title:`${brief.client}の用事を、つづけよう`,story:`${brief.incident} ${brief.goal}`,instruction:`次の操作：${step.instruction} 途中の入力を残したまま、練習スマホへ戻れます。`,actionLabel:'いまのスマホ練習へ',action:{type:'resume',id:resumeKey},milestones:[{label:'依頼を受ける',state:'done'},{label:adventure?.currentStage?.title??'結果を一つずつ確かめる',state:'current'},{label:'結果を村人へ知らせる',state:'later'}],controlsHint:'町へ戻っても続きは残ります。「これは何？」や「酒場で聞く」から相談できます。'};
  }
  const report=unreportedRequest(state,id),finished=report?.quest;
+ const topUp=state.reviewStates?.['HY-HLP'];
+ if(finished?.id==='HY-HLP' && state.activeQuestKey==='HY-HLP' && topUp && !topUp.completed){
+  return {...base,questId:finished.id,client:'学者ソラ',title:'追加預入の練習を続けよう',story:'ソラが、追加で預けた後にいつ引き出せるかを調べているよ。',instruction:'練習スマホで、途中の操作から再開しよう。',actionLabel:'追加預入のつづきへ',action:{type:'hlp-review'},milestones:[{label:'本編の引き出し',state:'done'},{label:'追加で預けた後の引き出し',state:'current'},{label:'ソラに報告する',state:'later'}],controlsHint:'続きは依頼帳の「流動性の塔」からも開けます。'};
+ }
  if(finished){
   const brief=questBrief(finished),reaction=getAdventure({...state,activeQuestKey:report.key},finished)?.latestReaction;
   return {...base,questId:finished.id,recordKey:report.key,routeId:report.record.routeId,client:brief.client,title:`結果を、${brief.client}へ知らせよう`,story:reaction?.text??'頼まれた用事を終えました。依頼人が、結果を待っています。',instruction:`${config.house}へ戻り、${brief.client}に結果を話そう。終えた操作は保存済みで、もう一度やり直す必要はありません。`,actionLabel:`${brief.client}へ結果を知らせる`,action:{type:'house',id:'client',index:0,questId:finished.id,recordKey:report.key,routeId:report.record.routeId},milestones:[{label:'頼まれた用事を終える',state:'done'},{label:'依頼人へ結果を話す',state:'current'},{label:'次の用事や町の最後の確認へ',state:'later'}],controlsHint:houseHint};

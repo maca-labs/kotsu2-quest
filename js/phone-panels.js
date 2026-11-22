@@ -6,6 +6,7 @@ import {getFxSelectionSummary} from './fx-guidance.js';
 import {journeyTransfer} from './journey-slip.js';
 import {getExitLedger} from './exit-slip.js';
 import {getSpotSlip} from './spot-slip.js';
+import {getHlpSlip} from './hlp-slip.js';
 
 const appNames={memo:'旅人のメモ',mail:'ゲーム内メール',browser:'まいにちストア',points:'コツコツモール',bank:'ほしあかり銀行',wallet:'練習ウォレット',hyper:'そらの運用ラボ',fx:'ほしぞらFX',market:'星札マーケット',gift:'練習ギフト',exchange:'ポイント交換所'};
 export const phoneFieldLabels={asset:'送る資産',receiveAsset:'受け取る資産',network:'送るネットワーク',receiveNetwork:'受け取るネットワーク',address:'練習用の宛先',quantity:'数量',sellQuantity:'売却する数量',withdrawQuantity:'引き出す数量',moveDestination:'移動先',delegateQuantity:'委任する数量',undelegateQuantity:'委任を解除する数量',returnQuantity:'現物へ戻す数量',validator:'預け先の候補',collateral:'配分する証拠金',leverage:'倍率',side:'買い・売り',symbol:'銘柄',orderType:'注文方法',stopPrice:'SLの発動価格',closeQuantity:'決済する数量',limitPrice:'指値の価格',limitQuantity:'指値の数量',returnHorizon:'戻したい時期',route:'学ぶ経路',wallet:'練習用ウォレット',available:'使える残高',received:'受け取った数量',expected:'受取予定の数量',valuation:'評価額',profit:'確定した利益',loss:'損失額',funding:'資金調達料',notional:'建玉金額',totalHype:'HYPEの合計数量',receivedSpot:'現物へ届いた数量',extraQuantity:'追加で預ける数量'};
@@ -50,6 +51,7 @@ export function renderPhonePanel({document:doc,state,step,quest,recordKey=state.
  if(journeyQuest)appName=step.displayAppId==='switcher'?'最近使ったアプリ':phoneAppName(surface,quest.id)??appName;
  if(quest?.id==='HY-EXIT')appName=phoneAppName(surface,quest.id)??appName;
  if(quest?.id==='HY-SPOT')appName='ハイリキ（現物練習）';
+ if(quest?.id==='HY-HLP')appName='ハイリキ（HLP練習）';
  if(/スマホホーム/.test(step.screenTitle??''))appName='練習スマホ';
  root.className='native-phone-panel';root.setAttribute('aria-label',`${appName}の画面`);
  const head=el('div','','padding:12px 14px;background:#dbeae2;border-bottom:1px solid #c4d7cd;display:flex;gap:8px;align-items:center;justify-content:space-between');
@@ -163,6 +165,18 @@ export function renderPhonePanel({document:doc,state,step,quest,recordKey=state.
   if(quest?.id==='TR-01'){const recipient=box('今回の振込先カード');recipient.append(row('支店',practiceProfile.branch),row('口座の種類',practiceProfile.accountType),row('口座番号',practiceProfile.accountNumber),row('受取人',practiceProfile.kana));body.append(recipient,ledger());}
   else body.append(box('申込者の練習プロフィール',`${practiceProfile.name}（成人）\n${practiceProfile.address}`),box('申込状況',scenario?.data?.status||'受付 → 本人確認 → 審査 → 完了通知'));
  }else if(step.appId==='wallet'||step.appId==='hyper'){
+  if(quest?.id==='HY-HLP'){
+   const slip=getHlpSlip(state,step.id);
+   if(!slip)return null;
+   const number=Number(step.id.slice(-3));
+   const draft=scenario.phoneState.formDrafts[quest.id]??{};
+   const card=box(slip.title);
+   if(number>=5&&number<=10)card.append(row('預ける額',draft.quantity===undefined?'未入力':fmt(Number(draft.quantity))+' Mock USDC'));
+   if(number>=19&&number<=24)card.append(row('引き出す口数',draft.withdrawQuantity==='all'?'全額・模擬'+fmt(accounts.hlpUnits)+'口':'未選択'));
+   card.append(text(slip.route,true),text(slip.reference,true),text(slip.status));
+   body.append(card);
+   return {element:root,handlesAction:false};
+  }
   if(quest?.id==='HY-SPOT'){
    const slip=getSpotSlip(state,step.id);
    if(!slip)return null;
@@ -253,8 +267,7 @@ export function renderPhonePanel({document:doc,state,step,quest,recordKey=state.
    else body.append(box('運用方法を比べる','現物・HLP・ステーキング・先物のほか、今回は運用せず出金を練習する道があります。'));
   }else if(quest?.id==='HY-STAKE'){
    body.append(box('HYPEの現在地','現物 → ステーキング → 委任 → ステーキング → 待機 → 現物'),ledger(['spotHYPE','stakingHYPE','delegatedHYPE','waitingHYPE','availableUSDC']),box('預け先の候補（すべて架空）','灯台ノード / 森の歯車 / 星波ノード。候補の稼働状態と教材手数料を見比べます。'));
-  }else if(quest?.id==='HY-HLP'){body.append(box('HLP — 戦略の損益を共有','固定利息ではありません。預入の評価額と、今使える手元残高を分けます。'),ledger(['availableUSDC','hlpUnits','hlpValue']),box('出金ロック',`教材時間${Math.floor((scenario?.simulationTime||0)/86400000)}日目。最後の預入から4日を数えます。`));}
-  else{const price=scenario?.data?.price??scenario?.data?.markPrice??scenario?.data?.perp?.position?.markPrice??100;body.append(box(quest?.id==='HY-PERP'?'教材トークン / 分離証拠金':'教材HYPE / 現物',`教材の表示価格 ${fmt(price)} Mock USDC。実相場ではありません。`));
+  }else{const price=scenario?.data?.price??scenario?.data?.markPrice??scenario?.data?.perp?.position?.markPrice??100;body.append(box(quest?.id==='HY-PERP'?'教材トークン / 分離証拠金':'教材HYPE / 現物',`教材の表示価格 ${fmt(price)} Mock USDC。実相場ではありません。`));
    body.append(ledger());if(quest?.id==='HY-PERP')body.append(box('注文の内訳','証拠金・倍率・建玉金額・数量を、別の値として確認します。SLの発動と約定も分けます。'));
   }
  }else if(quest?.id==='TC-01'||quest?.id==='TC-02'){

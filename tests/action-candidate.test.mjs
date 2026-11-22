@@ -6,6 +6,14 @@ import {createState,dispatch,validateAction,activeStep,totalXp} from '../js/engi
 import {questById} from '../js/content.js';
 import {displayPracticeValue,humanFieldLabel} from '../js/help.js';
 import {submissionValue} from '../js/action-input.js';
+test('HLP deposit and top-up fields accept Japanese decimal input and still reject other amounts',()=>{
+ for(const [namespace,id,questId,raw,amount] of [['step','HY-HLP-S007','HY-HLP','３００．０',300],['review','RV-HLP-4-A03',undefined,'５０．０',50]]){
+  const step={id,questId,type:'input',value:amount};
+  assert.doesNotThrow(()=>validateAction(step,submissionValue({step,namespace,typedValue:raw})));
+  assert.throws(()=>validateAction(step,submissionValue({step,namespace,typedValue:'５１'})));
+ }
+});
+
 test('spot number fields accept the same full-width figures shown on Japanese keyboards',()=>{
  for(const [field,raw,expected] of [['quantity','２','2'],['limitPrice','９５','95'],['limitQuantity','１','1']]){
   const step={questId:'HY-SPOT',type:'input',field,value:Number(expected)};

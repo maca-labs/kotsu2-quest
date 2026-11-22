@@ -168,6 +168,23 @@ test('domestic application and KYC lead to the distinct funding journey without 
  assert.equal(JSON.stringify(state),before);
 });
 
+test('an unfinished HLP top-up can resume from a restored save before the return to Sora',()=>{
+ let state=act(started('CH-6'),{type:'ROUTE',route:'hlp'});
+ state=play(state,'HY-HLP');
+ assert.equal(getStoryGuide(state).action.type,'house');
+ const variant=questById['HY-HLP'].reviewVariant;
+ for(const task of variant.tasks)for(const action of task.actions){
+  state=act(state,{type:'REVIEW_ACTION',id:'HY-HLP',taskId:task.id,actionId:action.id,value:action.value??true});
+  if(action.effect==='review:hlp:add'){
+   const restored=parseSave(JSON.stringify(state));
+   assert.equal(getStoryGuide(restored).action.type,'hlp-review');
+   assert.equal(restored.reviewStates['HY-HLP'].snapshot.available,650);
+  }
+ }
+ assert.equal(getStoryGuide(state).action.type,'house');
+ assert.equal(getStoryGuide(state).client,'学者ソラ');
+});
+
 test('chapter six distinguishes a chosen lab from the unlearned alternatives and preserves route-specific resumption',()=>{
  let state=started('CH-6');
  const skip=getStoryGuide(state);
