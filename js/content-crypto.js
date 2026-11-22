@@ -454,7 +454,7 @@ const displayInstructions = {
  },
  'HY-EXIT':{
   2:'今回選んだ経路から引き継いだ、出金用の残高明細を開く。',
-  3:'今回の経路に拘束中の資金がなく、残高を出金できることを確認する。',
+  3:'コインを預けている場所や、取引に使っている分がないかを見て、出金できることを確かめよう。',
   5:'HyperCoreから出金する資産の欄を押す。',
   7:'練習ウォレットで受け取るネットワークの欄を押す。',
   9:'出金した資金を受け取る宛先の欄を押す。',
@@ -653,15 +653,16 @@ const overrides = {
   45:wait('見学用の判定価格52へ進める'),46:{details:['価格52では評価損96、自己資本4、維持証拠金5.2。模擬清算で残余4を返し、未配分900と合計904。関連SL・TPは終了。']},
   47:{label:'元の先物ラボへ戻る'},48:check('元の先物ラボの出金可能額を照合')},
  'HY-EXIT':{
-  2:{details:['共通入金99 / 現物980 / HLP991 / ステーキング808 / 先物990。それぞれ別の状態です。画面で選ばれた今回の経路だけを使います。']},
-  3:check('今回の経路に拘束が残っていないと確認'),5:focus('asset'),6:choose('asset','USDC',assetChoices),7:focus('network'),8:choose('network','Arbitrum',networkChoices),
+  2:{details:['出金の控えで、ハイリキにいくらあり、もともと財布にいくらあるかを見比べよう。']},
+  3:check('この残高を出金できると確認'),5:focus('asset'),6:choose('asset','USDC',assetChoices),7:focus('network'),8:choose('network','Arbitrum',networkChoices),
   9:focus('address'),10:choose('address','DEMO-WALLET-A',[['自分の練習受取先：DEMO-WALLET-A','DEMO-WALLET-A'],['別のDEMO宛先','DEMO-WALLET-B']]),
   11:focus('quantity'),12:choose('quantity','all',[['今回の経路の出金可能額・全額','all'],['入力をやり直す','edit']]),
-  14:{details:['教材手数料1を申請額から控除します。共通経路99→98 / 現物980→979 / HLP991→990 / 委任808→807 / 先物990→989。']},
+  14:{details:['今回送る額から、教材の費用1 Mock USDCを引きます。残りが自分の練習財布に届く予定の額です。']},
   15:check('申請USDCと受取USDCを照合'),16:check('送る道Arbitrumと受け取る道を照合'),17:check('自分のDEMO-WALLET-Aと照合'),
   18:confirm('今回の経路の練習出金を確定'),19:{details:['出金は処理中です。HyperCoreから練習ウォレットへ届ける処理が終わるまで、受取先で使える残高には足しません。']},20:wait('教材の処理完了まで進める'),
-  24:check('今回の申請額から1を引いた到着額を照合'),25:{details:['今回の出金分は受取ウォレットにあります。共通の見送り経路なら元の900に98が届き998 USDC、ETHは別に0.0009です。未体験ラボは未学習のままです。']},
-  26:confirm('灯台守ルカへの報告用に結果を保存')}
+  21:{appId:'wallet',tabId:'notifications'},22:{appId:'wallet'},23:{appId:'wallet'},
+  24:check('今回、財布に届いた額を確かめた',{appId:'wallet'}),25:{appId:'wallet',details:['受取明細は今回届いた分を示します。財布の残高には、前から持っていた分も入ります。']},
+  26:confirm('灯台守ルカへの報告用に結果を保存',{appId:'wallet'})}
 };
 
 function labelFor(copy) {
@@ -854,7 +855,7 @@ export const objectives = [
  {domain:'hlp',names:['戦略損益の理解','預入と手元残高','評価額の変化','直近預入からのロック','引出し後の残高照合'],questIds:['HY-HLP']},
  {domain:'staking',names:['現物・ステーキング・委任の場所','バリデータ条件の見方','1日と7日の区別','数量と評価額','待機後の現物着金'],questIds:['HY-STAKE']},
  {domain:'perps',names:['証拠金・倍率・建玉・数量','方向と損益','決済後の残高','SL発動と約定','資金調達料と維持証拠金'],questIds:['HY-PERP']},
- {domain:'crypto_exit',names:['ラボ固有の解除操作','出金可能額','宛先・資産・ネットワーク','手数料と到着予定額','受取履歴の照合'],questIds:['HY-EXIT']}
+ {domain:'crypto_exit',names:['出金前に売却や解除が必要かを確かめる','出金可能額','宛先・資産・ネットワーク','手数料と到着予定額','受取履歴の照合'],questIds:['HY-EXIT']}
 ];
 
 // Bosses are independent practice screens. Damage happens only after all actions

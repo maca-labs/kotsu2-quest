@@ -86,6 +86,7 @@ test('exit progress belongs to its selected route and cannot borrow another rout
 
 test('later main-journey exit does not borrow the finished standalone skip exit',()=>{
  const q=byId['HY-EXIT'],s=progress(q,q.stepIds.length,'journey');
+ s.questStates['HY-EXIT:journey'].scenarioOverride='chapter6-journey';
  s.questStates['HY-EXIT:journey-main']={questId:'HY-EXIT',routeId:'journey',completedSteps:[],index:0,completed:false};
  s.activeQuestKey='HY-EXIT:journey-main';
  const current=getAdventure(s,q);assert.equal(current.progress,0);assert.equal(current.recordKey,'HY-EXIT:journey-main');
@@ -152,10 +153,13 @@ test('every completed step is readable in the elder archive without executing fi
 
 test('the elder keeps route exits and the later main journey in separate named volumes',()=>{
  const q=byId['HY-EXIT'],s=progress(q,q.stepIds.length,'journey');
+ assert.match(getAdventureChronicle(s)[0].title,/入金の旅/);
+ s.questStates['HY-EXIT:journey'].scenarioOverride='chapter6-journey';
  s.questStates['HY-EXIT:journey-main']={questId:q.id,routeId:'journey',completedSteps:q.stepIds.slice(0,8),index:8,completed:false};
  s.questStates['HY-EXIT:spot']={questId:q.id,routeId:'spot',completedSteps:q.stepIds.slice(0,12),index:12,completed:false};
  const records=getAdventureChronicle(s);assert.equal(records.length,3);
- assert.equal(records.find(r=>r.recordKey==='HY-EXIT:journey').completed,true);
+ const standalone=records.find(r=>r.recordKey==='HY-EXIT:journey');
+ assert.equal(standalone.completed,true);assert.match(standalone.title,/単独の練習/);
  const main=records.find(r=>r.recordKey==='HY-EXIT:journey-main');assert.equal(main.entries.length,8);assert.match(main.title,/入金の旅/);assert.equal(main.completed,false);
  assert.match(records.find(r=>r.recordKey==='HY-EXIT:spot').title,/現物/);
 });

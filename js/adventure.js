@@ -199,7 +199,7 @@ export function questBrief(quest) {
 // Milestones are historical evidence. The live bubble must still agree with a
 // financial event that happened between that milestone and the next check.
 // This changes only words: no stage, shield, world effect or reward is earned.
-function currentFinancialReaction(state,quest,count,length,view){
+function currentFinancialReaction(state,quest,count,length,view,record){
  if(!count||count>=length)return null;
  if(quest.id==='TC-02'){
   const market=state.financialScenarios?.['cards-trade'];
@@ -207,6 +207,7 @@ function currentFinancialReaction(state,quest,count,length,view){
   if(count>=23 && count<28 && market?.data.listingStatus==='sold')return '買ってくれる人が決まったよ。代金はまだ市場にあるんだ。カードが折れたり、ぬれたりしないように包もう。';
  }
  if(quest.id==='CR-03' && count>=26 && state.financialScenarios?.journey?.data.depositStatus==='received')return 'ハイリキに99 USDCが届いたよ。入金の明細と、送った財布に残った分を見比べよう。';
+ if(quest.id==='HY-EXIT' && count>=20 && state.financialScenarios?.[record?.scenarioOverride??record?.routeId]?.data.exitStatus==='received')return '自分の財布に着いたよ。今回届いた分を受取明細で見て、財布の合計も確かめよう。';
  if(!view)return null;
  const phase=state.financialScenarios?.[quest.scenarioId]?.data?.status;
  if(quest.id==='LV-01'&&count>=20&&view.position?.open===false&&view.leverageHistory?.length)
@@ -242,7 +243,7 @@ function buildAdventure(state, quest) {
   const financialView=quest.extension?getExtensionView(state,catalogSteps.find(step=>step.questId===quest.id)):null;
   const selection=quest.id==='LV-01'?financialView?.metrics:null;
   const lastReaction=completed.at(-1)?.reaction||{id:`adventure:${quest.id}:intro`,speaker:s.client,text:clientRequests[quest.id]??s.goal,kind:'intro',worldEffect:null};
-  const currentText=currentFinancialReaction(state,quest,count,length,financialView);
+  const currentText=currentFinancialReaction(state,quest,count,length,financialView,record);
   return {enemy:{id:`enemy:${quest.id}`,name:s.enemyName,hp,maxHp,kind:s.kind},stages,milestones:stages,currentStage,selection,
     latestReaction:currentText?{...lastReaction,text:currentText,currentStatus:true}:lastReaction,
     nextGoal:catalogSteps.find(step=>step.id===quest.stepIds?.[count])?.instruction||(length?`${s.client}に、この依頼で確かめた結果を知らせよう。`:s.goal),
@@ -348,6 +349,7 @@ export function getTavernAdvice(state={},quest,step) {
 function currentAdvice(quest,step){
  const copy=`${step?.instruction||''} ${step?.field||''}`;
  if(quest.id==='CR-03')return '送るのは自分の練習財布。受け取るのはハイリキだよ。ハイリキの受取カードを見て、財布の送金欄をそろえよう。';
+ if(quest.id==='HY-EXIT' && Number(step?.id?.slice(-3))>=21)return '受け取った分を知りたいときは、財布の「今回の受取明細」を開こう。財布の残高には前からあったコインも入っているよ。';
  if(quest.id==='FI-02'||quest.id==='HY-EXIT')return '今回は自分の練習財布で受け取るよ。財布の受取カードを開いて、送る側のコイン・通り道・宛先と見比べよう。';
  if(quest.id==='DX-01')return /認証|コード/.test(copy)?'届いたメールの件名を見よう。コピーしたら、入力中の窓口へ戻れるよ。':'銀行口座とは別の申込だよ。カードを見ながら一つずつ。受付の後も本人確認が残るよ。';
  if(quest.id==='DX-02')return /審査|通知|利用/.test(copy)?'審査中と利用可能の札を分けよう。知らせの後は履歴も見られるよ。':'本人の名前・住所・期限をそろえ、画面内の書類と人物を見比べよう。';
@@ -413,7 +415,7 @@ export function getAdventureChronicle(state={}){
   const count=contiguousProgress(quest,record);if(!count)continue;
   const completedStepIds=quest.stepIds.slice(0,count),completed=!!record.completed&&count===quest.stepIds.length;
   const routeId=record.routeId||'journey';
-  const routeLabel=quest.id==='HY-EXIT'?`${routeNames[routeId]||'選んだ道'}${recordKey==='HY-EXIT:journey-main'?'・入金の旅から':routeId==='journey'?'・単独の練習':''}`:null;
+  const routeLabel=quest.id==='HY-EXIT'?`${routeNames[routeId]||'選んだ道'}${routeId!=='journey'?'':record.scenarioOverride==='chapter6-journey'?'・単独の練習':'・入金の旅から'}`:null;
   const adventure=buildAdventure({...state,activeQuestKey:recordKey},quest);
   records.push({questId:quest.id,recordKey,chapterId:quest.chapterId,title:`${quest.title}${routeLabel?` — ${routeLabel}`:''}`,completed,
     routeId:quest.id==='HY-EXIT'?routeId:null,routeLabel,statusLabel:completed?'完了':`途中まで（${count}/${quest.stepIds.length}工程）`,

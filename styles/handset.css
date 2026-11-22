@@ -272,3 +272,10 @@
 .transfer-route, .transfer-status { font-weight: 700; }
 .transfer-slip .transfer-status { scroll-margin-top: 68px; padding-top: 4px; border-top: 1px dashed #abc3b8; }
 .transfer-material summary { padding-block: 6px; }
+.transfer-reference { scroll-margin-top: 68px; }
+
+.exit-trial-jump { display: none; }
+.exit-trial { scroll-margin-top: 68px; }
+@media (max-width: 760px) and (max-height: 500px) {
+  .exit-trial-jump { display: block; width: 100%; min-height: 44px; margin-bottom: 8px; }
+}

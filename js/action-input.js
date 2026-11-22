@@ -9,8 +9,8 @@ export function submissionValue({step,typedValue,namespace='step',mainClipboard=
   return typedValue.replace(/[０-９．]/g,char=>String.fromCharCode(char.charCodeAt(0)-0xfee0));
  }
  const amountForm=namespace==='step' && /^(?:TC-|FI-|CR-03$)/.test(step.questId??'');
- const islandTrial=namespace==='boss' && step.id?.startsWith('CH5-');
- if((amountForm||islandTrial) && step.type==='input' && typeof step.value==='number')return yenInput(typedValue);
+ const cryptoTrial=namespace==='boss' && /^CH[56]-/.test(step.id??'');
+ if((amountForm||cryptoTrial) && step.type==='input' && typeof step.value==='number')return yenInput(typedValue);
  if(!/貼り付け/.test(step.label??''))return typedValue;
  if(namespace==='step')return mainClipboard;
  if(namespace==='review')return reviewClipboard;

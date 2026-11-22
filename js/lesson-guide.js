@@ -126,7 +126,9 @@ export function getLessonGuide({state,quest,step}={}){
  const brief=questBrief(q),copy=lessons[q.id]??lesson(q.title??'頼まれた用事を確かめよう',brief.goal,'用事の内容を見る。','入力と確認を分けて進める。',`${brief.client}へ結果を知らせる。`);
  const current=currentOperation(state,q,step),preview=current?remainingPreview(q,current,copy):{steps:['終えた用事の結果を見る。',`${brief.client}へ結果を知らせる。`,'次の用事か、別条件の復習を選ぶ。'],showFlow:false};
  const firstAction=current?getFxOperationInstruction(current)||current.label||'今の操作を確かめよう。':`この用事は終わっています。${brief.client}へ結果を知らせよう。`;
- const practice=copy.practice+(preview.showFlow?' 別の用事でコピーした内容は使いません。':'');
+ const route=state?.questStates?.[state.activeQuestKey]?.routeId??state?.selectedRoute;
+ const purpose=q.id==='HY-EXIT' && route==='journey'?'今回は運用を見送ったので、コインを売る作業はありません。ハイリキから自分の練習財布へ送り、財布に届いた分を見届けよう。':copy.practice;
+ const practice=purpose+(preview.showFlow?' 別の用事でコピーした内容は使いません。':'');
  const story=q.id==='PR-01'?`${brief.client}は「${brief.incident}」と話しています。`:`${brief.client}からのお願いです。${brief.incident}`;
  return {title:copy.title,story,practice,steps:preview.steps,firstAction,...(preview.showFlow?{flow:{...mailFlows[q.id]}}:{})};
 }

@@ -4,6 +4,7 @@ import {practiceProfile,comparisonPanels} from './content-points.js';
 import {getStepOpenAppId,getPhoneHomeApps,getPhoneSurfaceAppId,phoneAppName} from './phone-navigation.js';
 import {getFxSelectionSummary} from './fx-guidance.js';
 import {journeyTransfer} from './journey-slip.js';
+import {getExitLedger} from './exit-slip.js';
 
 const appNames={memo:'旅人のメモ',mail:'ゲーム内メール',browser:'まいにちストア',points:'コツコツモール',bank:'ほしあかり銀行',wallet:'練習ウォレット',hyper:'そらの運用ラボ',fx:'ほしぞらFX',market:'星札マーケット',gift:'練習ギフト',exchange:'ポイント交換所'};
 export const phoneFieldLabels={asset:'送る資産',receiveAsset:'受け取る資産',network:'送るネットワーク',receiveNetwork:'受け取るネットワーク',address:'練習用の宛先',quantity:'数量',sellQuantity:'売却する数量',withdrawQuantity:'引き出す数量',moveDestination:'移動先',delegateQuantity:'委任する数量',undelegateQuantity:'委任を解除する数量',returnQuantity:'現物へ戻す数量',validator:'預け先の候補',collateral:'配分する証拠金',leverage:'倍率',side:'買い・売り',symbol:'銘柄',orderType:'注文方法',stopPrice:'SLの発動価格',closeQuantity:'決済する数量',limitPrice:'指値の価格',limitQuantity:'指値の数量',returnHorizon:'戻したい時期',route:'学ぶ経路',wallet:'練習用ウォレット',available:'使える残高',received:'受け取った数量',expected:'受取予定の数量',valuation:'評価額',profit:'確定した利益',loss:'損失額',funding:'資金調達料',notional:'建玉金額',totalHype:'HYPEの合計数量',receivedSpot:'現物へ届いた数量',extraQuantity:'追加で預ける数量'};
@@ -38,7 +39,7 @@ function marketPhoto(doc,back){
 }
 
 /** Native local-only app surfaces. onAction is called only after an explicit user operation. */
-export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavigate}) {
+export function renderPhonePanel({document:doc,state,step,quest,recordKey=state.activeQuestKey,onAction,onNavigate}) {
  if(!step||!doc)return null;
  const el=(tag,text='',style='')=>{const n=doc.createElement(tag);if(text)n.textContent=String(text);if(style)n.style.cssText=style;return n;};
  const root=el('section','','border:1px solid #c8d9d1;border-radius:12px;background:#f9fcfa;margin:0 0 18px;overflow:hidden;color:#233d35;font-family:system-ui,sans-serif');
@@ -46,6 +47,7 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
  const surface=getPhoneSurfaceAppId(step);
  let appName=appNames[surface]||'練習スマホ';
  if(journeyQuest)appName=step.displayAppId==='switcher'?'最近使ったアプリ':phoneAppName(surface,quest.id)??appName;
+ if(quest?.id==='HY-EXIT')appName=phoneAppName(surface,quest.id)??appName;
  if(/スマホホーム/.test(step.screenTitle??''))appName='練習スマホ';
  root.className='native-phone-panel';root.setAttribute('aria-label',`${appName}の画面`);
  const head=el('div','','padding:12px 14px;background:#dbeae2;border-bottom:1px solid #c4d7cd;display:flex;gap:8px;align-items:center;justify-content:space-between');
@@ -58,7 +60,7 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
  const actionButton=(label,value=step.value)=>button(label,()=>onAction?.(value),true);
  const fmt=n=>typeof n==='number'?n.toLocaleString('ja-JP',{maximumFractionDigits:6}):String(n??'');
  const route=state.questStates?.[state.activeQuestKey]?.routeId||state.selectedRoute||'journey';
- let scenario;try{scenario=state.financialScenarios?.[scenarioForStep(step,{routeId:route},state)];}catch{}
+ let scenario;if(quest?.id!=='HY-EXIT')try{scenario=state.financialScenarios?.[scenarioForStep(step,{routeId:route},state)];}catch{}
  const accounts=scenario?.accounts||{};
  const ledger=(keys)=>{const n=el('div','','background:white;border-radius:8px;padding:4px 10px');for(const r of scenarioSummary(scenario).filter(r=>!keys||keys.includes(r.key)).slice(0,7))n.append(row(r.label,fmt(r.value)));return n;};
  const pixel=(kind,width=144,height=96)=>{const c=el('canvas','','display:block;image-rendering:pixelated;width:100%;max-width:240px;margin:auto;border-radius:6px;background:#edf2e8');c.width=width;c.height=height;c.setAttribute('role','img');c.setAttribute('aria-label',kind==='person'?'画面内の架空人物':kind==='id'?'教材専用の本人確認カード':'練習用の日用品セット');const x=c.getContext('2d');if(!x)return c;
@@ -159,10 +161,62 @@ export function renderPhonePanel({document:doc,state,step,quest,onAction,onNavig
   if(quest?.id==='TR-01'){const recipient=box('今回の振込先カード');recipient.append(row('支店',practiceProfile.branch),row('口座の種類',practiceProfile.accountType),row('口座番号',practiceProfile.accountNumber),row('受取人',practiceProfile.kana));body.append(recipient,ledger());}
   else body.append(box('申込者の練習プロフィール',`${practiceProfile.name}（成人）\n${practiceProfile.address}`),box('申込状況',scenario?.data?.status||'受付 → 本人確認 → 審査 → 完了通知'));
  }else if(step.appId==='wallet'||step.appId==='hyper'){
-  body.append(text('非公式の学習用シミュレーション。表示資金はすべて架空。',true));
   if(quest?.id==='HY-EXIT'){
-   const receiver=box('今回の受取カード');receiver.append(row('資産','Mock USDC'),row('ネットワーク','Arbitrum'),row('練習用の宛先','DEMO-WALLET-A'),row('教材手数料','1 Mock USDC・送信額から控除'));body.append(receiver,ledger());
-  }else if(quest?.id==='CR-04'){
+   const view=getExitLedger(state,recordKey,step.id);
+   if(!view)return null;
+   const {number,accounts:funds,draft,target,phase}=view;
+   const usdc=value=>fmt(value)+' Mock USDC';
+   const asset=draft.asset?'Mock '+draft.asset:'未選択';
+   if(number<=3){
+    const balance=box(view.name+'の残高');
+    balance.append(row('いま出金できる額',usdc(funds.availableUSDC)));
+    if(number===1)balance.append(text('架空の資金を使う出金練習です。',true));
+    body.append(balance);
+   }else if(number<=14||number===18){
+    const form=box(number>=13?'出金申請の内容':'出金フォーム');
+    form.append(row('出金する資産',asset));
+    if(number>=7)form.append(row('送る道',draft.network??'未選択'));
+    if(number>=9)form.append(row('受取先',draft.address??'未選択'));
+    if(number>=11)form.append(row('出金する額',draft.quantity==='all'?'全額・'+usdc(view.amount):'未選択'));
+    body.append(form);
+    if(number<=10){
+     const card=box('自分の財布の受取カード');
+     if(number<=6)card.append(row('受け取る資産','Mock '+target.asset));
+     else if(number<=8)card.append(row('受け取る道',target.network));
+     else card.append(row('財布の宛先',target.address));
+     body.append(card);
+    }
+    if(number===14)form.append(text('ここで使う出金費は教材の設定です。',true));
+   }else if(number<=17){
+    const field=['asset','network','address'][number-15];
+    const label={asset:'資産',network:'道',address:'宛先'}[field];
+    const check=box(label+'の照合');
+    check.append(row('出金欄の'+label,field==='asset'?asset:draft[field]??'未選択'),
+     row('受取カードの'+label,field==='asset'?'Mock '+target.asset:target[field]));
+    body.append(check);
+   }else if(number<=20){
+    const history=box('ハイリキの出金履歴');
+    history.append(row('申請の状態',{not_started:'申請前',processing:'処理中・財布への到着待ち',received:'財布へ到着'}[phase]),
+     row('処理中の額',usdc(funds.withdrawalPending)));
+    body.append(history);
+   }else if(phase==='received'){
+    if(number===21){
+     body.append(box('自分の財布・受取通知','ハイリキから'+usdc(view.receipt)+'が届きました。'));
+    }else if(number===22){
+     const balance=box('自分の財布の残高',target.address);
+     balance.append(row('Mock USDC',fmt(funds.walletUSDC)));
+     if(funds.walletETH!==undefined)balance.append(row('ガス用のMock ETH',fmt(funds.walletETH)));
+     body.append(balance);
+    }else{
+     const received=box(number>=25?'ルカに渡す受取記録':'今回の受取明細');
+     received.append(row('送った場所','ハイリキ（HyperCore）'),row('届いた額',usdc(view.receipt)));
+     body.append(received);
+    }
+   }
+   return {element:root,handlesAction:false};
+  }
+  body.append(text('非公式の学習用シミュレーション。表示資金はすべて架空。',true));
+  if(quest?.id==='CR-04'){
    const number=Number(step.id.slice(-3));
    if(number>=2&&number<=3)body.append(box('現物','買ったコインの値段が下がると、同じ枚数でも売って受け取れる額は減ります。'));
    else if(number>=5&&number<=6)body.append(box('HLP','戦略の利益も損失も分け合います。この教材では、最後に預けた日から4日後に引き出せます。'));

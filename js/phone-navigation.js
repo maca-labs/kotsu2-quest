@@ -5,6 +5,7 @@ export function getStepOpenAppId(step){return step?.openAppId??legacyOpenApps[st
 export function getPhoneSurfaceAppId(step){return step?.questId==='FX-03'?'points':step?.appId??'home';}
 export function getPhoneResumeTarget(step){return getStepOpenAppId(step)??step?.displayAppId??getPhoneSurfaceAppId(step);}
 export function phoneAppName(id,questId){
+ if(questId==='HY-EXIT')return ({hyper:'ハイリキ（出金）',wallet:'自分の練習ウォレット'})[id]??homeAppNames[id];
  if(/^CR-/.test(questId??''))return ({memo:'資産の地図（メモ）',hyper:'そらの取引練習',wallet:'練習ウォレット'})[id]??homeAppNames[id];
  return homeAppNames[id];
 }
