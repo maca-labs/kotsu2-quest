@@ -11,6 +11,7 @@ test('Japanese-width amounts and grouping on a transfer form do not alter addres
  const submit=typedValue=>submissionValue({step,typedValue});
  assert.equal(submit('１２０，０００'),'120000');
  assert.equal(submit('１２，００'),'12,00');
+ assert.equal(submissionValue({namespace:'boss',step:{id:'CH5-B4-A02',type:'input',value:50},typedValue:'５０'}),'50');
  assert.equal(submissionValue({step:stepById['CR-03-S018'],typedValue:'１００'}),'100');
  assert.equal(submissionValue({step:stepById['FI-02-S009'],typedValue:'DEMO-WALLET-Ａ'}),'DEMO-WALLET-Ａ');
 });

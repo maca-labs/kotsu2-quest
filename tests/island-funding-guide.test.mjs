@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {steps as fundingSteps} from '../js/content-funding.js';
 import {steps as cryptoSteps} from '../js/content-crypto.js';
 import {initialScenarios,applyFinancialStep} from '../js/finance.js';
-import {getFundingSlip} from '../js/phone-funding.js';
+import {getFundingSlip,getFundingView} from '../js/phone-funding.js';
 
 const fresh=()=>({financialScenarios:initialScenarios()});
 const slip=(state,id)=>getFundingSlip(state,id.slice(0,5),id);
@@ -35,7 +35,10 @@ test('the bank deposit, purchase and wallet receipt identify the right account b
    card=slip(state,'FI-01-S012');
    assert.match(card.status,/120,000円を預かり中.*銀行に80,000円、交換所に0円/);
   }
-  if(step.id==='FI-01-S013')assert.match(slip(state,'FI-01-S014').status,/到着済み.*銀行に80,000円、交換所に120,000円/);
+  if(step.id==='FI-01-S013'){
+   assert.match(slip(state,'FI-01-S014').status,/到着済み.*銀行に80,000円、交換所に120,000円/);
+   assert.match(getFundingView(state,{id:'FI-01-S014'}).copy,/交換所に届いた円/);
+  }
   if(step.id==='FI-01-S023'){
    card=getFundingSlip(state,'FI-01');
    assert.match(card.reference,/1枚1,000円.*104枚.*104,000円/);
