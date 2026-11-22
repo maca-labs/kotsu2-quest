@@ -23,7 +23,10 @@ function preparationNote({accounts, data, simulationTime}, route) {
       if (accounts.stakingHYPE) return `${accounts.stakingHYPE} HYPEはステーキングの手元にあるよ。現物へ戻す申請をすると、そこから7日かかるよ。`;
       if (accounts.waitingHYPE) return `${accounts.waitingHYPE} HYPEは現物への到着待ち。ゲーム内であと${Math.max(0, Math.ceil((data.arrivalAt - simulationTime) / DAY))}日。届くと売れるよ。`;
       return `現物に${accounts.spotHYPE} HYPEが到着。売るとUSDCに変わるよ。`;
-    case 'perp': return `取引に使っている証拠金は${usdc(accounts.collateral)}。決済後に戻るよ。`;
+    case 'perp': {
+      const position=data.perp.position;
+      return `この試練はロング。証拠金${accounts.collateral} × ${position.leverage}倍 ＝ 取引額${usdc(position.notional)}。始めたときと同じ価格${position.entryPrice}で決済するよ。`;
+    }
   }
 }
 

@@ -281,11 +281,11 @@
 }
 
 .hlp-review { width: min(100%, 440px); margin-inline: auto; }
-:is(.hlp-next, .stake-next) { scroll-margin-top: 68px; text-align: left; }
-:is(.hlp-next, .stake-next) h2 { margin: 5px 0; font-size: 1.12rem; }
-:is(.hlp-next, .stake-next) p { margin: 5px 0 10px; line-height: 1.5; }
-:is(.hlp-next, .stake-next) button { margin-bottom: 8px; }
+:is(.hlp-next, .lab-next) { scroll-margin-top: 68px; text-align: left; }
+:is(.hlp-next, .lab-next) h2 { margin: 5px 0; font-size: 1.12rem; }
+:is(.hlp-next, .lab-next) p { margin: 5px 0 10px; line-height: 1.5; }
+:is(.hlp-next, .lab-next) button { margin-bottom: 8px; }
 
-.phone .stake-field-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-.phone .stake-field-head .field-label { flex: 1; margin: 0; }
-.phone .stake-field-head .candidate { width: auto; min-height: 44px; margin: 0; padding: 5px 9px; }
+.phone .amount-field-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.phone .amount-field-head .field-label { flex: 1; margin: 0; }
+.phone .amount-field-head .candidate { width: auto; min-height: 44px; margin: 0; padding: 5px 9px; }

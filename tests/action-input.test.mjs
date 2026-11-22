@@ -33,3 +33,23 @@ test('the staking quantity accepts Japanese mobile input and resumes an existing
  assert.deepEqual([spotHYPE,stakingHYPE],[0,10]);
  assert.throws(()=>perform({type:'STEP',id:'HY-STAKE-S010',value:true}));
 });
+
+test('perpetual collateral and stop prices keep a valid decimal amount across a save and confirmation',async()=>{
+ const {createState,dispatch,activeStep,parseSave}=await import('../js/engine.js');
+ let state=createState();
+ const perform=command=>{state=dispatch(state,command,state.realClockState.lastObservedAt+1);};
+ for(const command of [{type:'START'},{type:'CHAPTER',id:'CH-6'},{type:'NPC',index:0},{type:'ACCEPT',id:'HY-PERP'}])perform(command);
+ for(let index=1;index<=35;index++){
+  const step=activeStep(state);
+  let value=step.value??step.choices?.[0]?.value??true;
+  if(index===12||index===32){
+   value=submissionValue({step,typedValue:index===12?'１００．０':'９７．００'});
+   assert.throws(()=>perform({type:'STEP',id:step.id,value:'11'}));
+  }
+  perform({type:'STEP',id:step.id,value});
+  if(index===12||index===32)state=parseSave(JSON.stringify(state));
+  if(index===19)assert.equal(state.financialScenarios.perp.accounts.availableUSDC,900);
+ }
+ assert.equal(state.financialScenarios.perp.accounts.availableUSDC,990);
+ assert.equal(state.financialScenarios['perp-sl'].accounts.availableUSDC,993);
+});

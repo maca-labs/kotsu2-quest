@@ -211,6 +211,21 @@ function currentFinancialReaction(state,quest,count,length,view,record){
    return '300を預けられたよ。次は、いつ引き出せるかを一緒に確かめよう。';
   }
  }
+ if(quest.id==='HY-PERP'){
+  const lab=state.financialScenarios?.perp, trade=lab?.data.perp;
+  if(count>=47)return '本編の決済明細に戻ったよ。別のお手本を見ている間も、こちらの残高はそのままだったね。';
+  if(count>=43)return state.financialScenarios?.['perp-liquidation']?.data.perp?.position
+   ?'次は取引を続けられるかを見る、別のお手本だよ。取引に残ったお金と、続けるのに必要なお金を比べよう。'
+   :'取引が自動で終わったね。この例では取引に残った分も手元へ戻るよ。';
+  if(count>=38)return 'ここは支払う人と受け取る人を調べる別のお手本だよ。ロングとショート、どちらが払うかな？';
+  if(count>=28)return state.financialScenarios?.['perp-sl']?.data.perp?.position
+   ?'自動で取引を閉じる合図を決めよう。今は本編と別のお金で練習しているよ。'
+   :'合図が出た値段と、実際に取引を終えた値段が違ったね。損した額は、取引が成立した値段で決まるよ。';
+  if(trade && !trade.position)return '取引を終えたよ！　使わずに取っておいた分と、取引から戻った分を足してみよう。';
+  if(trade?.position)return trade.position.markPrice<trade.position.entryPrice
+   ?'ロングで値下がりしたね。この時点で取引を終えると、証拠金からいくら戻ってくるかな？'
+   :'注文できたよ。手元から取引へ移ったのは証拠金。倍率をかけた取引額は、値動きの大きさを調べるための数字だよ。';
+ }
  if(quest.id==='HY-STAKE'){
   const lab=state.financialScenarios?.stake;
   if(lab){

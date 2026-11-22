@@ -246,10 +246,10 @@ on('stake', 'HY-STAKE-S026', 'undelegate:stake-001', s => { needEvent(s, 'reward
 on('stake', 'HY-STAKE-S031', 'withdraw-request:stake-001', s => { needEvent(s, 'undelegate:stake-001'); cashChange(s, { stakingHYPE: -10.1, waitingHYPE: 10.1 }); s.data.arrivalAt = s.simulationTime + 7 * DAY; });
 on('stake', 'HY-STAKE-S033', 'arrive:stake-001', s => { needEvent(s, 'withdraw-request:stake-001'); s.simulationTime = s.data.arrivalAt; cashChange(s, { waitingHYPE: -10.1, spotHYPE: 10.1 }); });
 on('stake', 'HY-STAKE-S039', 'sell:stake-001', s => { needEvent(s, 'arrive:stake-001'); needEvent(s, 'tick:stake-80'); cashChange(s, { spotHYPE: -10.1, availableUSDC: 808 }); });
-on('perp', 'HY-PERP-S019', 'open:perp-001', s => syncPerp(s, openPerp()), (s, d) => matching(d, { collateral: 100, leverage: 2, side: 'long', marginMode: 'isolated', lossPlan: 'manual-95' }));
+on('perp', 'HY-PERP-S019', 'open:perp-001', s => syncPerp(s, openPerp()), (s, d) => { matching(d, { leverage: 2, side: 'long', marginMode: 'isolated', lossPlan: 'manual-95' }); requireThat(parseAmount(d.collateral) === 100, '証拠金の欄に100を入れよう。'); });
 on('perp', 'HY-PERP-S021', 'tick:perp-95', s => { needEvent(s, 'open:perp-001'); syncPerp(s, tickPerp(s.data.perp, { markPrice: 95 })); s.simulationTime += HOUR; });
 on('perp', 'HY-PERP-S026', 'close:perp-001', s => { needEvent(s, 'tick:perp-95'); syncPerp(s, closePerp(s.data.perp, 95)); });
-on('perp-sl', 'HY-PERP-S034', 'sl:perp-demo', s => { s.data.perp.position.sl = 97; }, (s, d) => matching(d, { stopPrice: 97 }));
+on('perp-sl', 'HY-PERP-S034', 'sl:perp-demo', s => { s.data.perp.position.sl = 97; }, (s, d) => requireThat(parseAmount(d.stopPrice) === 97, '自動決済が動きだす価格は97だよ。'));
 on('perp-sl', 'HY-PERP-S035', 'tick:perp-sl', s => { needEvent(s, 'sl:perp-demo'); syncPerp(s, tickPerp(s.data.perp, { markPrice: 97, fillPrice: 96.5 })); s.simulationTime += HOUR; });
 on('perp-funding', 'HY-PERP-S041', 'funding:hour-001', s => { syncPerp(s, tickPerp(s.data.perp, { markPrice: 100, fundingRate: .0001, fundingEventId: 'hour-001' })); s.simulationTime += HOUR; });
 on('perp-liquidation', 'HY-PERP-S045', 'liquidation:demo-001', s => { syncPerp(s, tickPerp(s.data.perp, { markPrice: 52 })); s.simulationTime += HOUR; });
