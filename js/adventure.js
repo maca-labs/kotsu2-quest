@@ -211,6 +211,20 @@ function currentFinancialReaction(state,quest,count,length,view,record){
    return '300を預けられたよ。次は、いつ引き出せるかを一緒に確かめよう。';
   }
  }
+ if(quest.id==='HY-STAKE'){
+  const lab=state.financialScenarios?.stake;
+  if(lab){
+   const {accounts:a,data}=lab;
+   if(lab.eventLog.some(e=>e.kind==='sell:stake-001'))return '売れたよ！　コインの枚数と、代わりに入ったUSDCを明細で見よう。';
+   if(a.waitingHYPE>0)return 'コインは現物へ帰る途中だよ。帰りの申請をした日から、ゲーム内で7日待とう。';
+   if(a.spotHYPE>0 && data.arrivalAt!==null)return '現物に着いたよ！　ここなら売れる。まだコインを持っているから、次に売る枚数を選ぼう。';
+   if(a.stakingHYPE>0)return data.delegationUnlockAt!==null?'任せた分がステーキングの手元に戻ったよ。現物へ戻すには、ここから帰りの申請を出そう。':'ステーキングの手元に移せたね。次は、このコインを誰に任せるか選ぼう。';
+   if(a.delegatedHYPE>0){
+    if(data.price<lab.initialSnapshot.data.price)return '枚数はそのままでも、1枚の値段で値打ちは変わるよ。今はまだ相手に任せているんだ。';
+    return lab.simulationTime>=data.delegationUnlockAt?'1日たって、委任をやめられるようになったよ。増えた分も、今はまだ相手に任せたままだよ。':'委任できたね。ゲーム内で1日たつと、相手に任せるのをやめられるよ。';
+   }
+  }
+ }
  if(quest.id==='HY-SPOT'){
   const spot=state.financialScenarios?.spot,limit=state.financialScenarios?.['spot-limit'];
   if(count>=25 && count<40){

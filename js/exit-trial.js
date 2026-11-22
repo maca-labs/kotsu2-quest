@@ -19,9 +19,9 @@ function preparationNote({accounts, data, simulationTime}, route) {
       return `HLPの評価額は${usdc(accounts.hlpValue)}。` + (days > 0 ? `引き出せるまで練習時間であと${days}日。` : 'ロックが解け、引き出せるよ。');
     }
     case 'stake':
-      if (accounts.delegatedHYPE) return `${accounts.delegatedHYPE} HYPEを委任中。戻すには委任の解除から。`;
-      if (accounts.stakingHYPE) return `${accounts.stakingHYPE} HYPEはステーキング残高にあるよ。`;
-      if (accounts.waitingHYPE) return `${accounts.waitingHYPE} HYPEは現物への到着待ち。`;
+      if (accounts.delegatedHYPE) return `${accounts.delegatedHYPE} HYPEを委任中。この試練は、委任から1日たったところ。今、解除できるよ。`;
+      if (accounts.stakingHYPE) return `${accounts.stakingHYPE} HYPEはステーキングの手元にあるよ。現物へ戻す申請をすると、そこから7日かかるよ。`;
+      if (accounts.waitingHYPE) return `${accounts.waitingHYPE} HYPEは現物への到着待ち。ゲーム内であと${Math.max(0, Math.ceil((data.arrivalAt - simulationTime) / DAY))}日。届くと売れるよ。`;
       return `現物に${accounts.spotHYPE} HYPEが到着。売るとUSDCに変わるよ。`;
     case 'perp': return `取引に使っている証拠金は${usdc(accounts.collateral)}。決済後に戻るよ。`;
   }

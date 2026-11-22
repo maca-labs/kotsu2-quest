@@ -238,7 +238,7 @@ on('hlp', 'HY-HLP-S010', 'deposit:hlp-001', s => { cashChange(s, { availableUSDC
 on('hlp', 'HY-HLP-S013', 'tick:hlp-97', s => { needEvent(s, 'deposit:hlp-001'); s.simulationTime += 2 * DAY; s.data.unitPrice = 97; s.accounts.hlpValue = 291; });
 on('hlp', 'HY-HLP-S018', 'wait:hlp-unlock', s => { needEvent(s, 'tick:hlp-97'); s.simulationTime = s.data.withdrawableAt; });
 on('hlp', 'HY-HLP-S024', 'withdraw:hlp-001', s => { needEvent(s, 'wait:hlp-unlock'); requireThat(s.simulationTime >= s.data.withdrawableAt, '出金可能日時までゲーム内時間を進めよう。'); cashChange(s, { availableUSDC: 291, hlpUnits: -3, hlpValue: -291, realizedPnl: -9 }); });
-on('stake', 'HY-STAKE-S010', 'move:stake-001', s => cashChange(s, { spotHYPE: -10, stakingHYPE: 10 }), (s, d) => matching(d, { quantity: 10 }));
+on('stake', 'HY-STAKE-S010', 'move:stake-001', s => cashChange(s, { spotHYPE: -10, stakingHYPE: 10 }), (s, d) => requireThat(parseAmount(d.quantity) === 10, '現物から移す枚数を練習カードと比べよう。'));
 on('stake', 'HY-STAKE-S018', 'delegate:stake-001', s => { needEvent(s, 'move:stake-001'); cashChange(s, { stakingHYPE: -10, delegatedHYPE: 10 }); s.data.delegationUnlockAt = s.simulationTime + DAY; });
 on('stake', 'HY-STAKE-S020', 'reward:stake-001', s => { needEvent(s, 'delegate:stake-001'); s.simulationTime += DAY; cashChange(s, { delegatedHYPE: .1, rewardHYPE: .1 }); });
 on('stake', 'HY-STAKE-S022', 'tick:stake-80', s => { needEvent(s, 'reward:stake-001'); s.data.price = 80; });

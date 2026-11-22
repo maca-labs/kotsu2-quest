@@ -12,7 +12,7 @@ const labs = {
   journey: {name:'運用見送り', ready:'運用を見送ったので、売却も解除も不要。'},
   spot: {name:'現物ラボ', held:['hype','reservedUSDC'], release:'保有分の売却や未成立の注文の取消', event:'sell:spot-001', ready:'現物を売却済み。HYPEは0枚。このラボで受け取る財布は、第5章の財布とは別だよ。'},
   hlp: {name:'HLPラボ', held:['hlpUnits'], release:'ロックが明けてからの引き出し', event:'withdraw:hlp-001', ready:'HLPから引き出し済み。本編で手元に戻したお金を、このラボの受取財布へ送るよ。'},
-  stake: {name:'ステーキングラボ', held:['delegatedHYPE','stakingHYPE','waitingHYPE','spotHYPE'], release:'委任の解除・現物への到着・売却', event:'sell:stake-001', ready:'委任を解除し、現物に戻ったHYPEを売却済み。'},
+  stake: {name:'ステーキングラボ', held:['delegatedHYPE','stakingHYPE','waitingHYPE','spotHYPE'], release:'委任の解除・現物への到着・売却', event:'sell:stake-001', ready:'委任を解除し、現物に戻ったHYPEを売却済み。ここから、売った代金をこのラボの受取財布へ送るよ。'},
   perp: {name:'先物ラボ', held:['collateral'], release:'建玉の全決済', event:'close:perp-001', ready:'建玉をすべて決済し、証拠金が手元に戻った。'},
 };
 

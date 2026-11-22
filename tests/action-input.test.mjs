@@ -12,3 +12,24 @@ test('review paste uses its own copied code despite a different main-story code'
 test('ordinary typed input stays in its own field and is not replaced by any clipboard',()=>{
  for(const namespace of ['step','review','boss'])assert.equal(submissionValue({step:{label:'数量を入力'},typedValue:'103',namespace,mainClipboard:'246810',reviewClipboard:'735921'}),'103');
 });
+
+test('the staking quantity accepts Japanese mobile input and resumes an existing decimal draft',async()=>{
+ const {createState,dispatch,activeStep,parseSave}=await import('../js/engine.js');
+ let state=createState();
+ const perform=command=>{state=dispatch(state,command,state.realClockState.lastObservedAt+1);};
+ for(const command of [{type:'START'},{type:'CHAPTER',id:'CH-6'},{type:'NPC',index:0},{type:'ACCEPT',id:'HY-STAKE'}])perform(command);
+ for(let index=1;index<=10;index++){
+  const step=activeStep(state);
+  let value=step.value??step.choices?.[0]?.value??true;
+  if(index===8){
+   value=submissionValue({step,typedValue:'１０．０'});
+   assert.equal(value,'10.0');
+   assert.throws(()=>perform({type:'STEP',id:step.id,value:'11'}));
+  }
+  perform({type:'STEP',id:step.id,value});
+  if(index===8)state=parseSave(JSON.stringify(state));
+ }
+ const {spotHYPE,stakingHYPE}=state.financialScenarios.stake.accounts;
+ assert.deepEqual([spotHYPE,stakingHYPE],[0,10]);
+ assert.throws(()=>perform({type:'STEP',id:'HY-STAKE-S010',value:true}));
+});
