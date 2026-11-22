@@ -275,6 +275,10 @@ function currentFinancialReaction(state,quest,count,length,view,record){
   if(count===14&&firstBuy?.status==='cancelled')return '買い注文の取消が終わり、円の予約が解けたよ。使える円へ戻ったか、控えと残高を照合しよう。';
  }
  if(quest.id==='LD-01'){
+  const cash=state.financialScenarios[quest.scenarioId].accounts;
+  if(phase==='lending')return `いま使えるのは${cash.availableUSDC}。貸している${cash.lentPrincipal}は、約束の日まで窓口にあるよ。`;
+  if(phase==='matured')return `約束の日が来たね。まだ受け取っていないから、手元は${cash.availableUSDC}だよ。明細を開こう。`;
+  if(phase==='returning')return `窓口に返してほしいと伝えたよ。手元はまだ${cash.availableUSDC}。窓口が用意している元本と利息を見よう。`;
   if(phase==='received'&&count>=21)return '元本と利息は手元へ戻ったよ。受取明細と使える残高を合わせ、貸出中や処理中の残りがゼロか最後に照合しよう。';
   if(phase==='arrived'&&count>=19)return '返還処理が終わり、到着の知らせが用意されたよ。元本と利息の受取明細を開こう。手元への受取確認は、この次の操作だよ。';
  }

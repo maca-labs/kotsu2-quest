@@ -3,7 +3,7 @@ export const extensionProfile={fullName:'朝日 ミナト',birthDate:'1994-04-12
 const C=(label,value)=>({label,value});
 const tap=(instruction,label,extra={})=>({instruction,label,type:'tap',...extra});
 const focus=(field,fieldLabel)=>({instruction:`「${fieldLabel}」の欄を押す。`,label:fieldLabel,type:'focus',field,fieldLabel});
-const amountInstructions={quantity:'今回売買するコインの枚数を、枚数の欄に入力する。',limitPrice:'指値で売買したい1枚の価格を、価格欄に入力する。',lendingAmount:'貸すMock USDCの数量を、貸出額の欄に入力する。',collateral:'取引に配分する証拠金を、証拠金の欄に入力する。'};
+const amountInstructions={quantity:'今回売買するコインの枚数を、枚数の欄に入力する。',limitPrice:'指値で売買したい1枚の価格を、価格欄に入力する。',lendingAmount:'貸す分だけ、金額の欄に入力しよう。',collateral:'取引に配分する証拠金を、証拠金の欄に入力する。'};
 const input=(field,fieldLabel,value,extra={})=>({instruction:amountInstructions[field] || `教材カードを見て、「${fieldLabel}」の欄に入力する。`,label:'入力した内容で進む',type:'input',field,fieldLabel,value,inputMode:typeof value==='number'?'decimal':'text',...extra});
 const select=(instruction,field,fieldLabel,value,choices,extra={})=>({instruction,label:'この内容を選ぶ',type:'select',field,fieldLabel,value,choices:choices.map(([l,v])=>C(l,v)),...extra});
 const check=(instruction,label,extra={})=>({instruction,label,type:'check',...extra});
@@ -131,26 +131,26 @@ const rows={
  ],
  'LD-01':[
   tap('HLPやステーキングとは別の、架空の貸出窓口を開く。','こもれび貸出窓口を開く'),
-  tap('あなた役がMock USDCを貸すための、契約の条件を開く。','貸す資産と契約条件を見る'),
-  tap('貸す元本・教材年率・30日の期間から、利息を計算する明細を開く。','利息の教材明細を見る'),
-  check('借りた相手が資金を返せない危険があることと、今回は返還に成功する教材例であることを確認する。','返還の危険と教材例を確認'),
-  select('貸す資産は、この練習のMock USDCを選ぶ。','asset','貸す資産','USDC',[['Mock USDC・今回の教材資産','USDC'],['Mock HYPE・今回の対象外','HYPE']]),
+  tap('何日貸すと、いつ返してもらえるかな？　貸出の条件を開こう。','貸す資産と契約条件を見る'),
+  tap('貸したお金にいくら上乗せされるかな？　30日分の利息を見よう。','利息の教材明細を見る'),
+  check('相手が返せなくなることもあるよ。今回は約束どおり返る例だと確かめよう。','返還の危険と教材例を確認'),
+  select('この窓口で貸せる練習のお金「Mock USDC」を選ぼう。','asset','貸す資産','USDC',[['Mock USDC・今回の教材資産','USDC'],['Mock HYPE・今回の対象外','HYPE']]),
   focus('lendingAmount','貸すMock USDC'),input('lendingAmount','貸すMock USDC',100),
-  tap('貸す元本、契約の期間、受取予定の利息を確認画面で見る。','貸出内容を確認'),
-  check('貸したMock USDCは手元で使えず、満期前には返してもらえないと確認する。','貸出中の制約を確認'),
-  act('lending-apply','この教材の契約条件で、あなた役がMock USDCを貸す申込を確定する。','教材の貸出を確定'),
+  tap('貸す額・日数・利息を見よう。','貸出内容を確認'),
+  check('貸したMock USDCは30日たつまで返してもらえないよ。条件を確かめよう。','貸出中の制約を確認'),
+  act('lending-apply','条件を読めたら、貸し出しを決めよう。','教材の貸出を確定'),
   tap('貸したMock USDCと、手元で使える残高の明細を開く。','貸出中の元本を見る'),
   tap('返還条件を開き、まだ満期前の表示を見る。','満期前の返還条件を見る',{phoneScreen:'lending-early'}),
-  check('この契約は満期前に返還を申請できず、貸した元本を手元で使える残高に足さないことを確認する。','満期前の状態を照合'),
-  wait('lending-advance','ゲーム内の時間を満期まで進める。実際に待つ必要はありません。','教材の30日満期へ'),
+  check('約束の日まで、貸した分は戻らないよ。いま使える額を確かめよう。','満期前の状態を照合'),
+  wait('lending-advance','ボタンを押して、ゲームの時計を30日進めよう。','教材の30日満期へ'),
   tap('満期の明細で、元本と利息を別々に開く。','満期の元本と利息を見る'),
-  check('契約の満期になっても、まだ元本と利息を受け取っていないことを確認する。','満期と受取を分ける'),
+  check('30日たったよ。いま使える額と、これから受け取る額を見比べよう。','満期と受取を分ける'),
   act('lending-request','貸した元本と利息の返還を申請する。','元本と利息の返還を申請'),
   tap('返還処理中の明細を開く。','返還処理中の明細'),
   wait('lending-settle','教材の返還処理を進める。','教材の返還処理を進める'),
   tap('返還のお知らせを開く。','元本と利息の到着通知'),
   act('lending-receive','返還明細を確認し、元本と利息を受け取る。','明細を確認して受け取る'),
-  check('貸出中の元本がゼロになり、返還された元本と利息が手元で使える残高に加わったことを照合する。','返還後の残高を照合')
+  check('貸している分は0になったかな？　受け取った額と、いま手元で使える合計を見比べよう。','返還後の残高を照合')
  ],
  'LV-01':[
   tap('固定の先物講座とは別の、方向と倍率を選べる練習を開く。','選べる先物の練習を開く'),
@@ -183,7 +183,7 @@ const definitions=[
  ['DX-03','CH-5','販売所と板 — 二つの窓口','domestic-dealer',['DX-02'],'domesticTrading','お店の値段と板を比べ、販売所で買って売る。'],
  ['DX-04','CH-5','成行 — いまの板で買う・売る','domestic-market',['DX-03'],'domesticTrading','買いと売りの約定履歴まで確かめる。'],
  ['DX-05','CH-5','指値 — 待つ注文と予約の箱','domestic-limit',['DX-04'],'domesticTrading','未約定・取消・再注文・約定をそれぞれ確かめる。'],
- ['LD-01','CH-6','貸出 — こもれびの返還帳','lending-lab',[],'lending','元本と利息、満期と受取を分けて確かめる。'],
+ ['LD-01','CH-6','貸出（レンディング）— こもれびの返還帳','lending-lab',[],'lending','元本と利息、満期と受取を分けて確かめる。'],
  ['LV-01','CH-6','先物 — 向きと倍率の稽古場','leverage-choice',[],'leverageChoice','方向と倍率を自分で選び、損益を見て全決済する。']
 ];
 export const extensionQuestIds=definitions.map(x=>x[0]);

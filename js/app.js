@@ -8,6 +8,7 @@ import {getExtensionView} from './finance-extension.js';
 import {renderExtensionPanel} from './phone-extension.js';
 import {getExitTrialSlip} from './exit-trial.js';
 import {getPerpReviewExample} from './perp-review.js';
+import {getLendingSlip} from './lending-slip.js';
 import {getDojoSlip} from './dojo-slip.js';
 import {getPerpSlip} from './perp-slip.js';
 import {getStakeSlip} from './stake-slip.js';
@@ -61,7 +62,7 @@ function toast(text,view=''){const t=document.querySelector('#toast');t.dataset.
 let audio;function tone(kind='step'){if(!state.settings.sound)return;try{audio??=new AudioContext();const o=audio.createOscillator(),g=audio.createGain();o.type='triangle';o.frequency.value=kind==='reward'?659:440;o.connect(g);g.connect(audio.destination);g.gain.setValueAtTime(state.settings.volume*.2,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.18);o.start();o.stop(audio.currentTime+.18);}catch{}}
 function saveQuiet(){try{store.save(state);}catch(e){toast(e.message);}}
 function showError(message){ui.error=message;const target=document.querySelector('#action-error');if(target){target.textContent=message;target.hidden=false;}else toast(message);}
-function act(command,options={}){try{if(!store.writable)throw new Error('別のタブが編集中です。このタブを再読み込みしてください。');if(store.rawCorrupt)throw new Error('元のセーブは残っています。「設定・保存」でJSONを書き出してから、読み込みをやり直してください。');const old=state,oldXp=totalXp(old);const next=dispatch(state,command);if(options.worldPosition)Object.assign(next.worldState,options.worldPosition);const gainedItems=next.inventory.filter(id=>!state.inventory.includes(id));if(gainedItems.length)next.phoneState.pendingRewards=[...new Set([...(state.phoneState.pendingRewards??[]),...gainedItems])];const stored=store.save(next);state=next;ui.error='';ui.hint=0;if(options.view)ui.view=options.view;if(command.type==='CHAPTER'){ui.room=null;ui.expeditionPosition=null;}if(command.type==='STEP'){ui.divert=null;ui.inputs={};const s=activeStep(state);if(s)state.phoneState.activeApp=s.appId;const gained=totalXp(state)-oldXp;if(gained>2 && !((['HY-HLP-S027','HY-STAKE-S040','HY-PERP-S048','LV-01-S022'].includes(command.id) || (command.id==='HY-EXIT-S026' && ['stake','perp'].includes(state.selectedRoute))) && matchMedia('(max-width:760px)').matches))toast(`依頼達成！ +${gained} XP`);tone(gained>2?'reward':'step');}if(!stored&&!ui.storageWarned){ui.storageWarned=true;toast('この環境では保存できません。保存データからJSONを書き出せます。');}if(options.render!==false)render();const fresh=state.inventory.filter(id=>!old.inventory.includes(id));if(fresh.length)setTimeout(()=>rewardDialog(fresh[0]),200);return true;}catch(e){showError(e.message);return false;}}
+function act(command,options={}){try{if(!store.writable)throw new Error('別のタブが編集中です。このタブを再読み込みしてください。');if(store.rawCorrupt)throw new Error('元のセーブは残っています。「設定・保存」でJSONを書き出してから、読み込みをやり直してください。');const old=state,oldXp=totalXp(old);const next=dispatch(state,command);if(options.worldPosition)Object.assign(next.worldState,options.worldPosition);const gainedItems=next.inventory.filter(id=>!state.inventory.includes(id));if(gainedItems.length)next.phoneState.pendingRewards=[...new Set([...(state.phoneState.pendingRewards??[]),...gainedItems])];const stored=store.save(next);state=next;ui.error='';ui.hint=0;if(options.view)ui.view=options.view;if(command.type==='CHAPTER'){ui.room=null;ui.expeditionPosition=null;}if(command.type==='STEP'){ui.divert=null;ui.inputs={};const s=activeStep(state);if(s)state.phoneState.activeApp=s.appId;const gained=totalXp(state)-oldXp;if(gained>2 && !((['HY-HLP-S027','HY-STAKE-S040','HY-PERP-S048','LV-01-S022','LD-01-S022'].includes(command.id) || (command.id==='HY-EXIT-S026' && ['stake','perp'].includes(state.selectedRoute))) && matchMedia('(max-width:760px)').matches))toast(`依頼達成！ +${gained} XP`);tone(gained>2?'reward':'step');}if(!stored&&!ui.storageWarned){ui.storageWarned=true;toast('この環境では保存できません。保存データからJSONを書き出せます。');}if(options.render!==false)render();const fresh=state.inventory.filter(id=>!old.inventory.includes(id));if(fresh.length)setTimeout(()=>rewardDialog(fresh[0]),200);return true;}catch(e){showError(e.message);return false;}}
 function ensureStarted(){return state.started||act({type:'START',avatar:ui.avatar},{render:false});}
 function enterChapter(c){if(!ensureStarted())return;if(act({type:'CHAPTER',id:c.id},{view:'world'}))window.scrollTo(0,0);}
 function nav(view){if(ui.battleAnimating)return;if(view==='world'&&ui.room?.id==='church'){leaveRoom();return;}if(view==='world'&&revivalPending()){wakeAtChurch();return;}if(state.rpg?.battle?.status==='active'&&view!=='settings'){ui.view='combat';render();toast('戦いを終えるか、「にげる」で道へ戻ろう。');return;}if(view==='phone'&&entryEncounter()){ui.view='world';render();window.scrollTo(0,0);return;}if(view==='field'){travelArea('world');return;}if(view==='world'&&state.rpg?.location?.mapId!==`town:${state.currentChapter}`){if(!act({type:'RPG_TRAVEL',mapId:`town:${state.currentChapter}`},{render:false}))return;ui.expeditionPosition=null;}if(['world','quests'].includes(view)&&!ensureStarted())return;ui.room=null;ui.extensionPreviewVenue=null;ui.reviewApp=null;ui.view=view;ui.divert=null;ui.error='';render();window.scrollTo({top:0,behavior:'instant'});if(view==='phone'||(view==='review'&&ui.reviewId==='HY-HLP'))orientPhone();}
@@ -105,8 +106,8 @@ function npcInfo(index,ch=currentChapter()){
 function talk(index){if(!ensureStarted())return;if(index===1){if(act({type:'NPC',chapterId:currentChapter().id,index},{render:false}))showCurrentHelp('tavern');return;}const c=currentChapter(),info=npcInfo(index,c);
  const guide=index===0 && c.id==='CH-6'?storyGuide():null;
  if(!act({type:'NPC',chapterId:c.id,index,reportFor:null},{render:false}))return;
- if(guide?.questId==='LV-01' && guide.recordKey && guide.action?.type==='house'){
-  showDialog(info.name+'と話す',[renderSpeakerIdentity({document,name:info.name,role:info.role,portrait:portrait(info.name)}),p('ソラが学者の家で待っているよ。稽古の明細を持っていってあげて。')],[btn('学者の家へ',()=>{modal.close();guideAction(guide);},'primary'),btn('町へ戻る',()=>{modal.close();render();})]);
+ if(['LV-01','LD-01'].includes(guide?.questId) && guide.recordKey && guide.action?.type==='house'){
+  showDialog(info.name+'と話す',[renderSpeakerIdentity({document,name:info.name,role:info.role,portrait:portrait(info.name)}),p(guide.questId==='LD-01'?'ソラが学者の家で待っているよ。貸したお金の受取明細を届けてあげて。':'ソラが学者の家で待っているよ。稽古の明細を持っていってあげて。')],[btn('学者の家へ',()=>{modal.close();guideAction(guide);},'primary'),btn('町へ戻る',()=>{modal.close();render();})]);
   return;
  }
  const q=nextQuest(c),done=state.worldState.seals.includes(c.id);const dialogue=index===0?(done?'ありがとう。前よりずっと、安心して進めるようになったよ。':c.dialogue??'ひとりだと迷ってしまうんだ。練習スマホで、一緒に確かめてくれない？'):index===1?'迷ったら、練習カードと今の画面を見比べよう。途中で休んでも、入力は残っているよ。':index===2?'覚えたつもりでも、条件が変わると迷うことがあるね。章の試練で、もう一度確かめよう。':done?'お店が開き、道に章の旗が立ったよ。みんな、次の旅を応援している。':'小さな用事が片付くと、町の景色も少しずつ変わるんだ。';
@@ -133,7 +134,7 @@ function talkRoomClient(){
  if(!act({type:'NPC',chapterId:q.chapterId,index:0,reportFor:done?q.id:null},{render:false}))return;
  const reportedKey=room.recordKey??(q.id==='HY-EXIT'?stateKey(q,state.selectedRoute,state):q.id);
  const reaction=done?getAdventure({...state,activeQuestKey:reportedKey},q,null)?.latestReaction?.text:null;
- const words=done&&q.id==='LV-01'?'おかえり！　'+(getDojoSlip(state)?.status??'決済の明細を一緒に見よう。'):done&&q.id==='HY-EXIT'?'おかえり！　財布に届いた分まで確かめてくれたんだね。持ってきてくれた受取明細を、一緒に見よう。':done&&q.id==='HY-HLP'?'おかえり！　HLPから手元に戻った額を確かめよう。次はルカと、このラボのお金を自分の財布へ運ぼう。':done&&q.id==='HY-PERP'?'おかえり！　取引に使った分からいくら戻ってきたかな？　使わずに残したお金と合わせて、次にルカへ渡す明細を見よう。':done&&q.id==='HY-STAKE'?'おかえり！　委任をやめてから、いつ売れるようになったかな？　売ったときの明細を一緒に見よう。帰りの船はルカが案内するよ。':done&&q.id==='HY-SPOT'?'おかえり！　売ったHYPEは何枚で、いくら戻ってきたかな？　売買の記録を一緒に見よう。':reaction??brief.summary;
+ const words=done&&q.id==='LD-01'?'おかえり！　'+(getLendingSlip(state)?.status??'受取明細を一緒に見よう。'):done&&q.id==='LV-01'?'おかえり！　'+(getDojoSlip(state)?.status??'決済の明細を一緒に見よう。'):done&&q.id==='HY-EXIT'?'おかえり！　財布に届いた分まで確かめてくれたんだね。持ってきてくれた受取明細を、一緒に見よう。':done&&q.id==='HY-HLP'?'おかえり！　HLPから手元に戻った額を確かめよう。次はルカと、このラボのお金を自分の財布へ運ぼう。':done&&q.id==='HY-PERP'?'おかえり！　取引に使った分からいくら戻ってきたかな？　使わずに残したお金と合わせて、次にルカへ渡す明細を見よう。':done&&q.id==='HY-STAKE'?'おかえり！　委任をやめてから、いつ売れるようになったかな？　売ったときの明細を一緒に見よう。帰りの船はルカが案内するよ。':done&&q.id==='HY-SPOT'?'おかえり！　売ったHYPEは何枚で、いくら戻ってきたかな？　売買の記録を一緒に見よう。':reaction??brief.summary;
  const actions=[];
  if(done && q.id==='HY-HLP' && !state.reviewStates[q.id]?.completed)actions.push(btn(hlpPracticeLabel(),()=>{modal.close();startReview(q);},'gold'));
  if(!done){
@@ -149,9 +150,11 @@ function talkRoomClient(){
    actions.push(btn(next.actionLabel,()=>{modal.close();guideAction(next);},'primary'));
   }
  }
- const dojo=questById['LV-01'];
- if(q.chapterId==='CH-6' && q.id!==dojo.id && !questState(state,dojo.id) && questAvailable(state,dojo)){
-  actions.push(btn('ソラに「向きと倍率の稽古場」の話を聞く',()=>{enterRoom('client',dojo.id);acceptDialog(dojo);}));
+ if(q.chapterId==='CH-6'){
+  for(const [id,label] of [['LD-01','ソラに「レンディング」の話を聞く'],['LV-01','ソラに「向きと倍率の稽古場」の話を聞く']]){
+   const course=questById[id];
+   if(q.id!==id && !questState(state,id) && questAvailable(state,course))actions.push(btn(label,()=>{enterRoom('client',id);acceptDialog(course);}));
+  }
  }
  actions.push(btn('部屋に戻る',()=>{modal.close();render();}));
  showDialog(brief.client+'と話す',[renderSpeakerIdentity({document,name:brief.client,role:'依頼人 · この用事を頼んだ人',portrait:portrait(brief.client)}),p(words),done?questSlip(q.id,null,reportedKey):null,!done?p('今回の作戦：'+brief.goal):p('確かめてくれて、ありがとう。できたことは手帳に残っているよ。')],actions);
@@ -252,7 +255,7 @@ function returnToTown(step){if(step?.id==='PR-01-012'){ui.room=null;if(act({type
 function runStep(step,value){
  ui.extensionPreviewVenue=null;const q=questById[step.questId],before=getAdventure(state,q,step);
  if(act({type:'STEP',id:step.id,value:value??step.value})){ui.divert=null;const after=getAdventure(state,q,activeStep(state));
-  const inlineTradeReaction=['HY-SPOT','HY-HLP','HY-STAKE','HY-PERP','HY-EXIT','LV-01'].includes(q.id) && matchMedia('(max-width:760px)').matches;
+  const inlineTradeReaction=['HY-SPOT','HY-HLP','HY-STAKE','HY-PERP','HY-EXIT','LV-01','LD-01'].includes(q.id) && matchMedia('(max-width:760px)').matches;
   if(['TC-02','CR-03','HY-EXIT'].includes(q.id) && after.latestReaction.currentStatus && after.latestReaction.text!==before.latestReaction.text){
    clearTimeout(ui.toastTimer);const oldToast=document.querySelector('#toast');oldToast.classList.remove('show');oldToast.textContent='';
   }
@@ -268,6 +271,7 @@ function valueDisplay(v){if(v===undefined||v===null)return '';if(typeof v==='num
 function detailsBlock(details){if(!details)return document.createDocumentFragment();const items=typeof details==='string'?[details]:Array.isArray(details)?details:Object.entries(details).map(([k,v])=>`${k}：${valueDisplay(v)}`);return h('div',{class:'details'},items.map(x=>p(valueDisplay(x))));}
 function practiceData(step){if(step.hidePracticeValue)return null;const parts=[];if(step.type==='input'&&step.value!==undefined&&!['any','*','all'].includes(step.value))parts.push('使う値：'+displayPracticeValue(step));if(!parts.length)return null;return h('div',{class:'practice-card'},h('strong',{},'依頼人の練習カード'),...parts.map(x=>p(x)));}
 function questSlip(questId,stepId=null,recordKey=state.activeQuestKey){
+ if(questId==='LD-01')return transferSlip(getLendingSlip(state,stepId));
  if(questId==='LV-01')return transferSlip(getDojoSlip(state,stepId));
  if(questId==='HY-PERP')return transferSlip(getPerpSlip(state,stepId));
  if(questId==='HY-STAKE')return transferSlip(getStakeSlip(state,stepId));
@@ -309,15 +313,16 @@ function renderAction(step,callback,namespace='step',receipt=null){
  const marketLesson=namespace==='step' && (step.questId==='TC-01'||step.questId==='TC-02');
  const cryptoTrial=namespace==='boss' && /^CH[56]-/.test(step.id);
  const hlpReview=namespace==='review' && step.id.startsWith('RV-HLP-');
+ const lendingLesson=namespace==='step' && step.questId==='LD-01';
  const dojoLesson=namespace==='step' && step.questId==='LV-01';
  const liveChoice=dojoLesson && ['side','leverage','markPrice'].includes(step.field) || namespace==='step' && step.questId==='HY-PERP' && ['side','leverage'].includes(step.field);
- const transferLesson=dojoLesson || hlpReview || (namespace==='step' && /^(?:FI-|CR-0[1-4]$|HY-(?:EXIT|SPOT|HLP|STAKE|PERP)$)/.test(step.questId??''));
+ const transferLesson=lendingLesson || dojoLesson || hlpReview || (namespace==='step' && /^(?:FI-|CR-0[1-4]$|HY-(?:EXIT|SPOT|HLP|STAKE|PERP)$)/.test(step.questId??''));
  if(cryptoTrial && receipt){
   if(details?.textContent)group.append(details);
   group.append(receipt);
  }else if(transferLesson && receipt){
   if(['CR-02','CR-04'].includes(step.questId))group.append(details);
-  else if(!hlpReview && !['HY-EXIT','HY-SPOT','HY-HLP','HY-STAKE','HY-PERP','LV-01'].includes(step.questId)&&details?.textContent)group.append(h('details',{class:'transfer-material'},h('summary',{},'この工程の練習資料'),details));
+  else if(!hlpReview && !['HY-EXIT','HY-SPOT','HY-HLP','HY-STAKE','HY-PERP','LV-01','LD-01'].includes(step.questId)&&details?.textContent)group.append(h('details',{class:'transfer-material'},h('summary',{},'この工程の練習資料'),details));
   group.append(receipt);
  }else if(marketLesson){if(receipt)group.append(receipt);}
  else if(namespace==='step'&&(step.questId==='FX-01'||confirmation)){if(step.result)group.append(p('操作後の変化：'+step.result,'muted'));group.append(h('details',{class:'fx-offer-material'},h('summary',{},confirmation?'この練習の開始時の資料':'後で使うUSD/JPY案件の資料'),detailsBlock(Array.isArray(step.details)?step.details.filter(text=>text!==step.result):step.details)));}else if(details)group.append(details);
@@ -330,7 +335,7 @@ function renderAction(step,callback,namespace='step',receipt=null){
  if(namespace==='step'&&!paste&&!transferLesson){const data=practiceData(step);if(data)group.append(data);}
  const key=`${namespace}:${step.id}`,label=step.fieldLabel??phoneFieldLabels[step.field]??humanFieldLabel(step.field)??'練習値';
  const caption=h('label',{class:'field-label',for:'field-'+step.id},label);
- const compactField=dojoLesson || (step.questId==='HY-STAKE' && step.field==='quantity') || step.questId==='HY-PERP';
+ const compactField=lendingLesson || dojoLesson || (step.questId==='HY-STAKE' && step.field==='quantity') || step.questId==='HY-PERP';
  const formHead=compactField?h('div',{class:'amount-field-head'},caption):caption;
  const form=h('form',{},formHead);
  const numeric=typeof step.value==='number'||/金額|数量|lot|証拠金|価格|残高|通貨量|桁|番号/.test(label)&&/^\d+(\.\d+)?$/.test(String(step.value));
@@ -345,12 +350,12 @@ function renderAction(step,callback,namespace='step',receipt=null){
  if(lotSubmit&&fieldError)form.append(fieldError);
  const expected=step.value;
  if(namespace==='step'&&!paste&&!step.hidePracticeValue&&expected!==undefined&&expected!=='any'&&expected!=='*')(compactField?formHead:form).append(btn(compactField?'「'+displayPracticeValue(step)+'」を写す':step.inputType==='password'?'練習用パスワードを入れる':`カードの値を入力：${displayPracticeValue(step)}`,()=>{ui.inputs[key]=String(expected);input.value=String(expected);state.phoneState.formDrafts[key]=String(expected);input.dispatchEvent(new Event('input'));operationGuide?.scrollToTarget();},'candidate'));
- form.append(h('button',{type:'submit',class:'primary wide','data-guide-target':paste?'true':undefined,'data-guide-submit':'true',style:'margin-top:16px'},/貼り付け/.test(step.label??'')?(step.field==='introPhrase'||step.field==='phrase'?'合言葉を貼り付け':'確認コードを貼り付け'):(dojoLesson||cryptoTrial||hlpReview||['HY-STAKE','HY-PERP'].includes(step.questId))?'入力した数で決定':lotSubmit??step.label??'入力する'));
+ form.append(h('button',{type:'submit',class:'primary wide','data-guide-target':paste?'true':undefined,'data-guide-submit':'true',style:'margin-top:16px'},/貼り付け/.test(step.label??'')?(step.field==='introPhrase'||step.field==='phrase'?'合言葉を貼り付け':'確認コードを貼り付け'):(lendingLesson||dojoLesson||cryptoTrial||hlpReview||['HY-STAKE','HY-PERP'].includes(step.questId))?'入力した数で決定':lotSubmit??step.label??'入力する'));
  form.addEventListener('submit',e=>{
   e.preventDefault();
   const value=submissionValue({step,typedValue:input.value,namespace,mainClipboard:state.phoneState.clipboard,reviewClipboard:state.reviewStates[ui.reviewId]?.snapshot?.clipboard});
   const spotHint=step.questId==='HY-SPOT'?{quantity:'買う枚数',limitPrice:'1枚につける値段',limitQuantity:'注文する枚数'}[step.field]:null;
-  const help=dojoLesson?'取引に使う分だけ入れよう。今回は「100」だよ。':spotHint?spotHint+'の欄だよ。「'+step.value+'」を入れよう。':lotSubmit?'練習カードの数量は「'+step.value+'」だよ。この数字を上の欄に入れよう。'
+  const help=lendingLesson?'貸す分だけ入力しよう。この依頼で貸すのは「'+displayPracticeValue(step)+'」だよ。':dojoLesson?'取引に使う分だけ入れよう。今回は「100」だよ。':spotHint?spotHint+'の欄だよ。「'+step.value+'」を入れよう。':lotSubmit?'練習カードの数量は「'+step.value+'」だよ。この数字を上の欄に入れよう。'
     :'この欄には「'+displayPracticeValue(step)+'」を入れよう。';
   if(!checkPracticeField(step,value,input,fieldError,help))return;
   callback(value);
@@ -368,12 +373,12 @@ function renderAction(step,callback,namespace='step',receipt=null){
    if(panel){const renderPanel=dojoLesson?renderExtensionPanel:renderPhonePanel;const next=renderPanel({document,state,step,quest:questById[step.questId]});if(next?.element)panel.replaceWith(next.element);}
    requestAnimationFrame(()=>{if(group.isConnected)scrollToTransferCard(group.querySelector('.transfer-slip'),group.querySelector('[data-guide-submit]'));});
   }
-  if((dojoLesson || cryptoTrial || ['HY-STAKE','HY-PERP'].includes(step.questId)) && select.value && matchMedia('(max-width:760px)').matches){
+  if((lendingLesson || dojoLesson || cryptoTrial || ['HY-STAKE','HY-PERP'].includes(step.questId)) && select.value && matchMedia('(max-width:760px)').matches){
    const submit=group.querySelector('[data-guide-submit]');
    if(submit?.getBoundingClientRect().bottom>innerHeight-8)submit.scrollIntoView({block:'nearest',behavior:'instant'});
   }}});select.append(h('option',{value:''},'選んでください'));choices.forEach(x=>{const v=typeof x==='object'?x.value:x,label=typeof x==='object'?x.label:x;select.append(h('option',{value:v},label));});select.value=ui.inputs[step.id]??state.phoneState.formDrafts[`selection:${step.id}`]??'';group.append(select,btn(cryptoTrial?'選んだ内容で決定':transferLesson?'選んだ内容で進む':step.label??'この内容を選ぶ',()=>{if(choiceError){
   const correct=choices.find(option=>String(option.value??option)===String(step.value));
-  const help=!select.value?'欄を押して、候補を一つ選ぼう。':step.id==='HY-PERP-S007'?'ショートは値下がりで得をする向き。ソラの依頼では「買い・ロング」を選ぼう。':step.id==='HY-PERP-S009'?'この倍率でも見本を比べられるよ。ソラの注文には「2倍」を選ぼう。':transferLesson && correct?'この欄を開き直そう。'+(/network|address|asset|recipient/i.test(step.field)&&step.questId!=='CR-01'?'受取カードと同じ「':'今回の練習では「')+(correct.label??correct)+'」を選ぼう。':'この練習では「'+(correct?.label??correct)+'」を選ぼう。';
+  const help=!select.value?'欄を押して、候補を一つ選ぼう。':lendingLesson?'この窓口で貸せるのは「Mock USDC」だよ。欄を開いて選び直そう。':step.id==='HY-PERP-S007'?'ショートは値下がりで得をする向き。ソラの依頼では「買い・ロング」を選ぼう。':step.id==='HY-PERP-S009'?'この倍率でも見本を比べられるよ。ソラの注文には「2倍」を選ぼう。':transferLesson && correct?'この欄を開き直そう。'+(/network|address|asset|recipient/i.test(step.field)&&step.questId!=='CR-01'?'受取カードと同じ「':'今回の練習では「')+(correct.label??correct)+'」を選ぼう。':'この練習では「'+(correct?.label??correct)+'」を選ぼう。';
   if(!checkPracticeField(step,select.value,select,choiceError,help))return;
  }else if(!select.value){showError('候補を一つ選ぼう。');return;}
  callback(select.value);},'primary wide',{'data-guide-submit':'true',style:'margin-top:15px'}));
@@ -398,7 +403,7 @@ function renderPhone(main){if(entryEncounter()){ui.view='world';renderWorldView(
  if(q.id==='FX-03'&&appId==='points')phone.append(h('div',{class:'addressbar'},'▣ コツコツモール / FX練習案件'));else if((appId==='browser'||appId==='points')&&!q.id.startsWith('FI-')&&!q.extension)phone.append(h('div',{class:'addressbar'},'▣ practice.example.invalid'),h('div',{class:'phone-tabs'},btn('コツコツモール',()=>{ui.tab='points';ui.divert='browser-tab';render();}),btn('まいにちストア',()=>{ui.tab='shop';ui.divert='browser-tab';render();})));
  const body=h('div',{class:'phone-body',id:'phone-body'});
 
- if(qs.completed && (['LV-01','HY-STAKE','HY-PERP'].includes(q.id) || (q.id==='HY-EXIT' && ['stake','perp'].includes(qs.routeId))))body.append(labCompletion(q,qs));
+ if(qs.completed && (['LD-01','LV-01','HY-STAKE','HY-PERP'].includes(q.id) || (q.id==='HY-EXIT' && ['stake','perp'].includes(qs.routeId))))body.append(labCompletion(q,qs));
  else if(qs.completed && q.id==='HY-HLP')body.append(hlpMainCompletion(q,qs));
  else if(qs.completed)body.append(h('div',{class:'complete-panel'},h('span',{class:'tag'},'依頼達成！'),h('h2',{},brief.client+'の困りごとが解決した'),p(a.latestReaction.text),questSlip(q.id),p('町の景色が変わりました。依頼人に知らせよう。'),btn('近道で町の人へ報告する',()=>{enterRoom('client',q.id,state.activeQuestKey);talkRoomClient();},'primary wide'),q.id==='DX-02'&&!questState(state,'FI-01')?.completed?btn('円の入金から、ハイリキへの旅を続ける',()=>offerQuest(questById['FI-01']),'gold wide'):null,walkBackButton(),btn('次の依頼を探す',()=>nav('quests'),'wide')));
  else if(ui.divert)renderDiverted(body,appId,step);
@@ -453,6 +458,7 @@ function labCompletion(q,record){
  const account=state.financialScenarios[exit?record.routeId:q.scenarioId];
  let report='売った代金がハイリキに入ったよ。売却の明細を持って、学者の家へ帰ろう。';
  if(exit)report=record.routeId==='perp'?`自分の財布に${account.accounts.walletUSDC} Mock USDCが届いたよ。受取明細を持って、学者の家のルカへ。`:'自分の財布に届いたよ。受取明細を持って、学者の家で待つルカのところへ帰ろう。';
+ else if(q.id==='LD-01')report=(getLendingSlip(state)?.status??'貸した分と利息を受け取ったよ。')+' 学者の家のソラに受取明細を届けよう。';
  else if(q.id==='LV-01')report=`稽古場で使える残高は${account.accounts.availableUSDC} Mock USDC。決済の明細を持って、学者の家のソラへ帰ろう。`;
  else if(q.id==='HY-PERP')report=`決済したときの手元は${account.data.perp.available} Mock USDC。明細を持って、学者の家のソラへ。`;
  const next=h('section',{class:'lab-next'},

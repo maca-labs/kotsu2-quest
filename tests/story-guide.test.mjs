@@ -239,3 +239,13 @@ test('the outdoor guide and a different client leave the dojo report for Sora, i
  state=act(state,{type:'NPC',chapterId:'CH-6',index:0,reportFor:'LV-01'});
  assert.notEqual(getStoryGuide(state).recordKey,'LV-01');
 });
+
+test('a lending receipt stays with Sora when the traveller asks someone else for directions',()=>{
+ let state=play(started('CH-6'),'LD-01');
+ for(const reportFor of [null,'LV-01']){
+  state=parseSave(JSON.stringify(act(state,{type:'NPC',chapterId:'CH-6',index:0,reportFor})));
+  assert.equal(getStoryGuide(state).recordKey,'LD-01');
+ }
+ state=act(state,{type:'NPC',chapterId:'CH-6',index:0,reportFor:'LD-01'});
+ assert.notEqual(getStoryGuide(state).recordKey,'LD-01');
+});

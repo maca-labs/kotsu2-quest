@@ -79,7 +79,7 @@ function reportedToClient(state,quest){
  return journal.slice(finishedAt+1).some(({command})=>{
   if(command?.type!=='NPC' || command.index!==0 || (command.chapterId??state.currentChapter)!==quest.chapterId)return false;
   // Older saves recorded the speaker's town and index only.
-  return quest.id!=='LV-01' || command.reportFor===undefined || command.reportFor===quest.id;
+  return !['LD-01','LV-01'].includes(quest.id) || command.reportFor===undefined || command.reportFor===quest.id;
  });
 }
 

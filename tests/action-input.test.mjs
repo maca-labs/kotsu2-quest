@@ -63,3 +63,13 @@ test('the free-choice dojo accepts a Japanese decimal for its collateral and sti
  assert.doesNotThrow(()=>validateAction(step,amount('１００．０')));
  assert.throws(()=>validateAction(step,amount('１１')));
 });
+
+test('the lending amount accepts full-width digits after resuming and checks only the amount to lend',async()=>{
+ const {steps}=await import('../js/content-extension.js');
+ const {validateAction}=await import('../js/engine.js');
+ const step=steps.find(item=>item.id==='LD-01-S007');
+ const amount=typedValue=>submissionValue({step,typedValue});
+ assert.equal(amount('１００．０'),'100.0');
+ assert.doesNotThrow(()=>validateAction(step,amount('１００．０')));
+ assert.throws(()=>validateAction(step,amount('１０００')));
+});
